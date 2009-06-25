@@ -6,7 +6,7 @@ function Cart(){
 	/* member variables */
 	this.Version = '1.9.9.1';
 	this.Shelf = new Shelf();
-	this.items = new Array();
+	this.items = new Object();
 	this.isLoaded = false;
 	this.pageIsReady = false;
 	this.quantity = 0;
@@ -92,7 +92,7 @@ function Cart(){
 	
 	
 	this.remove = function( id ){
-		var tempArray = new Array();
+		var tempArray = new Object();
 		for( var item in this.items ){
 			if( item != id ){ 
 				tempArray[item] = this.items[item]; 
@@ -103,7 +103,7 @@ function Cart(){
 	
 	
 	this.empty = function () {
-		simpleCart.items = new Array();
+		simpleCart.items = new Object();
 		simpleCart.update();
 	}
 
@@ -236,7 +236,7 @@ function Cart(){
 	/* load cart from cookie */
 	this.load = function () {
 		/* initialize variables and items array */
-		this.items = new Array();
+		this.items = new Object();
 		this.total = 0.00;
 		this.quantity = 0;
 		
@@ -739,10 +739,10 @@ function CartItem() {
  ********************************************************************************************************/
 
 function Shelf(){
-	this.items = new Array();
+	this.items = new Object();
 	
 	this.readPage = function () {
-		this.items = new Array();
+		this.items = new Object();
 		var newItems = getElementsByClassName( "simpleCart_shelfItem" );
 		for( var current in newItems ){
 			var newItem = new ShelfItem();
@@ -776,7 +776,7 @@ function Shelf(){
 	}
 	
 	this.empty = function () {
-		this.items = new Array();
+		this.items = new Object();
 	}
 	
 	
