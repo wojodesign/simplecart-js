@@ -1,5 +1,11 @@
 var NextId=1,Custom="Custom",GoogleCheckout="GoogleCheckout",PayPal="PayPal",Email="Email",AustralianDollar=AUD="AUD",CanadianDollar=CAD="CAD",CzechKoruna=CZK="CZK",DanishKrone=DKK="DKK",Euro=EUR="EUR",HongKongDollar=HKD="HKD",HungarianForint=HUF="HUF",IsraeliNewSheqel=ILS="ILS",JapaneseYen=JPY="JPY",MexicanPeso=MXN="MXN",NorwegianKrone=NOK="NOK",NewZealandDollar=NZD="NZD",PolishZloty=PLN="PLN",PoundSterling=GBP="GBP",SingaporeDollar=SGD="SGD",SwedishKrona=SEK="SEK",SwissFranc=CHF="CHF",USDollar=USD="USD";
 
+function error( string ) {
+	/* uncomment this for debugging */
+	//	alert( "Error: " + string );
+}
+
+
 function Cart(){
 /* PUBLIC: */
 
@@ -982,7 +988,9 @@ String.prototype.reverse = function(){
 
 
 function error( string ) {
-	alert( "Error: " + string );
+	/* uncomment this for debugging */
+	
+	//	alert( "Error: " + string );
 }
 
 var simpleCart = new Cart();
