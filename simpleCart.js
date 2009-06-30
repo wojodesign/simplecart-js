@@ -4,7 +4,7 @@ function Cart(){
 /* PUBLIC: */
 
 	/* member variables */
-	this.Version = '1.9.9.1';
+	this.Version = '1.9.9.2';
 	this.Shelf = new Shelf();
 	this.items = new Object();
 	this.isLoaded = false;
@@ -382,7 +382,7 @@ function Cart(){
 						outputValue = "+";
 						break
 					case "decrement":
-					case "decrement":
+					case "Decrement":
 						outputValue = "-";
 						break;
 					case "remove":
@@ -404,8 +404,8 @@ function Cart(){
 					outputValue = this.valueToCurrencyString( outputValue );
 				
 				} 
-				if( info[1] == "image" ||
-						   info[0] == "Image"){
+				if( info[1].toLowerCase() == "image" ||
+						   info[0].toLowerCase() == "image"){
 					
 					outputValue = this.valueToImageString( outputValue );		
 					
