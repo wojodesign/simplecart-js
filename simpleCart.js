@@ -699,7 +699,7 @@ function CartItem() {
 			error('No price for item or price not properly formatted.');
 		} else {
 			this.price = ("" + this.price).replace(/,*/gi, "" );
-			this.price = parseInt( ("" + this.price).replace( /[^(\d|\.)]*/gi, "") ); 
+			this.price = parseFloat( ("" + this.price).replace( /[^(\d|\.)]*/gi, "") ); 
 			if( isNaN(this.price) ){
 				error('Price is not a number.');
 				this.price = 0.00;
