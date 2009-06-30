@@ -410,8 +410,8 @@ function Cart(){
 					outputValue = this.valueToCurrencyString( outputValue );
 				
 				} 
-				if( info[1].toLowerCase() == "image" ||
-						   info[0].toLowerCase() == "image"){
+				if( (info[1] && info[1].toLowerCase() == "image") ||
+						   (info[0] && info[0].toLowerCase() == "image") ){
 					
 					outputValue = this.valueToImageString( outputValue );		
 					
