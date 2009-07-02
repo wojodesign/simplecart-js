@@ -552,6 +552,10 @@ function Cart(){
 		return "<a href=\"" + link + "\" " + html + " >" + value + "</a>";
 	}
 	
+	this.valueToElement = function( type , value , html ){
+		return "<" + type + " " + html + " > " + value + "</" + type + ">";
+	}
+	
 	/******************************************************
 				Duplicate management
 	 ******************************************************/
@@ -984,7 +988,7 @@ String.prototype.reverse = function(){
  ********************************************************************************************************/
 
 function error( string ) {
-		console.log( "simpleCart(js) Error: " , string );
+		console.log( "simpleCart(js) warning: " , string );
 		//alert( "Error: " + string );
 }
 
