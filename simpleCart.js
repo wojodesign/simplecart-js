@@ -383,7 +383,7 @@ function Cart(){
 					case "increment":
 					case "Increment":
 						outputValue = "+";
-						break
+						break;
 					case "decrement":
 					case "Decrement":
 						outputValue = "-";
