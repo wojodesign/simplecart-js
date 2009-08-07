@@ -7,7 +7,7 @@ function Cart(){
 /* PUBLIC: */
 
 	/* member variables */
-	this.Version = '1.9.9.2';
+	this.Version = '1.9.9.5';
 	this.Shelf = new Shelf();
 	this.items = new Object();
 	this.isLoaded = false;
@@ -19,7 +19,7 @@ function Cart(){
 	this.shippingRate = 0;
 	this.shippingCost = 0;
 	this.currency = USD;
-	this.checkoutTo = Custom;
+	this.checkoutTo = PayPal;
 	this.email = "";
 	this.merchantId	 = "";
 	this.cartHeaders = ['Name','Price','Quantity','Total'];
@@ -290,10 +290,8 @@ function Cart(){
 		this.shippingRateOutlets	= getElementsByClassName('simpleCart_shippingRate');
 		this.finalTotalOutlets		= getElementsByClassName('simpleCart_finalTotal');
 		
-		
 		this.addEventToArray( getElementsByClassName('simpleCart_checkout') , simpleCart.checkout , "click");
 		this.addEventToArray( getElementsByClassName('simpleCart_empty') 	, simpleCart.empty , "click" );
-		
 		
 		this.Shelf.readPage();
 			
@@ -353,11 +351,15 @@ function Cart(){
 			var newCell = document.createElement('div'),
 				headerInfo = this.cartHeaders[header].split("_");
 			
-			if( !( headerInfo[1] == "noHeader") ){
-				newCell.innerHTML = headerInfo[0];
-				newCell.className = "item" + headerInfo[0];
-				newRow.appendChild( newCell );
+			newCell.innerHTML = headerInfo[0];
+			newCell.className = "item" + headerInfo[0];
+			for(var x=1,xlen=headerInfo.length;x<xlen;x++){
+				if( headerInfo[x].toLowerCase() == "noheader" ){
+					newCell.style.display = "none";
+				}
 			}
+			newRow.appendChild( newCell );
+			
 		}
 		newRow.className = "cartHeaders";
 		newRows[0] = newRow;
@@ -375,55 +377,54 @@ function Cart(){
 					info = this.cartHeaders[header].split("_"),
 					outputValue;
 				
-				switch( info[0] ){
-					case "Total":
+				switch( info[0].toLowerCase() ){
 					case "total":
-						outputValue = parseFloat(item['price'])*parseInt(item['quantity']);
+						outputValue = this.valueToCurrencyString(parseFloat(item['price'])*parseInt(item['quantity']) );
 						break;
 					case "increment":
-					case "Increment":
-						outputValue = "+";
+						outputValue = this.valueToLink( "+" , "javascript:;" , "onclick=\"simpleCart.items[\'" + item["id"] + "\'].increment();\"" );
 						break;
 					case "decrement":
-					case "Decrement":
-						outputValue = "-";
+						outputValue = this.valueToLink( "-" , "javascript:;" , "onclick=\"simpleCart.items[\'" + item["id"] + "\'].decrement();\"" );
 						break;
 					case "remove":
-					case "Remove":
-						outputValue = "Remove";
+						outputValue = this.valueToLink( "Remove" , "javascript:;" , "onclick=\"simpleCart.items[\'" + item["id"] + "\'].remove();\"" );
+						break;
+					case "price":
+						outputValue = this.valueToCurrencyString( item[ info[0].toLowerCase() ] ? item[info[0].toLowerCase()] : " " );
 						break;
 					default: 
 						outputValue = item[ info[0].toLowerCase() ] ? item[info[0].toLowerCase()] : " ";
 						break;
 				}	
 				
+				for( var y=1,ylen=info.length;y<ylen;y++){
+					var option = info[y].toLowerCase();
+					switch( option ){
+						case "image":
+						case "img":
+							outputValue = this.valueToImageString( outputValue );		
+							break;
+						case "input":
+							outputValue = this.valueToTextInput( outputValue , "onchange=\"simpleCart.items[\'" + item["id"] + "\'].set(\'" + outputValue + "\' , this.value);\""  );
+							break;
+						case "div":
+						case "span":
+						case "h1":
+						case "h2":
+						case "h3":
+						case "h4":
+						case "p":
+							outputValue = this.valueToElement( option , outputValue , "" );
+							break;
+						case "noheader":
+							break;
+						default:
+							error( "unkown header option: " + option );
+							break;
+					}
 				
-				/* formatting outputs */
-				
-				if( info[0] == "Total" || 
-					info[0] == "Price" ||
-					info[1] == "currency"){
-						
-					outputValue = this.valueToCurrencyString( outputValue );
-				
-				} 
-				if( (info[1] && info[1].toLowerCase() == "image") ||
-						   (info[0] && info[0].toLowerCase() == "image") ){
-					
-					outputValue = this.valueToImageString( outputValue );		
-					
-				} else if( info[1] == "input" ){
-					
-					outputValue = this.valueToTextInput( outputValue , "onchange=\"simpleCart.items[\'" + item["id"] + "\'].set(\'" + info[0].toLowerCase() + "\' , this.value);\""  );
-				
-				}else if( outputValue == "+" ){
-					outputValue = this.valueToLink( outputValue , "javascript:;" , "onclick=\"simpleCart.items[\'" + item["id"] + "\'].increment();\"" );
-				}else if( outputValue == "-" ){
-					outputValue = this.valueToLink( outputValue , "javascript:;" , "onclick=\"simpleCart.items[\'" + item["id"] + "\'].decrement();\"" );
-				}else if( outputValue == "Remove"){
-					outputValue = this.valueToLink( outputValue , "javascript:;" , "onclick=\"simpleCart.items[\'" + item["id"] + "\'].remove();\"" );
-				}
-						  
+				}		  
 				newCell.innerHTML = outputValue;
 				newCell.className = "item" + info[0];
 				newRow.appendChild( newCell );
@@ -517,19 +518,7 @@ function Cart(){
 	
 	
 	this.valueToCurrencyString = function( value ) {
-		var currencyString = "" + parseFloat(value).toFixed(2);
-		if( currencyString.length > 6 ){
-			var newCurrencyString = "";
-			for( var x=currencyString.length-1, placeValueCounter=1; x>=0;x--,placeValueCounter++){
-				newCurrencyString = newCurrencyString + currencyString.substr(x,1);
-				if( placeValueCounter == 3 ){
-					if( x<currencyString.length-4 && x > 0 ) { newCurrencyString = newCurrencyString + ","; }
-					placeValueCounter = 0;
-				}
-			}
-			currencyString = newCurrencyString.reverse();
-		}
-		return this.currencySymbol() + currencyString;
+		return parseFloat( value ).toCurrency( this.currencySymbol() );
 	}
 	
 	this.valueToPercentageString = function( value ){
@@ -632,8 +621,8 @@ function Cart(){
 
 function CartItem() {
 	this.id = "c" + NextId++;
-	
-	this.set = function ( field , value ){
+}
+	CartItem.prototype.set = function ( field , value ){
 		field = field.toLowerCase();
 		if( typeof( this[field] ) != "function" && field != "id" ){
 			if( field == "quantity" ){
@@ -655,23 +644,23 @@ function CartItem() {
 			error( "Cannot change " + field + ", this is a reserved field.");
 		}
 		simpleCart.update();
-	}
+	};
 	
-	this.increment = function(){
+	CartItem.prototype.increment = function(){
 		this.quantity = parseInt(this.quantity) + 1;
 		simpleCart.update();
-	}
+	};
 	
-	this.decrement = function(){
+	CartItem.prototype.decrement = function(){
 		if( parseInt(this.quanity) < 2 ){
 			this.remove();
 		} else {
 			this.quantity = parseInt(this.quantity) - 1;
 			simpleCart.update();
 		}
-	}
+	};
 	
-	this.print = function () {
+	CartItem.prototype.print = function () {
 		var returnString = '';
 		for( var field in this ) {
 			if( typeof( this[field] ) != "function" ) {
@@ -679,10 +668,10 @@ function CartItem() {
 			}
 		}
 		return returnString.substring(0,returnString.length-2);
-	}
+	};
 	
 	
-	this.checkQuantityAndPrice = function() {
+	CartItem.prototype.checkQuantityAndPrice = function() {
 		if( this.quantity == null || this.quantity == 'undefined'){ 
 			this.quantity = 1;
 			error('No quantity for item.');
@@ -706,10 +695,10 @@ function CartItem() {
 				this.price = 0.00;
 			}
 		}
-	}
+	};
 	
 	
-	this.parseValuesFromArray = function( array ) {
+	CartItem.prototype.parseValuesFromArray = function( array ) {
 		if( array && array.length && array.length > 0) {
 			for(var x=0, xlen=array.length; x<xlen;x++ ){
 			
@@ -732,14 +721,14 @@ function CartItem() {
 		} else {
 			return false;
 		}
-	}
+	};
 	
-	this.remove = function() {
+	CartItem.prototype.remove = function() {
 		simpleCart.remove(this.id);
 		simpleCart.update();
-	}
+	};
 	
-}
+
 
 /********************************************************************************************************
  *			Shelf Object for managing items on shelf that can be added to cart
@@ -747,8 +736,8 @@ function CartItem() {
 
 function Shelf(){
 	this.items = new Object();
-	
-	this.readPage = function () {
+}	
+	Shelf.prototype.readPage = function () {
 		this.items = new Object();
 		var newItems = getElementsByClassName( "simpleCart_shelfItem" );
 		for( var current in newItems ){
@@ -756,9 +745,9 @@ function Shelf(){
 			this.checkChildren( newItems[current] , newItem );
 			this.items[newItem.id] = newItem;
 		}
-	}
+	};
 	
-	this.checkChildren = function ( item , newItem) {
+	Shelf.prototype.checkChildren = function ( item , newItem) {
 		
 		for(var x=0;item.childNodes[x];x++){
 			
@@ -780,23 +769,21 @@ function Shelf(){
 				this.checkChildren( node , newItem );	
 			}	
 		}
-	}
+	};
 	
-	this.empty = function () {
+	Shelf.prototype.empty = function () {
 		this.items = new Object();
-	}
+	};
 	
 	
-	this.addToCart = function ( e ) {
+	Shelf.prototype.addToCart = function ( e ) {
 		if(!e){
 			var e = window.event;
 		}
 		var caller = e.target ? e.target : e.srcElement;
 		simpleCart.Shelf.items[caller.id].addToCart();
-	}
+	};
 	
-	
-}
 
 /********************************************************************************************************
  *			Shelf Item Object
@@ -804,15 +791,14 @@ function Shelf(){
 
 
 function ShelfItem(){
-	
 	this.id = "s" + NextId++;
-	
-	this.remove = function () {
+}	
+	ShelfItem.prototype.remove = function () {
 		simpleCart.Shelf.items[this.id] = null;
-	}
+	};
 	
 	
-	this.addToCart = function () {
+	ShelfItem.prototype.addToCart = function () {
 		var outStrings = new Array();
 		for( var field in this ){
 			if( typeof( this[field] ) != "function" && field != "id" ){
@@ -849,14 +835,8 @@ function ShelfItem(){
 		}
 		
 		simpleCart.add( outStrings );
-	}
+	};
 	
-}
-
-
-
-
-
 
 
 /********************************************************************************************************
@@ -970,26 +950,25 @@ var getElementsByClassName = function (className, tag, elm){
 
 
 /********************************************************************************************************
- * String Reverse function (thanks to shachi and bytemycode.com - 
-		http://www.bytemycode.com/snippets/snippet/400 ) 
+ *  Helpers
  ********************************************************************************************************/
 
 
-String.prototype.reverse = function(){
-	splitext = this.split("");
-	revertext = splitext.reverse();
-	reversed = revertext.join("");
-	return reversed;
-}
+String.prototype.reverse=function(){return this.split("").reverse().join("");}
+Number.prototype.withCommas=function(){var x=6,y=parseFloat(this).toFixed(2).toString().reverse();while(x<y.length){y=y.substring(0,x)+","+y.substring(x);x+=4;}return y.reverse();}
+Number.prototype.toCurrency=function(){return(arguments[0]?arguments[0]:"$")+this.withCommas();}
 
 
 /********************************************************************************************************
  * error management 
  ********************************************************************************************************/
 
-function error( string ) {
-		console.log( "simpleCart(js) warning: " , string );
-		//alert( "Error: " + string );
+function error( message ){
+	try{ 
+		console.log( message ); 
+	}catch(err){ 
+		alert( message );
+	}
 }
 
 
