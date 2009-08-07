@@ -13,10 +13,29 @@
 	simpleCart.checkoutTo = PayPal;
 //	simpleCart.merchantId = "118575326044237";
 //	simpleCart.checkoutTo = GoogleCheckout;
-	simpleCart.currency = USD;
-//	simpleCart.currency = GDB;
+//	simpleCart.currency = USD;
+	simpleCart.currency = GBP;
 //  simpleCart.currency = EUR;
 	simpleCart.taxRate  = 0.08;
+//	simpleCart.shippingFlatRate = 5.25;
+	simpleCart.shippingQuantityRate = 1.00;
+	CartItem.prototype.shipping = function(){
+		if( this.size ){
+			switch( this.size.toLowerCase() ){
+				case 'small':
+					return this.quantity * 10.00;
+				case 'medium':
+					return this.quantity * 12.00;
+				case 'large':
+					return this.quantity * 15.00;
+				case 'bull':
+					return 45.00;
+				default:
+					return this.quantity * 5.00;
+			}
+		}
+	};
+	
 	simpleCart.cartHeaders = ["Thumb_image_noHeader", "Name" , "Size_input_div_div", "Price" , "decrement_noHeader" , "Quantity", "increment_noHeader", "remove_noHeader", "Total" ];
 </script>
 
@@ -68,7 +87,8 @@ Cart: <span class="simpleCart_total"></span> (<span class="simpleCart_quantity">
 			<option value="Small">Small</option>
 			<option value="Medium">Medium</option>
 			<option value="Large">Large</option>	
-		</select>		
+		</select>	
+		<input type="hidden" class="item_shipping" value="20" />	
 		<input type="text" class="item_quantity" value="1" />
 		<input type="button" class="item_add" value="add to cart" />
 	</li>
@@ -104,6 +124,8 @@ Cart: <span class="simpleCart_total"></span> (<span class="simpleCart_quantity">
 <br />
 SubTotal: <span class="simpleCart_total"></span> <br />
 Tax: <span class="simpleCart_taxCost"></span> <br />
+Shipping: <span class="simpleCart_shippingCost"></span> <br />
+-----------------------------<br />
 Final Total: <span class="simpleCart_finalTotal"></span> <br />
 
 <a href="javascript:;" class="simpleCart_checkout">checkout</a>

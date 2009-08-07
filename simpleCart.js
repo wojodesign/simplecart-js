@@ -4,7 +4,6 @@ var NextId=1,Custom="Custom",GoogleCheckout="GoogleCheckout",PayPal="PayPal",Ema
 
 
 function Cart(){
-/* PUBLIC: */
 
 	/* member variables */
 	this.Version = '1.9.9.5';
@@ -16,6 +15,9 @@ function Cart(){
 	this.total = 0;
 	this.taxRate = 0;
 	this.taxCost = 0;
+	this.shippingFlatRate = 0;
+	this.shippingTotalRate = 0;
+	this.shippingQuantityRate = 0;
 	this.shippingRate = 0;
 	this.shippingCost = 0;
 	this.currency = USD;
@@ -230,8 +232,6 @@ function Cart(){
 
 
 
-/* PRIVATE : */
-
 	/******************************************************
 				data storage and retrival 
 	 ******************************************************/
@@ -287,7 +287,6 @@ function Cart(){
 		this.taxCostOutlets			= getElementsByClassName('simpleCart_taxCost');
 		this.taxRateOutlets			= getElementsByClassName('simpleCart_taxRate');
 		this.shippingCostOutlets	= getElementsByClassName('simpleCart_shippingCost');
-		this.shippingRateOutlets	= getElementsByClassName('simpleCart_shippingRate');
 		this.finalTotalOutlets		= getElementsByClassName('simpleCart_finalTotal');
 		
 		this.addEventToArray( getElementsByClassName('simpleCart_checkout') , simpleCart.checkout , "click");
@@ -311,7 +310,6 @@ function Cart(){
 	this.updateViewTotals = function() {
 		var outlets = [ ["quantity"		, "none"		] , 
 						["total"		, "currency"	] , 
-						["shippingRate"	, "percentage"	] , 
 						["shippingCost"	, "currency"	] ,
 						["taxCost"		, "currency"	] ,
 						["taxRate"		, "percentage"	] ,
@@ -596,10 +594,32 @@ function Cart(){
 				this.total = parseFloat(this.total) + parseInt(item.quantity,10)*parseFloat(item.price); 
 			}
 		}
-		this.shippingCost = parseFloat(this.total)*this.shippingRate;
+		this.shippingCost = this.shipping();
 		this.taxCost = parseFloat(this.total)*this.taxRate;
 		this.finalTotal = this.shippingCost + this.taxCost + this.total;
 	};
+	
+	this.shipping = function(){
+		if( parseInt(this.quantity,10)===0 )
+			return 0;
+		var shipping = 	parseFloat(this.shippingFlatRate) + 
+					  	parseFloat(this.shippingTotalRate)*parseFloat(this.total) +
+						parseFloat(this.shippingQuantityRate)*parseInt(this.quantity,10),
+			nextItem,
+			next;
+		for(next in this.items){
+			nextItem = this.items[next];
+			if( nextItem.shipping ){
+				if( typeof nextItem.shipping == 'function' ){
+					shipping += parseFloat(nextItem.shipping());
+				} else {
+					shipping += parseFloat(nextItem.shipping);
+				}
+			}
+		}
+		
+		return shipping;
+	}
 	
 	this.initialize = function() {
 		simpleCart.initializeView();
