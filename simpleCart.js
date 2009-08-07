@@ -9,7 +9,7 @@ function Cart(){
 	/* member variables */
 	this.Version = '1.9.9.5';
 	this.Shelf = new Shelf();
-	this.items = new Object();
+	this.items = {};
 	this.isLoaded = false;
 	this.pageIsReady = false;
 	this.quantity = 0;
@@ -70,45 +70,45 @@ function Cart(){
 		var newItem = new CartItem();
 		
 		/* check to ensure arguments have been passed in */
-		if( !arguments || arguments.length == 0 ){
+		if( !arguments || arguments.length === 0 ){
 			error( 'No values passed for item.');
 			return;
 		}
-		
+		var argumentArray = arguments;
 		if( arguments[0] && typeof( arguments[0] ) != 'string' && typeof( arguments[0] ) != 'number'  ){ 
-			arguments = arguments[0]; 
-		}
+			argumentArray = arguments[0]; 
+		} 
 	
-		newItem.parseValuesFromArray( arguments );
+		newItem.parseValuesFromArray( argumentArray );
 		newItem.checkQuantityAndPrice();
 		
 		/* if the item already exists, update the quantity */
 		if( this.hasItem(newItem) ) {
 			var id=this.hasItem(newItem);
-			this.items[id].quantity= parseInt(this.items[id].quantity) + parseInt(newItem.quantity);
+			this.items[id].quantity= parseInt(this.items[id].quantity,10) + parseInt(newItem.quantity,10);
 		} else {
 			this.items[newItem.id] = newItem;
 		}	
 		
 		this.update();
-	}
+	};
 	
 	
 	this.remove = function( id ){
-		var tempArray = new Object();
+		var tempArray = {};
 		for( var item in this.items ){
 			if( item != id ){ 
 				tempArray[item] = this.items[item]; 
 			}
 		}
 		this.items = tempArray;
-	}
+	};
 	
 	
 	this.empty = function () {
-		simpleCart.items = new Object();
+		simpleCart.items = {};
 		simpleCart.update();
-	}
+	};
 
 
 	/******************************************************
@@ -116,7 +116,7 @@ function Cart(){
      ******************************************************/
 
 	this.checkout = function() {
-		if( simpleCart.quantity == 0 ){
+		if( simpleCart.quantity === 0 ){
 			error("Cart is empty");
 			return;
 		}
@@ -134,7 +134,7 @@ function Cart(){
 				simpleCart.customCheckout();
 				break;
 		}
-	}
+	};
 	
 	this.paypalCheckout = function() {
 		
@@ -157,7 +157,7 @@ function Cart(){
 			}
 			optionsString = optionsString.substring(1);
 			
-			itemsString = itemsString 	+ "&item_name_" 	+ counter + "=" + item["name"]  +
+			itemsString = itemsString 	+ "&item_name_" 	+ counter + "=" + item.name  +
 									 	  "&item_number_" 	+ counter + "=" + counter +
 										  "&quantity_"		+ counter + "=" + item.quantity +
 										  "&amount_"		+ counter + "=" + this.currencyStringForPaypalCheckout( item.price ) + 
@@ -169,13 +169,13 @@ function Cart(){
 		}
 		strn = strn + itemsString ;
 		window.open (strn, "paypal", winpar);
-	}
+	};
 
 	this.googleCheckout = function() {
 		if( this.currency != USD && this.currency != GBP ){
 			error( "Google Checkout only allows the USD and GBP for currency.");
 			return;
-		} else if( this.merchantId == "" || this.merchantId == null ){
+		} else if( this.merchantId === "" || this.merchantId === null ){
 			error( "No merchant Id for google checkout supplied.");
 			return;
 		} 
@@ -190,9 +190,9 @@ function Cart(){
 		
 		for( var current in this.items ){
 			var item 				= this.items[current];
-			form.appendChild( this.createHiddenElement( "item_name_" 		+ counter, item["name"] 		) );
-			form.appendChild( this.createHiddenElement( "item_quantity_" 	+ counter, item["quantity"] 	) );
-			form.appendChild( this.createHiddenElement( "item_price_" 		+ counter, item["price"] 		) );
+			form.appendChild( this.createHiddenElement( "item_name_" 		+ counter, item.name		) );
+			form.appendChild( this.createHiddenElement( "item_quantity_" 	+ counter, item.quantity 	) );
+			form.appendChild( this.createHiddenElement( "item_price_" 		+ counter, item.price		) );
 			form.appendChild( this.createHiddenElement( "item_currency_" 	+ counter, this.currency 	) );
 			form.appendChild( this.createHiddenElement( "item_tax_rate_" 	+ counter, this.taxRate 	) );
 			form.appendChild( this.createHiddenElement( "_charset_"					 , ""				) );
@@ -215,17 +215,17 @@ function Cart(){
 		document.body.appendChild( form );
 		form.submit();
 		document.body.removeChild( form );
-	}
+	};
 	
 	
 	
 	this.emailCheckout = function() {
 		return;
-	}
+	};
 	
 	this.customCheckout = function() {
 		return;
-	}
+	};
 
 
 
@@ -239,7 +239,7 @@ function Cart(){
 	/* load cart from cookie */
 	this.load = function () {
 		/* initialize variables and items array */
-		this.items = new Object();
+		this.items = {};
 		this.total = 0.00;
 		this.quantity = 0;
 		
@@ -259,7 +259,7 @@ function Cart(){
  			}
 		}
 		this.isLoaded = true;
-	}
+	};
 	
 	
 	
@@ -270,7 +270,7 @@ function Cart(){
 			dataString = dataString + "++" + this.items[item].print();
 		}
 		createCookie('simpleCart', dataString.substring( 2 ), 30 );
-	}
+	};
 	
 	
 
@@ -297,7 +297,7 @@ function Cart(){
 			
 		this.pageIsReady = true;
 		
-	}
+	};
 	
 	
 	
@@ -306,7 +306,7 @@ function Cart(){
 		if( this.cartDivs && this.cartDivs.length > 0 ){ 
 			this.updateCartView(); 
 		}
-	}
+	};
 	
 	this.updateViewTotals = function() {
 		var outlets = [ ["quantity"		, "none"		] , 
@@ -340,20 +340,21 @@ function Cart(){
 				this[arrayName][element].innerHTML = "" + outputString;
 			}
 		}
-	}
+	};
 	
 	this.updateCartView = function() {
-		var newRows = new Array();
+		var newRows = [],
+			x,newRow,item,current,header,newCell,info,outputValue,option,headerInfo;
 		
 		/* create headers row */
-		var newRow = document.createElement('div');
-		for( var header in this.cartHeaders ){
-			var newCell = document.createElement('div'),
-				headerInfo = this.cartHeaders[header].split("_");
+		newRow = document.createElement('div');
+		for( header in this.cartHeaders ){
+			newCell = document.createElement('div');
+			headerInfo = this.cartHeaders[header].split("_");
 			
 			newCell.innerHTML = headerInfo[0];
 			newCell.className = "item" + headerInfo[0];
-			for(var x=1,xlen=headerInfo.length;x<xlen;x++){
+			for(x=1,xlen=headerInfo.length;x<xlen;x++){
 				if( headerInfo[x].toLowerCase() == "noheader" ){
 					newCell.style.display = "none";
 				}
@@ -364,31 +365,29 @@ function Cart(){
 		newRow.className = "cartHeaders";
 		newRows[0] = newRow;
 		
-		
 		/* create a row for each item in the cart */
-		var x=1;
-		for( var current in this.items ){
-			var newRow = document.createElement('div'),
-				item = this.items[current];
+		x=1;
+		for( current in this.items ){
+			newRow = document.createElement('div');
+			item = this.items[current];
 			
-			for( var header in this.cartHeaders ){
+			for( header in this.cartHeaders ){
 				
-				var newCell = document.createElement('div'),
-					info = this.cartHeaders[header].split("_"),
-					outputValue;
+				newCell = document.createElement('div');
+				info = this.cartHeaders[header].split("_");
 				
 				switch( info[0].toLowerCase() ){
 					case "total":
-						outputValue = this.valueToCurrencyString(parseFloat(item['price'])*parseInt(item['quantity']) );
+						outputValue = this.valueToCurrencyString(parseFloat(item.price)*parseInt(item.quantity,10) );
 						break;
 					case "increment":
-						outputValue = this.valueToLink( "+" , "javascript:;" , "onclick=\"simpleCart.items[\'" + item["id"] + "\'].increment();\"" );
+						outputValue = this.valueToLink( "+" , "javascript:;" , "onclick=\"simpleCart.items[\'" + item.id + "\'].increment();\"" );
 						break;
 					case "decrement":
-						outputValue = this.valueToLink( "-" , "javascript:;" , "onclick=\"simpleCart.items[\'" + item["id"] + "\'].decrement();\"" );
+						outputValue = this.valueToLink( "-" , "javascript:;" , "onclick=\"simpleCart.items[\'" + item.id + "\'].decrement();\"" );
 						break;
 					case "remove":
-						outputValue = this.valueToLink( "Remove" , "javascript:;" , "onclick=\"simpleCart.items[\'" + item["id"] + "\'].remove();\"" );
+						outputValue = this.valueToLink( "Remove" , "javascript:;" , "onclick=\"simpleCart.items[\'" + item.id + "\'].remove();\"" );
 						break;
 					case "price":
 						outputValue = this.valueToCurrencyString( item[ info[0].toLowerCase() ] ? item[info[0].toLowerCase()] : " " );
@@ -399,14 +398,14 @@ function Cart(){
 				}	
 				
 				for( var y=1,ylen=info.length;y<ylen;y++){
-					var option = info[y].toLowerCase();
+					option = info[y].toLowerCase();
 					switch( option ){
 						case "image":
 						case "img":
 							outputValue = this.valueToImageString( outputValue );		
 							break;
 						case "input":
-							outputValue = this.valueToTextInput( outputValue , "onchange=\"simpleCart.items[\'" + item["id"] + "\'].set(\'" + outputValue + "\' , this.value);\""  );
+							outputValue = this.valueToTextInput( outputValue , "onchange=\"simpleCart.items[\'" + item.id + "\'].set(\'" + outputValue + "\' , this.value);\""  );
 							break;
 						case "div":
 						case "span":
@@ -436,7 +435,7 @@ function Cart(){
 		
 		
 		
-		for( var current in this.cartDivs ){
+		for( current in this.cartDivs ){
 			
 			/* delete current rows in div */
 			var div = this.cartDivs[current];
@@ -450,7 +449,7 @@ function Cart(){
 			
 			
 		}
-	}
+	};
 
 	this.addEventToArray = function ( array , functionCall , theEvent ) {
 		for( var outlet in array ){
@@ -461,7 +460,7 @@ function Cart(){
 			  	element.attachEvent( "on" + theEvent, functionCall );
 			}
 		}
-	}
+	};
 	
 	
 	this.createHiddenElement = function ( name , value ){
@@ -470,7 +469,7 @@ function Cart(){
 		element.name = name;
 		element.value = value;
 		return element;
-	}
+	};
 	
 	
 	
@@ -482,13 +481,10 @@ function Cart(){
 		switch(this.currency){
 			case JPY:
 				return "&yen;";
-				break;
 			case EUR:
 				return "&euro;";
-				break;
 			case GBP:
 				return "&pound;";
-				break;
 			case USD:
 			case CAD:
 			case AUD:
@@ -496,12 +492,10 @@ function Cart(){
 			case HKD:
 			case SGD:
 				return "&#36;";
-				break;
 			default:
 				return "";
-				break;
 		}
-	}
+	};
 	
 	
 	this.currencyStringForPaypalCheckout = function( value ){
@@ -510,7 +504,7 @@ function Cart(){
 		} else {
 			return "" + parseFloat(value );
 		}
-	}
+	};
 	
 	/******************************************************
 				Formatting
@@ -519,11 +513,11 @@ function Cart(){
 	
 	this.valueToCurrencyString = function( value ) {
 		return parseFloat( value ).toCurrency( this.currencySymbol() );
-	}
+	};
 	
 	this.valueToPercentageString = function( value ){
-		return parseFloat( 100*value ).toFixed(0) + "%"
-	}
+		return parseFloat( 100*value ).toFixed(0) + "%";
+	};
 	
 	this.valueToImageString = function( value ){
 		if( value.match(/<\s*img.*src\=/) ){
@@ -531,19 +525,19 @@ function Cart(){
 		} else {
 			return "<img src=\"" + value + "\" />";
 		}
-	}
+	};
 	
 	this.valueToTextInput = function( value , html ){
 		return "<input type=\"text\" value=\"" + value + "\" " + html + " />";
-	}
+	};
 	
 	this.valueToLink = function( value, link, html){
 		return "<a href=\"" + link + "\" " + html + " >" + value + "</a>";
-	}
+	};
 	
 	this.valueToElement = function( type , value , html ){
 		return "<" + type + " " + html + " > " + value + "</" + type + ">";
-	}
+	};
 	
 	/******************************************************
 				Duplicate management
@@ -567,7 +561,7 @@ function Cart(){
 			}
 		}
 		return false;
-	}
+	};
 	
 	
 	
@@ -586,32 +580,32 @@ function Cart(){
 		this.updateTotals();
 		this.updateView();
 		this.save();
-	}
+	};
 	
 	this.updateTotals = function() {
 		this.total = 0 ;
 		this.quantity  = 0;
 		for( var current in this.items ){
 			var item = this.items[current];
-			if( item["quantity"] < 1 ){ 
+			if( item.quantity < 1 ){ 
 				item.remove();
-			} else if( item["quantity"] != null && item["quantity"] != "undefined" ){
-				this.quantity = parseInt(this.quantity) + parseInt(item["quantity"]); 
+			} else if( item.quantity !== null && item.quantity != "undefined" ){
+				this.quantity = parseInt(this.quantity,10) + parseInt(item.quantity,10); 
 			}
-			if( item["price"] ){ 
-				this.total = parseFloat(this.total) + parseInt(item["quantity"])*parseFloat(item["price"]); 
+			if( item.price ){ 
+				this.total = parseFloat(this.total) + parseInt(item.quantity,10)*parseFloat(item.price); 
 			}
 		}
 		this.shippingCost = parseFloat(this.total)*this.shippingRate;
 		this.taxCost = parseFloat(this.total)*this.taxRate;
 		this.finalTotal = this.shippingCost + this.taxCost + this.total;
-	}
+	};
 	
 	this.initialize = function() {
 		simpleCart.initializeView();
 		simpleCart.load();
 		simpleCart.update();
-	}
+	};
 				
 }
 
@@ -628,7 +622,7 @@ function CartItem() {
 			if( field == "quantity" ){
 				value = value.replace( /[^(\d|\.)]*/gi , "" );
 				value = value.replace(/,*/gi, "");
-				value = parseInt(value);
+				value = parseInt(value,10);
 			} else if( field == "price"){
 				value = value.replace( /[^(\d|\.)]*/gi, "");
 				value = value.replace(/,*/gi , "");
@@ -647,15 +641,15 @@ function CartItem() {
 	};
 	
 	CartItem.prototype.increment = function(){
-		this.quantity = parseInt(this.quantity) + 1;
+		this.quantity = parseInt(this.quantity,10) + 1;
 		simpleCart.update();
 	};
 	
 	CartItem.prototype.decrement = function(){
-		if( parseInt(this.quanity) < 2 ){
+		if( parseInt(this.quanity,10) < 2 ){
 			this.remove();
 		} else {
-			this.quantity = parseInt(this.quantity) - 1;
+			this.quantity = parseInt(this.quantity,10) - 1;
 			simpleCart.update();
 		}
 	};
@@ -672,19 +666,19 @@ function CartItem() {
 	
 	
 	CartItem.prototype.checkQuantityAndPrice = function() {
-		if( this.quantity == null || this.quantity == 'undefined'){ 
+		if( this.quantity === null || this.quantity == 'undefined'){ 
 			this.quantity = 1;
 			error('No quantity for item.');
 		} else {
 			this.quantity = ("" + this.quantity).replace(/,*/gi, "" );
-			this.quantity = parseInt( ("" + this.quantity).replace( /[^(\d|\.)]*/gi, "") ); 
+			this.quantity = parseInt( ("" + this.quantity).replace( /[^(\d|\.)]*/gi, "") , 10); 
 			if( isNaN(this.quantity) ){
 				error('Quantity is not a number.');
 				this.quantity = 1;
 			}
 		}
 				
-		if( this.price == null || this.price == 'undefined'){
+		if( this.price === null || this.price == 'undefined'){
 			this.price=0.00;
 			error('No price for item or price not properly formatted.');
 		} else {
@@ -735,10 +729,10 @@ function CartItem() {
  ********************************************************************************************************/
 
 function Shelf(){
-	this.items = new Object();
+	this.items = {};
 }	
 	Shelf.prototype.readPage = function () {
-		this.items = new Object();
+		this.items = {};
 		var newItems = getElementsByClassName( "simpleCart_shelfItem" );
 		for( var current in newItems ){
 			var newItem = new ShelfItem();
@@ -757,7 +751,7 @@ function Shelf(){
 				var data=node.className.split('_');
 				
 				if( data[1] == "add" || data[1] == "Add" ){
-					var tempArray = new Array();
+					var tempArray = [];
 					tempArray.push( node );
 					simpleCart.addEventToArray( tempArray , simpleCart.Shelf.addToCart , "click");
 					node.id = newItem.id;
@@ -772,13 +766,13 @@ function Shelf(){
 	};
 	
 	Shelf.prototype.empty = function () {
-		this.items = new Object();
+		this.items = {};
 	};
 	
 	
 	Shelf.prototype.addToCart = function ( e ) {
 		if(!e){
-			var e = window.event;
+			e = window.event;
 		}
 		var caller = e.target ? e.target : e.srcElement;
 		simpleCart.Shelf.items[caller.id].addToCart();
@@ -799,17 +793,17 @@ function ShelfItem(){
 	
 	
 	ShelfItem.prototype.addToCart = function () {
-		var outStrings = new Array();
+		var outStrings = [],valueString;
 		for( var field in this ){
 			if( typeof( this[field] ) != "function" && field != "id" ){
-				var valueString = "";
+				valueString = "";
 				
 				switch(field){
 					case "price":
 						if( this[field].value ){
-							var valueString = this[field].value; 
+							valueString = this[field].value; 
 						} else if( this[field].innerHTML ) {
-							var valueString = this[field].innerHTML;
+							valueString = this[field].innerHTML;
 						}
 						/* remove all characters from price except digits and a period */
 						valueString = valueString.replace( /[^(\d|\.)]*/gi , "" );
@@ -820,13 +814,13 @@ function ShelfItem(){
 						break;
 					default:
 						if( this[field].value ){
-							var valueString = this[field].value; 
+							valueString = this[field].value; 
 						} else if( this[field].innerHTML ) {
-							var valueString = this[field].innerHTML;
+							valueString = this[field].innerHTML;
 						} else if( this[field].src ){
-							var valueString = this[field].src;
+							valueString = this[field].src;
 						} else {
-							var valueString = this[field];
+							valueString = this[field];
 						}
 						break;
 				}
@@ -858,7 +852,7 @@ function readCookie(name) {
 	for(var i=0;i < ca.length;i++) {
 		var c = ca[i];
 		while (c.charAt(0)==' ') c = c.substring(1,c.length);
-		if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+		if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length,c.length);
 	}
 	return null;
 }
@@ -954,9 +948,9 @@ var getElementsByClassName = function (className, tag, elm){
  ********************************************************************************************************/
 
 
-String.prototype.reverse=function(){return this.split("").reverse().join("");}
-Number.prototype.withCommas=function(){var x=6,y=parseFloat(this).toFixed(2).toString().reverse();while(x<y.length){y=y.substring(0,x)+","+y.substring(x);x+=4;}return y.reverse();}
-Number.prototype.toCurrency=function(){return(arguments[0]?arguments[0]:"$")+this.withCommas();}
+String.prototype.reverse=function(){return this.split("").reverse().join("");};
+Number.prototype.withCommas=function(){var x=6,y=parseFloat(this).toFixed(2).toString().reverse();while(x<y.length){y=y.substring(0,x)+","+y.substring(x);x+=4;}return y.reverse();};
+Number.prototype.toCurrency=function(){return(arguments[0]?arguments[0]:"$")+this.withCommas();};
 
 
 /********************************************************************************************************
