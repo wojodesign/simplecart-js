@@ -753,7 +753,8 @@ function Shelf(){
 				if( data[1] == "add" || data[1] == "Add" ){
 					var tempArray = [];
 					tempArray.push( node );
-					simpleCart.addEventToArray( tempArray , simpleCart.Shelf.addToCart , "click");
+					var addFunction = simpleCart.Shelf.addToCart(newItem.id);
+					simpleCart.addEventToArray( tempArray , addFunction , "click");
 					node.id = newItem.id;
 				} else {
 					newItem[data[1]]  = node;
@@ -770,12 +771,14 @@ function Shelf(){
 	};
 	
 	
-	Shelf.prototype.addToCart = function ( e ) {
-		if(!e){
-			e = window.event;
-		}
-		var caller = e.target ? e.target : e.srcElement;
-		simpleCart.Shelf.items[caller.id].addToCart();
+	Shelf.prototype.addToCart = function ( id ) {
+		return function(){
+			if( simpleCart.Shelf.items[id]){
+				simpleCart.Shelf.items[id].addToCart();
+			} else {
+				error( "Shelf item with id of " + id + " does not exist.");
+			}
+		};
 	};
 	
 
