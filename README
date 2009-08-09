@@ -1,12 +1,12 @@
 ***************************************************************************************
-*									simpleCart(js)									  *
-* ----------------------------------------------------------------------------------- *
-*	Version 2.0																		  *
-*	The Wojo Group																	  *
-*	thewojogroup.com 																  *
-*	simplecartjs.com														  		  *
-*	http://github.com/thewojogroup/simplecart-js/tree/master						  *
-*	Released under MIT License														  *
+*									simpleCart(js)									  
+* ----------------------------------------------------------------------------------- 
+*	Version 2.0																		  
+*	The Wojo Group																	  
+*	thewojogroup.com 																  
+*	simplecartjs.com														  		  
+*	http://github.com/thewojogroup/simplecart-js/tree/master						  
+*	Released under MIT License														  
 ***************************************************************************************								
 		
 	No databases, no programming, no headaches. A simple javascript shopping 
@@ -36,7 +36,7 @@
 	THE SOFTWARE.
 		 
 ***************************************************************************************
-*			QUICK START GUIDE														  *
+*			QUICK START GUIDE														  
 ***************************************************************************************
 		
 	After downloading the files, simply place a copy of the simpleCart.js 
@@ -50,6 +50,7 @@
 	1.<script type="text/javascript">
 	2.    simpleCart.email = "you@yours.com";
 	3.</script>
+	
 	
 	----------------
 	Items for Sale
@@ -74,6 +75,7 @@
 
 	1.<a href="javascript:;" onclick="simpleCart.add( 'name=Awesome t-shirt' ,
 	 			'price=35.95' , 'quantity=1' );">Add To Cart</a>
+	
 	
 	---------------------------
 	Cart Links and Cart Summary
@@ -101,6 +103,7 @@
 	links, however, you can also use a div, images, or any other tag by simply 
 	setting the class correctly.
 	
+	
 	--------
 	The Cart
 	--------
@@ -116,7 +119,7 @@
 		
 		
 ***************************************************************************************
-*	For more information, please go to simplecartjs.com								  *
+*	For more information, please go to simplecartjs.com								  
 ***************************************************************************************		
 		
 		
