@@ -199,7 +199,7 @@ function Cart(){
 		if( this.currency != USD && this.currency != GBP ){
 			error( "Google Checkout only allows the USD and GBP for currency.");
 			return;
-		} else if( this.merchantId === "" || this.merchantId === null ){
+		} else if( this.merchantId === "" || this.merchantId === null || !this.merchantId ){
 			error( "No merchant Id for google checkout supplied.");
 			return;
 		} 
@@ -708,7 +708,7 @@ function CartItem() {
 	
 	
 	CartItem.prototype.checkQuantityAndPrice = function() {
-		if( this.quantity === null || this.quantity == 'undefined'){ 
+		if( !this.price || this.quantity == null || this.quantity == 'undefined'){ 
 			this.quantity = 1;
 			error('No quantity for item.');
 		} else {
@@ -720,7 +720,7 @@ function CartItem() {
 			}
 		}
 				
-		if( this.price === null || this.price == 'undefined'){
+		if( !this.price || this.price == null || this.price == 'undefined'){
 			this.price=0.00;
 			error('No price for item or price not properly formatted.');
 		} else {
