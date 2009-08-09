@@ -1,236 +1,141 @@
-Update 1.9.9.1: fixed formatting of prices for IE
-
-Thanks for your interest in simpleCart(js) and your willingness to help out with the testing.  
-
-SimpleCart(js) 2.0 will not only fix some old bugs and errors, but provide more features and functionality to not only make it easier to use, but slightly more powerful at the same time.  
-
-So, what does this version do?  
-
-Bug fixes -
-
-1) the rounding errors and formatting issues with the price should be fixed.  I no longer use the round functions and floor to create the formatted price, so this new method should be pretty simple and safe.
-
-2) the loading errors when using the backbutton have *hopefully* been fixed.  This is the one issue I am slightly worried about, because more often than not, these issues showed up when users used different javascript libraries.  So let me know if you run into some problems with this.  To avoid simpleCart(js) being useless if this does happen, I force a load and page setup if any function is called and the setup isn't done.  
-
-3) error checking for formatting inputs.  the script now checks the quantity and price formatting and ensure these inputs are numbers when items are added to the cart, and will throw and error and continue if they are not.  
-
-
-New features ( I will go over how to use them later )
-
-a) Currency: simpleCart(js) now supports multiple currencies.
-
-b) Tax: you can now add a tax rate for your cart 
-	     Shipping: I am still working on how to implement different options for this, but the functionality is already in there 
+***************************************************************************************
+*									simpleCart(js)									  *
+* ----------------------------------------------------------------------------------- *
+*	Version 2.0																		  *
+*	The Wojo Group																	  *
+*	thewojogroup.com 																  *
+*	simplecartjs.com														  		  *
+*	http://github.com/thewojogroup/simplecart-js/tree/master						  *
+*	Released under MIT License														  *
+***************************************************************************************								
 		
-c) Flexible cart options:  you can now have several inputs and options in your cart display: 
-i. increment and decrement buttons 
-ii. remove button
-iii. multiple images
-iv. choose to edit any field in the cart
-v. add new fields that the item doesn't have
-
-d) Google Checkout: you can now choose to checkout to google checkout, using your merchant Id 
-
-e) Flexible item input for items / no javascript for adding items to the cart: this is a feature I am very excited about.  Now, you can have items that can be "on your shelf" ( or in your catalog ) simply be using class names for fields.  You can use these classes for text inputs, images, divs, spans, selects, radios, etc.  When you add that item to the cart, simpleCart(js) will figure out the values for each option.  I will show a demo of this later.
-
-
-So how do I use this guy?
-
-Here are the biggest differences from the original version.  After linking to the javascript file in your header:
-
-<script type="text/javascript" src="simpleCart.js"></script>
-
-You will need to set your email if you plan on using the paypal checkout method:
-
-<script type="text/javascript">
-	simpleCart.email = "brett@wojodesign.com";
-</script>
-
-If you want to make sure the cart will checkout to paypal, just use:
-
-	simpleCart.checkoutTo = PayPal;
-
-if you want to use GoogleCheckout:
+	No databases, no programming, no headaches. A simple javascript shopping 
+	cart in under 17kb that you can setup in minutes. It's lightweight, fast, 
+	simple to use, and completely customizable. All you need to know is basic HTML.
 	
-	simpleCart.checkoutTo = GoogleCheckout;
+***************************************************************************************
+
+	Copyright (c) 2009 The Wojo Group
+
+	Permission is hereby granted, free of charge, to any person obtaining a copy
+	of this software and associated documentation files (the "Software"), to deal
+	in the Software without restriction, including without limitation the rights
+	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	copies of the Software, and to permit persons to whom the Software is
+	furnished to do so, subject to the following conditions:
+
+	The above copyright notice and this permission notice shall be included in
+	all copies or substantial portions of the Software.
+
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+	THE SOFTWARE.
+		 
+***************************************************************************************
+*			QUICK START GUIDE														  *
+***************************************************************************************
+		
+	After downloading the files, simply place a copy of the simpleCart.js 
+	in your site directory, and attach it to each page that will be using the cart:
 	
-Instead of inputing an email, you use your Google Checkout Merchant Id:
+	1.<script type="text/javascript" src="simpleCart.js"></script>
 
-	simpleCart.merchantId = "111111111111111";
-
-The default currency is USD ( US dollars ), but if you want to change it:
-
-	simpleCart.currency = GBP; 
-
-Google Checkout only currently supports GBP and USD, but paypal supports several ( https://www.paypal.com/cgi-bin/webscr?cmd=p/sell/mc/mc_intro-outside ).  
-
-Changing the currency not only changes the checkout method, it will correctly format any output on the page with the correct symbol.  THERE IS NO EXCHANGE RATE, IT IS ASSUMED ANY PRICE INPUTS ARE ALREADY IN YOUR CHOSEN CURRENCY.
-
-If you want to set the Tax rate:
-
-	simpleCart.taxRate = 0.07;
-
-Adding items to your "Shelf"
-
-You can make items be available to your users by simple using class names in your html.  For any Item you want to be available to be added to the cart, you make a container with a class name of "simpleCart_shelfItem".  Then add classes to tags inside of that container that have the general form "item_[name of field]" and simpleCart will use the value or innerHTML of that tag for the cart.  For example,
-if you wanted to sell a T-shirt with 3 different sizes, you can do this:
-
-<pre>
-<div class="simpleCart_shelfItem" >
-	<h2 class="item_name"> Awesome T-shirt </h2>
-
-	<select class="item_size">
-		<option value="Small"> Small </option>
-		<option value="Medium"> Medium </option>
-		<option value="Large"> Large </option>
-	</select>
-
-	<input type="text" value="1" class="item_Quantity"  /> 
-
-	<span class="item_price">$35.99</span>
-
-	<a class="item_add" href="javascript:;" > Add to Cart </a>
-
-</div>
-</pre>
-
-Notice here that you can use a select to change options for the item when you add it to the cart.  You can also use a text input to change the quantity (or any other field! ).  These classes will work with any tag, so feel free to use what works best for you.  Finally, notice that a tag with the class "item_add" will have an event listener on its click.  So when the contents of that tag are clicked, an item will be added to the cart with the values of each of the tags in the container with the "item_[something]" class.  
-
-Some notes:
-
-	-You will want to always supply a quantity and price.  Although the cart shouldn't break if you don't, all the quantities and totals are created from it, so the cart will assign a price of $0 if there is none, and a quantity of 1 if no quantity is provided.  
-
-	-if you are planning on checking out to googleCheckout or paypal, it is a good idea to use a name field
-
-	-if you use a link for the add to cart button, its a good idea to set the href to "javascript:;"
-
-	-you can pretty much anything to the items on your "shelf", so be creative.  Images will work fine too!
-
-
-
-Display
-
-There are keywords for displaying information on your page.  For example, if you give a class name of "simpleCart_total" to any tag, the innerHTML will be replace with the cart total.  Here are the other options:
-
-"simpleCart_quantity"
-"simpleCart_taxRate"  - will be display as a percentage ( ie 7% )
-"simpleCart_taxCost" - will be displayed as currency ( ie $25.00 ) and will be the cost of the taxRate times the total
-"simpleCart_finalTotal"  - will display the total of the cart after adding tax and shipping
-
-Displaying items in the cart
-
-If you give a div a class name of "simpleCart_items",  this div will display the items in the cart.  You can format how the cart is displayed by adding this in your header:
+	PayPal is the default checkout option. So if you have a Paypal account, you 
+	will need to set your account email:
 	
-	simpleCart.cartHeaders = [ "Name" , "Price" , "Quantity" , "Total" ];
+	1.<script type="text/javascript">
+	2.    simpleCart.email = "you@yours.com";
+	3.</script>
+	
+	----------------
+	Items for Sale
+	----------------
 
-Of course, you can change the order, or add any other fields that the items in your cart has.  If you want a field to be in a text input so users can change it will looking at the cart, you can use:
+	To have an item for sale (like an awesome t-shirt), you can put it on your 
+	"Shelf" like so:
 
-	simpleCart.cartHeaders = [ "Name", "Price", "Quantity_input" , "Total" ];
+	1.<div class="simpleCart_shelfItem">
+	2.  <h2 class="item_name">Awesome T-Shirt</h2>
+	3.  <span class="item_price">$35.95</span>
+	4.  <input class="item_quantity" value="1" type="text">
+	5.  <a href="javascript:;" class="item_add">Add to Cart</a>
+	6.</div>
 
-If you want to use decrement and increment links that will show up in a column like "-" and "+", respectively, use:
+	To create a shelf item, you create a div with a class of “simpleCart_shelfItem”.
+	Any field you want for your item can be set by creating a tag with a class 
+	of “item_field-name” and the contents or value of the tag will be the value 
+	added for the item. Please check out Shelf Setup for more info about the shelf.
 
-	simpleCart.cartHeaders = ["Name" , "Price" , "decrement" , "Quantity" , "increment" , "Total" ];
+	You can also add an item to the cart with a simple link:
 
-If you want a link to remove the item from the cart:
+	1.<a href="javascript:;" onclick="simpleCart.add( 'name=Awesome t-shirt' ,
+	 			'price=35.95' , 'quantity=1' );">Add To Cart</a>
+	
+	---------------------------
+	Cart Links and Cart Summary
+	---------------------------
 
-	simpleCart.cartHeaders = ["Name", "Price",  "decrement" , "Quantity" , "increment" , "Remove",  "Total" ];
+	If you want to display information about the cart anywhere on your page, simple 
+	create any tag (div, span, a, h2, …etc) with a specific class name.
 
-If you want to hide the header for a particular column:
+	For the total items in the cart, use “simpleCart_quantity”
+	
+	1.You have <span class="simpleCart_quantity"></span> items in your Cart.
 
-	simpleCart.cartHeaders =  ["Name", "Price",  "decrement_noHeader" , "Quantity" , "increment_noHeader" , "Remove_noHeader",  "Total" ];
+	For the cart total, use “simpleCart_total”
+	
+	1.Cart total: <div class="simpleCart_total"></div>
 
-If there is an Image field for the items in you cart, you can use:
+	You can create a Checkout link or Empty Cart link by using "simpleCart_checkout" 
+	and "simpleCart_empty"
+	
+	1.<a href="javascript:;" class="simpleCart_checkout">Checkout</a>
+	2.<a href="javascript:;" class="simpleCart_empty">Empty</a>
 
-	simpleCart.cartHeaders = ["Image" , "Name" , "Price" , "decrement" , "Quantity" , "increment" , "Total" ];
+	The checkout link will immediately send all the items to PayPal (or another 
+	checkout option like Google Checkout) when you click it. These don't have to be 
+	links, however, you can also use a div, images, or any other tag by simply 
+	setting the class correctly.
+	
+	--------
+	The Cart
+	--------
 
-simpleCart(js) will recognize the "Image" keyword and output an img tag.  However, if you have a field in the items called "thumb" and want to display an image, you can use:
+	You can display the full cart on any page by simply creating a div with a class 
+	of "simpleCart_items"
+	
+	1.<div class="simpleCart_items"></div>
 
-	simpleCart.cartHeaders = ["Thumb_image" , "Name" , "Price" , "decrement" , "Quantity" , "increment" , "Total" ];
-
-
-
-
-Styling the Cart
-
-As with the old version, you can (and probably should) style how the cart looks.  The general layout and class names for the divs are the same as before:
-
-<div class="simpleCart_items">
-	<div class="cartHeaders">
-		<div class="itemName">Name</div>
-		<div class="itemSize">Size</div>
-		<div class="itemPrice">Price</div>
-		<div class="itemQuantity">Quantity</div>
-		<div class="itemTotal">Total</div>
-	</div>
-	<div class="itemContainer">
-		<div class="itemName">Zebra</div>
-		<div class="itemSize">Small</div>
-		<div class="itemPrice">$199000.00</div>
-		<div class="itemQuantity">11</div>
-		<div class="itemremove">
-			<a onclick="simpleCart.items['c5'].remove();" href="javascript:;">Remove</a>		</div>
-		<div class="itemTotal">$2189000.00</div>
-	</div>
-</div>
-
-As you can see the headers would all be in a div called "cartHeaders".  Each item will have a class of "itemContainer" with divs inside, each having a class corresponding the the field name after the word 'item'.  So for size: "itemSize".  
-
-
-
-Backwards compatibility
-
-So, other than changing from "simpleCart = new cart('brett@wojodesign.com');"  to the new "simpleCart.email = 'brett@wojodesign.com'; " ... most of your old code should actually still work.  Even though I built in the Shelf to simplify things, you can still use the old 
-
-	simpleCart.add( "name=Awesome shirt" , "size=Large" , "price=4.00" , "quantity=1" );
-
-I havent tested this yet, so if you are interested in trying it out, you are more than welcome. 
-
-
-Compression
-
-I am working on combining existing compression programs with a custom solution that will make this guy very small.  For now, I am just including the original file.
-
-
-Demo
-
-The demo included is very basic and just shows a few features that can used.  You can abstract a lot of the functionality from the code that is provided, but I am working on putting together some better demos and a "quick start" guide.  
-
-
-What I am doing/ what's happening with the project in general?
-
-There are a few features and things I'm trying to finish up and figure out.  Here are a couple things I am trying to finish up on the code:
-
-	1. Shipping: I am trying to figure out the best way to implement different options for shipping. If you guys have any ideas or suggestions of how to do this, let me know.
-
-	2. XML Shelf Items.  Not a priority, but a possibility.  
-
-	3. Select lists changing the price of the item in the shelf.
-
-	4. Email checkout
-
-	5. Documentation, Tutorials, and Demos
-
-I am going to set up a webpage just for simpleCart(js) soon that will have all the documentation and demos, as well as a message board and downloads.  For now though, please just email me if you have any questions for find any problems with the code.  
-
-I will attach a very basic example of how to use the cart, so hopefully it will give you some ideas.
-
-Thanks again for your help and I hope you guys can build some sweet sites with this version!
-
-
-Cheers,
-
-Brett Wejrowski
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	SimpleCart(js) will automatically populate the div with all the items in the 
+	cart. You can change the appearance of your cart or what columns are in the cart 
+	by checking out Cart Header Formatting.
+		
+		
+***************************************************************************************
+*	For more information, please go to simplecartjs.com								  *
+***************************************************************************************		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+				
