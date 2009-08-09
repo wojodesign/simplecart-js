@@ -1006,7 +1006,7 @@ function error( message ){
 	try{ 
 		console.log( message ); 
 	}catch(err){ 
-		alert( message );
+	//	alert( message );
 	}
 }
 
