@@ -172,12 +172,18 @@ function Cart(){
 			counter = 1,
 			itemsString = "";
 			
+		
+		if( this.taxRate ){
+			strn = strn + 
+				"&tax_cart=" +  this.currencyStringForPaypalCheckout( this.taxCost );
+		}
+		
 		for( var current in this.items ){
 			var item = this.items[current];
 			
 			var optionsString = "";
 			for( var field in item ){
-				if( typeof(item[field]) != "function" && field != "id" && field != "price" && field != "quantity" && field != "name" ) {
+				if( typeof(item[field]) != "function" && field != "id" && field != "price" && field != "quantity" && field != "name" /*&& field != "shipping"*/) {
 					optionsString = optionsString + "&" + field + "=" + item[field] ; 
 				}
 			}
@@ -191,6 +197,15 @@ function Cart(){
 										  "&os0_"			+ counter + "=" + optionsString;
 			counter++;
 		}
+		
+		if( this.shipping() != 0){
+			 itemsString = itemsString 	+ "&item_name_" 	+ counter + "=Shipping"  +
+									 	  "&item_number_" 	+ counter + "=" + counter +
+										  "&quantity_"		+ counter + "=1" + 
+										  "&amount_"		+ counter + "=" + this.currencyStringForPaypalCheckout( this.shippingCost );
+		}
+		
+		
 		strn = strn + itemsString ;
 		window.open (strn, "paypal", winpar);
 	};
@@ -520,9 +535,9 @@ function Cart(){
 	
 	this.currencyStringForPaypalCheckout = function( value ){
 		if( this.currencySymbol == "&#36;" ){
-			return "$" + parseFloat( value );
+			return "$" + parseFloat( value ).toFixed(2);
 		} else {
-			return "" + parseFloat(value );
+			return "" + parseFloat(value ).toFixed(2);
 		}
 	};
 	
