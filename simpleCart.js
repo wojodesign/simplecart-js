@@ -30,7 +30,7 @@ var NextId=1,Custom="Custom",GoogleCheckout="GoogleCheckout",PayPal="PayPal",Ema
 function Cart(){
 
 	/* member variables */
-	this.Version = '2.0';
+	this.Version = '2.0.1';
 	this.Shelf = new Shelf();
 	this.items = {};
 	this.isLoaded = false;
@@ -534,7 +534,7 @@ function Cart(){
 	
 	
 	this.currencyStringForPaypalCheckout = function( value ){
-		if( this.currencySymbol == "&#36;" ){
+		if( this.currencySymbol() == "&#36;" ){
 			return "$" + parseFloat( value ).toFixed(2);
 		} else {
 			return "" + parseFloat(value ).toFixed(2);
@@ -551,7 +551,7 @@ function Cart(){
 	};
 	
 	this.valueToPercentageString = function( value ){
-		return parseFloat( 100*value ).toFixed(0) + "%";
+		return parseFloat( 100*value ) + "%";
 	};
 	
 	this.valueToImageString = function( value ){
