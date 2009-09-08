@@ -249,6 +249,7 @@ function Cart(){
 			}
 			descriptionString = descriptionString.substring( 1 );
 			form.appendChild( this.createHiddenElement( "item_description_" + counter, descriptionString) );
+			counter++;
 		}
 		
 		document.body.appendChild( form );
