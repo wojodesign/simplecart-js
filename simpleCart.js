@@ -703,7 +703,7 @@ function CartItem() {
 	};
 	
 	CartItem.prototype.decrement = function(){
-		if( parseInt(this.quanity,10) < 2 ){
+		if( parseInt(this.quantity,10) < 2 ){
 			this.remove();
 		} else {
 			this.quantity = parseInt(this.quantity,10) - 1;
@@ -803,9 +803,9 @@ function Shelf(){
 		for(var x=0;item.childNodes[x];x++){
 			
 			var node = item.childNodes[x];
-			if( node.className && node.className.match(/item_/) ){
+			if( node.className && node.className.match(/item_[^ ]+/) ){
 				
-				var data=node.className.split('_');
+				var data = /item_[^ ]+/.exec(node.className)[0].split("_");
 				
 				if( data[1] == "add" || data[1] == "Add" ){
 					var tempArray = [];
