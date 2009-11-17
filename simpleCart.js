@@ -29,26 +29,27 @@ THE SOFTWARE.
 var NextId=1,Custom="Custom",GoogleCheckout="GoogleCheckout",PayPal="PayPal",Email="Email",AustralianDollar=AUD="AUD",CanadianDollar=CAD="CAD",CzechKoruna=CZK="CZK",DanishKrone=DKK="DKK",Euro=EUR="EUR",HongKongDollar=HKD="HKD",HungarianForint=HUF="HUF",IsraeliNewSheqel=ILS="ILS",JapaneseYen=JPY="JPY",MexicanPeso=MXN="MXN",NorwegianKrone=NOK="NOK",NewZealandDollar=NZD="NZD",PolishZloty=PLN="PLN",PoundSterling=GBP="GBP",SingaporeDollar=SGD="SGD",SwedishKrona=SEK="SEK",SwissFranc=CHF="CHF",USDollar=USD="USD";
 function Cart(){
 
+	var me = this;
 	/* member variables */
-	this.Version = '2.0.1';
-	this.Shelf = new Shelf();
-	this.items = {};
-	this.isLoaded = false;
-	this.pageIsReady = false;
-	this.quantity = 0;
-	this.total = 0;
-	this.taxRate = 0;
-	this.taxCost = 0;
-	this.shippingFlatRate = 0;
-	this.shippingTotalRate = 0;
-	this.shippingQuantityRate = 0;
-	this.shippingRate = 0;
-	this.shippingCost = 0;
-	this.currency = USD;
-	this.checkoutTo = PayPal;
-	this.email = "";
-	this.merchantId	 = "";
-	this.cartHeaders = ['Name','Price','Quantity','Total'];
+	me.Version = '2.0.1';
+	me.Shelf = new Shelf();
+	me.items = {};
+	me.isLoaded = false;
+	me.pageIsReady = false;
+	me.quantity = 0;
+	me.total = 0;
+	me.taxRate = 0;
+	me.taxCost = 0;
+	me.shippingFlatRate = 0;
+	me.shippingTotalRate = 0;
+	me.shippingQuantityRate = 0;
+	me.shippingRate = 0;
+	me.shippingCost = 0;
+	me.currency = USD;
+	me.checkoutTo = PayPal;
+	me.email = "";
+	me.merchantId	 = "";
+	me.cartHeaders = ['Name','Price','Quantity','Total'];
 	/* 
 		cart headers: 
 		you can set these to which ever order you would like, and the cart will display the appropriate headers
@@ -82,15 +83,16 @@ function Cart(){
 			add/remove items to cart  
  	 ******************************************************/
 
-	this.add = function () {
+	me.add = function () {
+		var me=this;
 		/* load cart values if not already loaded */
-		if( !this.pageIsReady 	) { 
-			this.initializeView(); 
-			this.update();	
+		if( !me.pageIsReady 	) { 
+			me.initializeView(); 
+			me.update();	
 		}
-		if( !this.isLoaded 		) { 
-			this.load(); 
-			this.update();	
+		if( !me.isLoaded 		) { 
+			me.load(); 
+			me.update();	
 		}
 		
 		var newItem = new CartItem();
@@ -109,18 +111,18 @@ function Cart(){
 		newItem.checkQuantityAndPrice();
 		
 		/* if the item already exists, update the quantity */
-		if( this.hasItem(newItem) ) {
-			var id=this.hasItem(newItem);
-			this.items[id].quantity= parseInt(this.items[id].quantity,10) + parseInt(newItem.quantity,10);
+		if( me.hasItem(newItem) ) {
+			var id=me.hasItem(newItem);
+			me.items[id].quantity= parseInt(me.items[id].quantity,10) + parseInt(newItem.quantity,10);
 		} else {
-			this.items[newItem.id] = newItem;
+			me.items[newItem.id] = newItem;
 		}	
 		
-		this.update();
+		me.update();
 	};
 	
 	
-	this.remove = function( id ){
+	me.remove = function( id ){
 		var tempArray = {};
 		for( var item in this.items ){
 			if( item != id ){ 
@@ -130,18 +132,37 @@ function Cart(){
 		this.items = tempArray;
 	};
 	
-	
-	this.empty = function () {
+	me.empty = function () {
 		simpleCart.items = {};
 		simpleCart.update();
 	};
+	
+	/******************************************************
+			 item accessor functions
+     ******************************************************/
 
+	me.find = function (criteria) {
+		if( !criteria )
+			return null;
+		var results = [];
+		for( var next in me.items ){
+			var item = me.items[next],
+				fits = true;
+			for( var name in criteria ){
+				if( !item[name] || item[name] != criteria[name] )
+					fits = false;
+			}
+			if( fits )
+				results.push( me.next )
+		}
+		return (results.length == 0 ) ? null : results;
+	}
 
 	/******************************************************
 			 checkout management 
      ******************************************************/
 
-	this.checkout = function() {
+	me.checkout = function() {
 		if( simpleCart.quantity === 0 ){
 			error("Cart is empty");
 			return;
@@ -162,24 +183,25 @@ function Cart(){
 		}
 	};
 	
-	this.paypalCheckout = function() {
+	me.paypalCheckout = function() {
 		
 		var winpar = "scrollbars,location,resizable,status",
 			strn  = "https://www.paypal.com/cgi-bin/webscr?cmd=_cart" +
 		   			"&upload=1" +
-		        	"&business=" + this.email + 
-					"&currency_code=" + this.currency,
+		        	"&business=" + me.email + 
+					"&currency_code=" + me.currency,
 			counter = 1,
-			itemsString = "";
+			itemsString = "",
+			me = this;
 			
 		
-		if( this.taxRate ){
+		if( me.taxRate ){
 			strn = strn + 
-				"&tax_cart=" +  this.currencyStringForPaypalCheckout( this.taxCost );
+				"&tax_cart=" +  me.currencyStringForPaypalCheckout( me.taxCost );
 		}
 		
-		for( var current in this.items ){
-			var item = this.items[current];
+		for( var current in me.items ){
+			var item = me.items[current];
 			
 			var optionsString = "";
 			for( var field in item ){
@@ -192,17 +214,17 @@ function Cart(){
 			itemsString = itemsString 	+ "&item_name_" 	+ counter + "=" + item.name  +
 									 	  "&item_number_" 	+ counter + "=" + counter +
 										  "&quantity_"		+ counter + "=" + item.quantity +
-										  "&amount_"		+ counter + "=" + this.currencyStringForPaypalCheckout( item.price ) + 
+										  "&amount_"		+ counter + "=" + me.currencyStringForPaypalCheckout( item.price ) + 
 										  "&on0_" 			+ counter + "=" + "Options" + 
 										  "&os0_"			+ counter + "=" + optionsString;
 			counter++;
 		}
 		
-		if( this.shipping() != 0){
+		if( me.shipping() != 0){
 			 itemsString = itemsString 	+ "&item_name_" 	+ counter + "=Shipping"  +
 									 	  "&item_number_" 	+ counter + "=" + counter +
 										  "&quantity_"		+ counter + "=1" + 
-										  "&amount_"		+ counter + "=" + this.currencyStringForPaypalCheckout( this.shippingCost );
+										  "&amount_"		+ counter + "=" + me.currencyStringForPaypalCheckout( me.shippingCost );
 		}
 		
 		
@@ -210,11 +232,12 @@ function Cart(){
 		window.open (strn, "paypal", winpar);
 	};
 
-	this.googleCheckout = function() {
-		if( this.currency != USD && this.currency != GBP ){
+	me.googleCheckout = function() {
+		var me = this;
+		if( me.currency != USD && me.currency != GBP ){
 			error( "Google Checkout only allows the USD and GBP for currency.");
 			return;
-		} else if( this.merchantId === "" || this.merchantId === null || !this.merchantId ){
+		} else if( me.merchantId === "" || me.merchantId === null || !me.merchantId ){
 			error( "No merchant Id for google checkout supplied.");
 			return;
 		} 
@@ -224,17 +247,17 @@ function Cart(){
 		form.style.display = "none";
 		form.method = "POST";
 		form.action = "https://checkout.google.com/api/checkout/v2/checkoutForm/Merchant/" + 
-						this.merchantId;
+						me.merchantId;
 		form.acceptCharset = "utf-8";
 		
-		for( var current in this.items ){
-			var item 				= this.items[current];
-			form.appendChild( this.createHiddenElement( "item_name_" 		+ counter, item.name		) );
-			form.appendChild( this.createHiddenElement( "item_quantity_" 	+ counter, item.quantity 	) );
-			form.appendChild( this.createHiddenElement( "item_price_" 		+ counter, item.price		) );
-			form.appendChild( this.createHiddenElement( "item_currency_" 	+ counter, this.currency 	) );
-			form.appendChild( this.createHiddenElement( "item_tax_rate_" 	+ counter, this.taxRate 	) );
-			form.appendChild( this.createHiddenElement( "_charset_"					 , ""				) );
+		for( var current in me.items ){
+			var item 				= me.items[current];
+			form.appendChild( me.createHiddenElement( "item_name_" 		+ counter, item.name		) );
+			form.appendChild( me.createHiddenElement( "item_quantity_" 	+ counter, item.quantity 	) );
+			form.appendChild( me.createHiddenElement( "item_price_" 		+ counter, item.price		) );
+			form.appendChild( me.createHiddenElement( "item_currency_" 	+ counter, me.currency 	) );
+			form.appendChild( me.createHiddenElement( "item_tax_rate_" 	+ counter, me.taxRate 	) );
+			form.appendChild( me.createHiddenElement( "_charset_"					 , ""				) );
 			
 			var descriptionString = "";
 			
@@ -248,7 +271,7 @@ function Cart(){
 				}
 			}
 			descriptionString = descriptionString.substring( 1 );
-			form.appendChild( this.createHiddenElement( "item_description_" + counter, descriptionString) );
+			form.appendChild( me.createHiddenElement( "item_description_" + counter, descriptionString) );
 			counter++;
 		}
 		
@@ -259,11 +282,11 @@ function Cart(){
 	
 	
 	
-	this.emailCheckout = function() {
+	me.emailCheckout = function() {
 		return;
 	};
 	
-	this.customCheckout = function() {
+	me.customCheckout = function() {
 		return;
 	};
 
@@ -275,11 +298,12 @@ function Cart(){
 	 ******************************************************/
 	
 	/* load cart from cookie */
-	this.load = function () {
+	me.load = function () {
+		var me = this;
 		/* initialize variables and items array */
-		this.items = {};
-		this.total = 0.00;
-		this.quantity = 0;
+		me.items = {};
+		me.total = 0.00;
+		me.quantity = 0;
 		
 		/* retrieve item data from cookie */
 		if( readCookie('simpleCart') ){
@@ -292,17 +316,17 @@ function Cart(){
 				if( newItem.parseValuesFromArray( info ) ){
 					newItem.checkQuantityAndPrice();
 					/* store the new item in the cart */
-					this.items[newItem.id] = newItem;
+					me.items[newItem.id] = newItem;
 				}
  			}
 		}
-		this.isLoaded = true;
+		me.isLoaded = true;
 	};
 	
 	
 	
 	/* save cart to cookie */
-	this.save = function () {
+	me.save = function () {
 		var dataString = "";
 		for( var item in this.items ){
 			dataString = dataString + "++" + this.items[item].print();
@@ -318,34 +342,35 @@ function Cart(){
 				 view management 
 	 ******************************************************/
 	
-	this.initializeView = function() {
-		this.totalOutlets 			= getElementsByClassName('simpleCart_total');
-		this.quantityOutlets 		= getElementsByClassName('simpleCart_quantity');
-		this.cartDivs 				= getElementsByClassName('simpleCart_items');
-		this.taxCostOutlets			= getElementsByClassName('simpleCart_taxCost');
-		this.taxRateOutlets			= getElementsByClassName('simpleCart_taxRate');
-		this.shippingCostOutlets	= getElementsByClassName('simpleCart_shippingCost');
-		this.finalTotalOutlets		= getElementsByClassName('simpleCart_finalTotal');
+	me.initializeView = function() {
+		var me = this;
+		me.totalOutlets 			= getElementsByClassName('simpleCart_total');
+		me.quantityOutlets 			= getElementsByClassName('simpleCart_quantity');
+		me.cartDivs 				= getElementsByClassName('simpleCart_items');
+		me.taxCostOutlets			= getElementsByClassName('simpleCart_taxCost');
+		me.taxRateOutlets			= getElementsByClassName('simpleCart_taxRate');
+		me.shippingCostOutlets		= getElementsByClassName('simpleCart_shippingCost');
+		me.finalTotalOutlets		= getElementsByClassName('simpleCart_finalTotal');
 		
-		this.addEventToArray( getElementsByClassName('simpleCart_checkout') , simpleCart.checkout , "click");
-		this.addEventToArray( getElementsByClassName('simpleCart_empty') 	, simpleCart.empty , "click" );
+		me.addEventToArray( getElementsByClassName('simpleCart_checkout') , simpleCart.checkout , "click");
+		me.addEventToArray( getElementsByClassName('simpleCart_empty') 	, simpleCart.empty , "click" );
 		
-		this.Shelf.readPage();
+		me.Shelf.readPage();
 			
-		this.pageIsReady = true;
+		me.pageIsReady = true;
 		
 	};
 	
 	
 	
-	this.updateView = function() {
-		this.updateViewTotals();
-		if( this.cartDivs && this.cartDivs.length > 0 ){ 
-			this.updateCartView(); 
+	me.updateView = function() {
+		me.updateViewTotals();
+		if( me.cartDivs && me.cartDivs.length > 0 ){ 
+			me.updateCartView(); 
 		}
 	};
 	
-	this.updateViewTotals = function() {
+	me.updateViewTotals = function() {
 		var outlets = [ ["quantity"		, "none"		] , 
 						["total"		, "currency"	] , 
 						["shippingCost"	, "currency"	] ,
@@ -358,35 +383,35 @@ function Cart(){
 			var arrayName = outlets[x][0] + "Outlets",
 				outputString;
 				
-			for( var element in this[ arrayName ] ){
+			for( var element in me[ arrayName ] ){
 				switch( outlets[x][1] ){
 					case "none":
-						outputString = "" + this[outlets[x][0]];
+						outputString = "" + me[outlets[x][0]];
 						break;
 					case "currency":
-						outputString = this.valueToCurrencyString( this[outlets[x][0]] );
+						outputString = me.valueToCurrencyString( me[outlets[x][0]] );
 						break;
 					case "percentage":
-						outputString = this.valueToPercentageString( this[outlets[x][0]] );
+						outputString = me.valueToPercentageString( me[outlets[x][0]] );
 						break;
 					default:
-						outputString = "" + this[outlets[x][0]];
+						outputString = "" + me[outlets[x][0]];
 						break;
 				}
-				this[arrayName][element].innerHTML = "" + outputString;
+				me[arrayName][element].innerHTML = "" + outputString;
 			}
 		}
 	};
 	
-	this.updateCartView = function() {
+	me.updateCartView = function() {
 		var newRows = [],
 			x,newRow,item,current,header,newCell,info,outputValue,option,headerInfo;
 		
 		/* create headers row */
 		newRow = document.createElement('div');
-		for( header in this.cartHeaders ){
+		for( header in me.cartHeaders ){
 			newCell = document.createElement('div');
-			headerInfo = this.cartHeaders[header].split("_");
+			headerInfo = me.cartHeaders[header].split("_");
 			
 			newCell.innerHTML = headerInfo[0];
 			newCell.className = "item" + headerInfo[0];
@@ -403,30 +428,30 @@ function Cart(){
 		
 		/* create a row for each item in the cart */
 		x=1;
-		for( current in this.items ){
+		for( current in me.items ){
 			newRow = document.createElement('div');
-			item = this.items[current];
+			item = me.items[current];
 			
-			for( header in this.cartHeaders ){
+			for( header in me.cartHeaders ){
 				
 				newCell = document.createElement('div');
-				info = this.cartHeaders[header].split("_");
+				info = me.cartHeaders[header].split("_");
 				
 				switch( info[0].toLowerCase() ){
 					case "total":
-						outputValue = this.valueToCurrencyString(parseFloat(item.price)*parseInt(item.quantity,10) );
+						outputValue = me.valueToCurrencyString(parseFloat(item.price)*parseInt(item.quantity,10) );
 						break;
 					case "increment":
-						outputValue = this.valueToLink( "+" , "javascript:;" , "onclick=\"simpleCart.items[\'" + item.id + "\'].increment();\"" );
+						outputValue = me.valueToLink( "+" , "javascript:;" , "onclick=\"simpleCart.items[\'" + item.id + "\'].increment();\"" );
 						break;
 					case "decrement":
-						outputValue = this.valueToLink( "-" , "javascript:;" , "onclick=\"simpleCart.items[\'" + item.id + "\'].decrement();\"" );
+						outputValue = me.valueToLink( "-" , "javascript:;" , "onclick=\"simpleCart.items[\'" + item.id + "\'].decrement();\"" );
 						break;
 					case "remove":
-						outputValue = this.valueToLink( "Remove" , "javascript:;" , "onclick=\"simpleCart.items[\'" + item.id + "\'].remove();\"" );
+						outputValue = me.valueToLink( "Remove" , "javascript:;" , "onclick=\"simpleCart.items[\'" + item.id + "\'].remove();\"" );
 						break;
 					case "price":
-						outputValue = this.valueToCurrencyString( item[ info[0].toLowerCase() ] ? item[info[0].toLowerCase()] : " " );
+						outputValue = me.valueToCurrencyString( item[ info[0].toLowerCase() ] ? item[info[0].toLowerCase()] : " " );
 						break;
 					default: 
 						outputValue = item[ info[0].toLowerCase() ] ? item[info[0].toLowerCase()] : " ";
@@ -438,10 +463,10 @@ function Cart(){
 					switch( option ){
 						case "image":
 						case "img":
-							outputValue = this.valueToImageString( outputValue );		
+							outputValue = me.valueToImageString( outputValue );		
 							break;
 						case "input":
-							outputValue = this.valueToTextInput( outputValue , "onchange=\"simpleCart.items[\'" + item.id + "\'].set(\'" + outputValue + "\' , this.value);\""  );
+							outputValue = me.valueToTextInput( outputValue , "onchange=\"simpleCart.items[\'" + item.id + "\'].set(\'" + outputValue + "\' , this.value);\""  );
 							break;
 						case "div":
 						case "span":
@@ -450,7 +475,7 @@ function Cart(){
 						case "h3":
 						case "h4":
 						case "p":
-							outputValue = this.valueToElement( option , outputValue , "" );
+							outputValue = me.valueToElement( option , outputValue , "" );
 							break;
 						case "noheader":
 							break;
@@ -471,10 +496,10 @@ function Cart(){
 		
 		
 		
-		for( current in this.cartDivs ){
+		for( current in me.cartDivs ){
 			
 			/* delete current rows in div */
-			var div = this.cartDivs[current];
+			var div = me.cartDivs[current];
 			while( div.childNodes[0] ){
 				div.removeChild( div.childNodes[0] );
 			}
@@ -487,7 +512,7 @@ function Cart(){
 		}
 	};
 
-	this.addEventToArray = function ( array , functionCall , theEvent ) {
+	me.addEventToArray = function ( array , functionCall , theEvent ) {
 		for( var outlet in array ){
 			var element = array[outlet];
 			if( element.addEventListener ) {
@@ -499,7 +524,7 @@ function Cart(){
 	};
 	
 	
-	this.createHiddenElement = function ( name , value ){
+	me.createHiddenElement = function ( name , value ){
 		var element = document.createElement("input");
 		element.type = "hidden";
 		element.name = name;
@@ -513,8 +538,8 @@ function Cart(){
 				Currency management
 	 ******************************************************/
 	
-	this.currencySymbol = function() {		
-		switch(this.currency){
+	me.currencySymbol = function() {		
+		switch(me.currency){
 			case JPY:
 				return "&yen;";
 			case EUR:
@@ -534,8 +559,8 @@ function Cart(){
 	};
 	
 	
-	this.currencyStringForPaypalCheckout = function( value ){
-		if( this.currencySymbol() == "&#36;" ){
+	me.currencyStringForPaypalCheckout = function( value ){
+		if( me.currencySymbol() == "&#36;" ){
 			return "$" + parseFloat( value ).toFixed(2);
 		} else {
 			return "" + parseFloat(value ).toFixed(2);
@@ -547,15 +572,15 @@ function Cart(){
 	 ******************************************************/
 	
 	
-	this.valueToCurrencyString = function( value ) {
-		return parseFloat( value ).toCurrency( this.currencySymbol() );
+	me.valueToCurrencyString = function( value ) {
+		return parseFloat( value ).toCurrency( me.currencySymbol() );
 	};
 	
-	this.valueToPercentageString = function( value ){
+	me.valueToPercentageString = function( value ){
 		return parseFloat( 100*value ) + "%";
 	};
 	
-	this.valueToImageString = function( value ){
+	me.valueToImageString = function( value ){
 		if( value.match(/<\s*img.*src\=/) ){
 			return value;
 		} else {
@@ -563,15 +588,15 @@ function Cart(){
 		}
 	};
 	
-	this.valueToTextInput = function( value , html ){
+	me.valueToTextInput = function( value , html ){
 		return "<input type=\"text\" value=\"" + value + "\" " + html + " />";
 	};
 	
-	this.valueToLink = function( value, link, html){
+	me.valueToLink = function( value, link, html){
 		return "<a href=\"" + link + "\" " + html + " >" + value + "</a>";
 	};
 	
-	this.valueToElement = function( type , value , html ){
+	me.valueToElement = function( type , value , html ){
 		return "<" + type + " " + html + " > " + value + "</" + type + ">";
 	};
 	
@@ -579,9 +604,9 @@ function Cart(){
 				Duplicate management
 	 ******************************************************/
 	
-	this.hasItem = function ( item ) {
-		for( var current in this.items ) {
-			var testItem = this.items[current];
+	me.hasItem = function ( item ) {
+		for( var current in me.items ) {
+			var testItem = me.items[current];
 			var matches = true;
 			for( var field in item ){
 				if( typeof( item[field] ) != "function"	&& 
@@ -606,47 +631,47 @@ function Cart(){
 				Cart Update managment
 	 ******************************************************/
 	
-	this.update = function() {
+	me.update = function() {
 		if( !simpleCart.isLoaded ){
 			simpleCart.load();
 		} 
 		if( !simpleCart.pageIsReady ){
 			simpleCart.initializeView();
 		}
-		this.updateTotals();
-		this.updateView();
-		this.save();
+		me.updateTotals();
+		me.updateView();
+		me.save();
 	};
 	
-	this.updateTotals = function() {
-		this.total = 0 ;
-		this.quantity  = 0;
-		for( var current in this.items ){
-			var item = this.items[current];
+	me.updateTotals = function() {
+		me.total = 0 ;
+		me.quantity  = 0;
+		for( var current in me.items ){
+			var item = me.items[current];
 			if( item.quantity < 1 ){ 
 				item.remove();
 			} else if( item.quantity !== null && item.quantity != "undefined" ){
-				this.quantity = parseInt(this.quantity,10) + parseInt(item.quantity,10); 
+				me.quantity = parseInt(me.quantity,10) + parseInt(item.quantity,10); 
 			}
 			if( item.price ){ 
-				this.total = parseFloat(this.total) + parseInt(item.quantity,10)*parseFloat(item.price); 
+				me.total = parseFloat(me.total) + parseInt(item.quantity,10)*parseFloat(item.price); 
 			}
 		}
-		this.shippingCost = this.shipping();
-		this.taxCost = parseFloat(this.total)*this.taxRate;
-		this.finalTotal = this.shippingCost + this.taxCost + this.total;
+		me.shippingCost = me.shipping();
+		me.taxCost = parseFloat(me.total)*me.taxRate;
+		me.finalTotal = me.shippingCost + me.taxCost + me.total;
 	};
 	
-	this.shipping = function(){
-		if( parseInt(this.quantity,10)===0 )
+	me.shipping = function(){
+		if( parseInt(me.quantity,10)===0 )
 			return 0;
-		var shipping = 	parseFloat(this.shippingFlatRate) + 
-					  	parseFloat(this.shippingTotalRate)*parseFloat(this.total) +
-						parseFloat(this.shippingQuantityRate)*parseInt(this.quantity,10),
+		var shipping = 	parseFloat(me.shippingFlatRate) + 
+					  	parseFloat(me.shippingTotalRate)*parseFloat(me.total) +
+						parseFloat(me.shippingQuantityRate)*parseInt(me.quantity,10),
 			nextItem,
 			next;
-		for(next in this.items){
-			nextItem = this.items[next];
+		for(next in me.items){
+			nextItem = me.items[next];
 			if( nextItem.shipping ){
 				if( typeof nextItem.shipping == 'function' ){
 					shipping += parseFloat(nextItem.shipping());
@@ -659,7 +684,7 @@ function Cart(){
 		return shipping;
 	}
 	
-	this.initialize = function() {
+	me.initialize = function() {
 		simpleCart.initializeView();
 		simpleCart.load();
 		simpleCart.update();
@@ -1029,4 +1054,6 @@ function error( message ){
 
 var simpleCart = new Cart();
 
-window.onload = simpleCart.initialize;
+if( typeof jQuery !== 'undefined' ) $(document).ready(function(){simpleCart.initialize();}); 
+else if( typeof Prototype !== 'undefined') Event.observe( window, 'load', function(){simpleCart.initialize();});
+else window.onload = simpleCart.initialize;
