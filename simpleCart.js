@@ -26,9 +26,26 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
 
-var NextId=1,Custom="Custom",GoogleCheckout="GoogleCheckout",PayPal="PayPal",Email="Email",AustralianDollar=AUD="AUD",CanadianDollar=CAD="CAD",CzechKoruna=CZK="CZK",DanishKrone=DKK="DKK",Euro=EUR="EUR",HongKongDollar=HKD="HKD",HungarianForint=HUF="HUF",IsraeliNewSheqel=ILS="ILS",JapaneseYen=JPY="JPY",MexicanPeso=MXN="MXN",NorwegianKrone=NOK="NOK",NewZealandDollar=NZD="NZD",PolishZloty=PLN="PLN",PoundSterling=GBP="GBP",SingaporeDollar=SGD="SGD",SwedishKrona=SEK="SEK",SwissFranc=CHF="CHF",USDollar=USD="USD";
-function Cart(){
 
+
+
+var NextId=1,Custom="Custom",GoogleCheckout="GoogleCheckout",PayPal="PayPal",Email="Email",AustralianDollar=AUD="AUD",CanadianDollar=CAD="CAD",CzechKoruna=CZK="CZK",DanishKrone=DKK="DKK",Euro=EUR="EUR",HongKongDollar=HKD="HKD",HungarianForint=HUF="HUF",IsraeliNewSheqel=ILS="ILS",JapaneseYen=JPY="JPY",MexicanPeso=MXN="MXN",NorwegianKrone=NOK="NOK",NewZealandDollar=NZD="NZD",PolishZloty=PLN="PLN",PoundSterling=GBP="GBP",SingaporeDollar=SGD="SGD",SwedishKrona=SEK="SEK",SwissFranc=CHF="CHF",USDollar=USD="USD",
+ 	English = { PRICE: "price", QUANTITY: "quantity", TOTAL: "total" }, PRICE="price",TOTAL="total",QUANTITY="quantity";
+
+/***********************************
+ * 		LANGUAGE MANAGEMENT		   *
+ ***********************************/
+	
+	function setLanguage( language ){
+		PRICE = language.PRICE.toLowerCase(),
+		QUANTITY = language.QUANTITY.toLowerCase(),
+		TOTAL = language.TOTAL.toLowerCase();
+	}
+	
+
+
+function Cart(){
+	
 	var me = this;
 	/* member variables */
 	me.Version = '2.0.1';
@@ -36,8 +53,8 @@ function Cart(){
 	me.items = {};
 	me.isLoaded = false;
 	me.pageIsReady = false;
-	me.quantity = 0;
-	me.total = 0;
+	me[QUANTITY] = 0;
+	me[TOTAL] = 0;
 	me.taxRate = 0;
 	me.taxCost = 0;
 	me.shippingFlatRate = 0;
@@ -49,7 +66,7 @@ function Cart(){
 	me.checkoutTo = PayPal;
 	me.email = "";
 	me.merchantId	 = "";
-	me.cartHeaders = ['Name','Price','Quantity','Total'];
+	me.cartHeaders = ['Name','Price','Quantiy','Total'];
 	/* 
 		cart headers: 
 		you can set these to which ever order you would like, and the cart will display the appropriate headers
@@ -113,7 +130,7 @@ function Cart(){
 		/* if the item already exists, update the quantity */
 		if( me.hasItem(newItem) ) {
 			var id=me.hasItem(newItem);
-			me.items[id].quantity= parseInt(me.items[id].quantity,10) + parseInt(newItem.quantity,10);
+			me.items[id][QUANTITY]= parseInt(me.items[id][QUANTITY],10) + parseInt(newItem[QUANTITY],10);
 		} else {
 			me.items[newItem.id] = newItem;
 		}	
@@ -163,7 +180,7 @@ function Cart(){
      ******************************************************/
 
 	me.checkout = function() {
-		if( simpleCart.quantity === 0 ){
+		if( simpleCart[QUANTITY] === 0 ){
 			error("Cart is empty");
 			return;
 		}
@@ -205,7 +222,7 @@ function Cart(){
 			
 			var optionsString = "";
 			for( var field in item ){
-				if( typeof(item[field]) != "function" && field != "id" && field != "price" && field != "quantity" && field != "name" /*&& field != "shipping"*/) {
+				if( typeof(item[field]) != "function" && field != "id" && field != PRICE && field != QUANTITY && field != "name" /*&& field != "shipping"*/) {
 					optionsString = optionsString + "&" + field + "=" + item[field] ; 
 				}
 			}
@@ -213,8 +230,8 @@ function Cart(){
 			
 			itemsString = itemsString 	+ "&item_name_" 	+ counter + "=" + item.name  +
 									 	  "&item_number_" 	+ counter + "=" + counter +
-										  "&quantity_"		+ counter + "=" + item.quantity +
-										  "&amount_"		+ counter + "=" + me.currencyStringForPaypalCheckout( item.price ) + 
+										  "&quantity_"		+ counter + "=" + item[QUANTITY] +
+										  "&amount_"		+ counter + "=" + me.currencyStringForPaypalCheckout( item[PRICE] ) + 
 										  "&on0_" 			+ counter + "=" + "Options" + 
 										  "&os0_"			+ counter + "=" + optionsString;
 			counter++;
@@ -253,8 +270,8 @@ function Cart(){
 		for( var current in me.items ){
 			var item 				= me.items[current];
 			form.appendChild( me.createHiddenElement( "item_name_" 		+ counter, item.name		) );
-			form.appendChild( me.createHiddenElement( "item_quantity_" 	+ counter, item.quantity 	) );
-			form.appendChild( me.createHiddenElement( "item_price_" 		+ counter, item.price		) );
+			form.appendChild( me.createHiddenElement( "item_quantity_" 	+ counter, item[QUANTITY] 	) );
+			form.appendChild( me.createHiddenElement( "item_price_" 		+ counter, item[PRICE]		) );
 			form.appendChild( me.createHiddenElement( "item_currency_" 	+ counter, me.currency 	) );
 			form.appendChild( me.createHiddenElement( "item_tax_rate_" 	+ counter, me.taxRate 	) );
 			form.appendChild( me.createHiddenElement( "_charset_"					 , ""				) );
@@ -264,8 +281,8 @@ function Cart(){
 			for( var field in item){
 				if( typeof( item[field] ) != "function" && 
 									field != "id" 		&& 
-									field != "quantity"	&& 
-									field != "price" )
+									field != QUANTITY	&& 
+									field != PRICE )
 				{
 						descriptionString = descriptionString + ", " + field + ": " + item[field];				
 				}
@@ -302,8 +319,8 @@ function Cart(){
 		var me = this;
 		/* initialize variables and items array */
 		me.items = {};
-		me.total = 0.00;
-		me.quantity = 0;
+		me[TOTAL] = 0.00;
+		me[QUANTITY] = 0;
 		
 		/* retrieve item data from cookie */
 		if( readCookie('simpleCart') ){
@@ -344,8 +361,8 @@ function Cart(){
 	
 	me.initializeView = function() {
 		var me = this;
-		me.totalOutlets 			= getElementsByClassName('simpleCart_total');
-		me.quantityOutlets 			= getElementsByClassName('simpleCart_quantity');
+		me.totalOutlets 			= getElementsByClassName('simpleCart_' + TOTAL);
+		me.quantityOutlets 			= getElementsByClassName('simpleCart_' + QUANTITY);
 		me.cartDivs 				= getElementsByClassName('simpleCart_items');
 		me.taxCostOutlets			= getElementsByClassName('simpleCart_taxCost');
 		me.taxRateOutlets			= getElementsByClassName('simpleCart_taxRate');
@@ -371,8 +388,8 @@ function Cart(){
 	};
 	
 	me.updateViewTotals = function() {
-		var outlets = [ ["quantity"		, "none"		] , 
-						["total"		, "currency"	] , 
+		var outlets = [ [QUANTITY		, "none"		] , 
+						[TOTAL			, "currency"	] , 
 						["shippingCost"	, "currency"	] ,
 						["taxCost"		, "currency"	] ,
 						["taxRate"		, "percentage"	] ,
@@ -438,8 +455,8 @@ function Cart(){
 				info = me.cartHeaders[header].split("_");
 				
 				switch( info[0].toLowerCase() ){
-					case "total":
-						outputValue = me.valueToCurrencyString(parseFloat(item.price)*parseInt(item.quantity,10) );
+					case TOTAL:
+						outputValue = me.valueToCurrencyString(parseFloat(item[PRICE])*parseInt(item[QUANTITY],10) );
 						break;
 					case "increment":
 						outputValue = me.valueToLink( "+" , "javascript:;" , "onclick=\"simpleCart.items[\'" + item.id + "\'].increment();\"" );
@@ -450,7 +467,7 @@ function Cart(){
 					case "remove":
 						outputValue = me.valueToLink( "Remove" , "javascript:;" , "onclick=\"simpleCart.items[\'" + item.id + "\'].remove();\"" );
 						break;
-					case "price":
+					case PRICE:
 						outputValue = me.valueToCurrencyString( item[ info[0].toLowerCase() ] ? item[info[0].toLowerCase()] : " " );
 						break;
 					default: 
@@ -644,30 +661,30 @@ function Cart(){
 	};
 	
 	me.updateTotals = function() {
-		me.total = 0 ;
-		me.quantity  = 0;
+		me[TOTAL] = 0 ;
+		me[QUANTITY]  = 0;
 		for( var current in me.items ){
 			var item = me.items[current];
-			if( item.quantity < 1 ){ 
+			if( item[QUANTITY] < 1 ){ 
 				item.remove();
-			} else if( item.quantity !== null && item.quantity != "undefined" ){
-				me.quantity = parseInt(me.quantity,10) + parseInt(item.quantity,10); 
+			} else if( item[QUANTITY] !== null && item[QUANTITY] != "undefined" ){
+				me[QUANTITY] = parseInt(me[QUANTITY],10) + parseInt(item[QUANTITY],10); 
 			}
-			if( item.price ){ 
-				me.total = parseFloat(me.total) + parseInt(item.quantity,10)*parseFloat(item.price); 
+			if( item[PRICE] ){ 
+				me[TOTAL] = parseFloat(me[TOTAL]) + parseInt(item[QUANTITY],10)*parseFloat(item[PRICE]); 
 			}
 		}
 		me.shippingCost = me.shipping();
-		me.taxCost = parseFloat(me.total)*me.taxRate;
-		me.finalTotal = me.shippingCost + me.taxCost + me.total;
+		me.taxCost = parseFloat(me[TOTAL])*me.taxRate;
+		me.finalTotal = me.shippingCost + me.taxCost + me[TOTAL];
 	};
 	
 	me.shipping = function(){
-		if( parseInt(me.quantity,10)===0 )
+		if( parseInt(me[QUANTITY],10)===0 )
 			return 0;
 		var shipping = 	parseFloat(me.shippingFlatRate) + 
-					  	parseFloat(me.shippingTotalRate)*parseFloat(me.total) +
-						parseFloat(me.shippingQuantityRate)*parseInt(me.quantity,10),
+					  	parseFloat(me.shippingTotalRate)*parseFloat(me[TOTAL]) +
+						parseFloat(me.shippingQuantityRate)*parseInt(me[QUANTITY],10),
 			nextItem,
 			next;
 		for(next in me.items){
@@ -702,11 +719,11 @@ function CartItem() {
 	CartItem.prototype.set = function ( field , value ){
 		field = field.toLowerCase();
 		if( typeof( this[field] ) != "function" && field != "id" ){
-			if( field == "quantity" ){
+			if( field == QUANTITY ){
 				value = value.replace( /[^(\d|\.)]*/gi , "" );
 				value = value.replace(/,*/gi, "");
 				value = parseInt(value,10);
-			} else if( field == "price"){
+			} else if( field == PRICE){
 				value = value.replace( /[^(\d|\.)]*/gi, "");
 				value = value.replace(/,*/gi , "");
 				value = parseFloat( value );
@@ -724,15 +741,15 @@ function CartItem() {
 	};
 	
 	CartItem.prototype.increment = function(){
-		this.quantity = parseInt(this.quantity,10) + 1;
+		this[QUANTITY] = parseInt(this[QUANTITY],10) + 1;
 		simpleCart.update();
 	};
 	
 	CartItem.prototype.decrement = function(){
-		if( parseInt(this.quantity,10) < 2 ){
+		if( parseInt(this[QUANTITY],10) < 2 ){
 			this.remove();
 		} else {
-			this.quantity = parseInt(this.quantity,10) - 1;
+			this[QUANTITY] = parseInt(this[QUANTITY],10) - 1;
 			simpleCart.update();
 		}
 	};
@@ -749,27 +766,27 @@ function CartItem() {
 	
 	
 	CartItem.prototype.checkQuantityAndPrice = function() {
-		if( !this.price || this.quantity == null || this.quantity == 'undefined'){ 
-			this.quantity = 1;
+		if( !this[PRICE] || this[QUANTITY] == null || this[QUANTITY] == 'undefined'){ 
+			this[QUANTITY] = 1;
 			error('No quantity for item.');
 		} else {
-			this.quantity = ("" + this.quantity).replace(/,*/gi, "" );
-			this.quantity = parseInt( ("" + this.quantity).replace( /[^(\d|\.)]*/gi, "") , 10); 
-			if( isNaN(this.quantity) ){
+			this[QUANTITY] = ("" + this[QUANTITY]).replace(/,*/gi, "" );
+			this[QUANTITY] = parseInt( ("" + this[QUANTITY]).replace( /[^(\d|\.)]*/gi, "") , 10); 
+			if( isNaN(this[QUANTITY]) ){
 				error('Quantity is not a number.');
-				this.quantity = 1;
+				this[QUANTITY] = 1;
 			}
 		}
 				
-		if( !this.price || this.price == null || this.price == 'undefined'){
-			this.price=0.00;
+		if( !this[PRICE] || this[PRICE] == null || this[PRICE] == 'undefined'){
+			this[PRICE]=0.00;
 			error('No price for item or price not properly formatted.');
 		} else {
-			this.price = ("" + this.price).replace(/,*/gi, "" );
-			this.price = parseFloat( ("" + this.price).replace( /[^(\d|\.)]*/gi, "") ); 
-			if( isNaN(this.price) ){
+			this[PRICE] = ("" + this[PRICE]).replace(/,*/gi, "" );
+			this[PRICE] = parseFloat( ("" + this[PRICE]).replace( /[^(\d|\.)]*/gi, "") ); 
+			if( isNaN(this[PRICE]) ){
 				error('Price is not a number.');
-				this.price = 0.00;
+				this[PRICE] = 0.00;
 			}
 		}
 	};
@@ -885,7 +902,7 @@ function ShelfItem(){
 				valueString = "";
 				
 				switch(field){
-					case "price":
+					case PRICE:
 						if( this[field].value ){
 							valueString = this[field].value; 
 						} else if( this[field].innerHTML ) {
