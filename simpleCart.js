@@ -205,11 +205,11 @@ function Cart(){
 			
 			var optionsString = "";
 			for( var field in item ){
-				if( typeof(item[field]) != "function" && field != "id" && field != "price" && field != "quantity" && field != "name" /*&& field != "shipping"*/) {
-					optionsString = optionsString + "&" + field + "=" + item[field] ; 
+				if( typeof(item[field]) != "function" && field != "id" && field != "price" && field != "quantity" && field != "name" && field != "shipping") {
+					optionsString = optionsString + ", " + field + "=" + item[field] ; 
 				}
 			}
-			optionsString = optionsString.substring(1);
+			optionsString = optionsString.substring(2);
 			
 			itemsString = itemsString 	+ "&item_name_" 	+ counter + "=" + item.name  +
 									 	  "&item_number_" 	+ counter + "=" + counter +
