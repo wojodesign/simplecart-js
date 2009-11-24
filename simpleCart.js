@@ -301,7 +301,11 @@ function Cart(){
 	
 	
 	me.emailCheckout = function() {
-		return;
+		var div = updateCartView( document.createElement("div") );
+		div = div.toString();
+		$.post("email.php" , {div:div} , function(data) {
+			alert( data );
+		});
 	};
 	
 	me.customCheckout = function() {
@@ -421,7 +425,7 @@ function Cart(){
 		}
 	};
 	
-	me.updateCartView = function() {
+	me.updateCartView = function(div_) {
 		var newRows = [],
 			x,newRow,item,current,header,newCell,info,outputValue,option,headerInfo;
 		
@@ -512,22 +516,27 @@ function Cart(){
 			x++;
 		}
 		
-		
-		
-		for( current in me.cartDivs ){
+		if( div_ ){
+			while( div_.childNodes[0] )
+				div_.removeChild( div_.childNodes[0] );
 			
-			/* delete current rows in div */
-			var div = me.cartDivs[current];
-			while( div.childNodes[0] ){
-				div.removeChild( div.childNodes[0] );
+			for(var j=0, jLen = newRows.length; j<jLen; j++)
+				div_.appendChild( newRows[j] );
+			return div_;
+		} else {
+			for( current in me.cartDivs ){
+
+				/* delete current rows in div */
+				var div = me.cartDivs[current];
+				while( div.childNodes[0] )
+					div.removeChild( div.childNodes[0] );
+
+				for(var j=0, jLen = newRows.length; j<jLen; j++)
+					div.appendChild( newRows[j] );
 			}
-			
-			for(var j=0, jLen = newRows.length; j<jLen; j++){
-				div.appendChild( newRows[j] );
-			}
-			
-			
 		}
+		
+		
 	};
 
 	me.addEventToArray = function ( array , functionCall , theEvent ) {
