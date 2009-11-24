@@ -301,8 +301,8 @@ function Cart(){
 	
 	
 	me.emailCheckout = function() {
-		var div = updateCartView( document.createElement("div") );
-		div = div.toString();
+		var div = me.updateCartView( document.createElement("div") );
+		div = "<div class='simpleCart_items'>" + div.innerHTML + "</div>";
 		$.post("email.php" , {div:div} , function(data) {
 			alert( data );
 		});
