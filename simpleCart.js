@@ -185,14 +185,14 @@ function Cart(){
 	
 	me.paypalCheckout = function() {
 		
-		var winpar = "scrollbars,location,resizable,status",
+		var me = this,
+			winpar = "scrollbars,location,resizable,status",
 			strn  = "https://www.paypal.com/cgi-bin/webscr?cmd=_cart" +
 		   			"&upload=1" +
 		        	"&business=" + me.email + 
 					"&currency_code=" + me.currency,
 			counter = 1,
-			itemsString = "",
-			me = this;
+			itemsString = "";
 			
 		
 		if( me.taxRate ){
