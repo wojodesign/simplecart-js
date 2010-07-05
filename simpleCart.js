@@ -540,6 +540,20 @@ function Cart(){
 	
 	me.currencySymbol = function() {		
 		switch(me.currency){
+			case CHF:
+				return "CHF&nbsp;";
+			case CZK:
+				return "CZK&nbsp;";
+			case DKK:
+				return "DKK&nbsp;";
+			case HUF:
+				return "HUF&nbsp;";
+			case NOK:
+				return "NOK&nbsp;";
+			case PLN:
+				return "PLN&nbsp;";
+			case SEK
+				return "SEK&nbsp;";
 			case JPY:
 				return "&yen;";
 			case EUR:
