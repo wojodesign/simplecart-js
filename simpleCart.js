@@ -440,7 +440,7 @@ function Cart(){
 							outputValue = this.valueToImageString( outputValue );		
 							break;
 						case "input":
-							outputValue = this.valueToTextInput( outputValue , "onchange=\"simpleCart.items[\'" + item.id + "\'].set(\'" + outputValue + "\' , this.value);\""  );
+							outputValue = this.valueToTextInput( outputValue , "onchange=\"simpleCart.items[\'" + item.id + "\'].set(\'" + info[0] + "\' , this.value);\""  );
 							break;
 						case "div":
 						case "span":
