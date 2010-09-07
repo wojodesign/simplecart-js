@@ -749,7 +749,7 @@ function CartItem() {
 	
 	
 	CartItem.prototype.checkQuantityAndPrice = function() {
-		if( !this.price || this.quantity == null || this.quantity == 'undefined'){ 
+		if( !this.quantity || this.quantity == null || this.quantity == 'undefined'){ 
 			this.quantity = 1;
 			error('No quantity for item.');
 		} else {
