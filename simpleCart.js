@@ -703,7 +703,7 @@ function CartItem() {
 	};
 	
 	CartItem.prototype.decrement = function(){
-		if( parseInt(this.quanity,10) < 2 ){
+		if( parseInt(this.quantity,10) < 2 ){
 			this.remove();
 		} else {
 			this.quantity = parseInt(this.quantity,10) - 1;
