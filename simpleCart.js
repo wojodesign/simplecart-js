@@ -466,7 +466,7 @@ function Cart(){
 							outputValue = me.valueToImageString( outputValue );		
 							break;
 						case "input":
-							outputValue = me.valueToTextInput( outputValue , "onchange=\"simpleCart.items[\'" + item.id + "\'].set(\'" + outputValue + "\' , this.value);\""  );
+							outputValue = me.valueToTextInput( outputValue , "onchange=\"simpleCart.items[\'" + item.id + "\'].set(\'" + info[0] + "\' , this.value);\""  );
 							break;
 						case "div":
 						case "span":
@@ -749,7 +749,7 @@ function CartItem() {
 	
 	
 	CartItem.prototype.checkQuantityAndPrice = function() {
-		if( !this.price || this.quantity == null || this.quantity == 'undefined'){ 
+		if( !this.quantity || this.quantity == null || this.quantity == 'undefined'){ 
 			this.quantity = 1;
 			error('No quantity for item.');
 		} else {
