@@ -546,6 +546,8 @@ function Cart(){
 				return "&euro;";
 			case GBP:
 				return "&pound;";
+			case CHF:
+				return "CHF";
 			case USD:
 			case CAD:
 			case AUD:
