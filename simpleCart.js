@@ -31,7 +31,7 @@ function Cart(){
 
 	var me = this;
 	/* member variables */
-	me.Version = '2.0.1';
+	me.Version = '2.1';
 	me.Shelf = new Shelf();
 	me.items = {};
 	me.isLoaded = false;
@@ -559,7 +559,7 @@ function Cart(){
 				return "NOK&nbsp;";
 			case PLN:
 				return "PLN&nbsp;";
-			case SEK
+			case SEK:
 				return "SEK&nbsp;";
 			case JPY:
 				return "&yen;";
@@ -568,7 +568,7 @@ function Cart(){
 			case GBP:
 				return "&pound;";
 			case CHF:
-				return "CHF";
+				return "CHF&nbsp;";
 			case USD:
 			case CAD:
 			case AUD:
