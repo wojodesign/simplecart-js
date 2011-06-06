@@ -434,59 +434,14 @@ function Cart(){
 			
 			for( header in me.cartHeaders ){
 				
+				
 				newCell = document.createElement('div');
 				info = me.cartHeaders[header].split("_");
 				
-				switch( info[0].toLowerCase() ){
-					case "total":
-						outputValue = me.valueToCurrencyString(parseFloat(item.price)*parseInt(item.quantity,10) );
-						break;
-					case "increment":
-						outputValue = me.valueToLink( "+" , "javascript:;" , "onclick=\"simpleCart.items[\'" + item.id + "\'].increment();\"" );
-						break;
-					case "decrement":
-						outputValue = me.valueToLink( "-" , "javascript:;" , "onclick=\"simpleCart.items[\'" + item.id + "\'].decrement();\"" );
-						break;
-					case "remove":
-						outputValue = me.valueToLink( "Remove" , "javascript:;" , "onclick=\"simpleCart.items[\'" + item.id + "\'].remove();\"" );
-						break;
-					case "price":
-						outputValue = me.valueToCurrencyString( item[ info[0].toLowerCase() ] ? item[info[0].toLowerCase()] : " " );
-						break;
-					default: 
-						outputValue = item[ info[0].toLowerCase() ] ? item[info[0].toLowerCase()] : " ";
-						break;
-				}	
-				
-				for( var y=1,ylen=info.length;y<ylen;y++){
-					option = info[y].toLowerCase();
-					switch( option ){
-						case "image":
-						case "img":
-							outputValue = me.valueToImageString( outputValue );		
-							break;
-						case "input":
-							outputValue = me.valueToTextInput( outputValue , "onchange=\"simpleCart.items[\'" + item.id + "\'].set(\'" + outputValue + "\' , this.value);\""  );
-							break;
-						case "div":
-						case "span":
-						case "h1":
-						case "h2":
-						case "h3":
-						case "h4":
-						case "p":
-							outputValue = me.valueToElement( option , outputValue , "" );
-							break;
-						case "noheader":
-							break;
-						default:
-							error( "unkown header option: " + option );
-							break;
-					}
-				
-				}		  
+				outputValue = me.createCartRow( info , item , outputValue );
 				newCell.innerHTML = outputValue;
 				newCell.className = "item" + info[0];
+				
 				newRow.appendChild( newCell );
 			}			
 			newRow.className = "itemContainer";
@@ -510,6 +465,59 @@ function Cart(){
 			
 			
 		}
+	};
+	
+	me.createCartRow = function( info , item , outputValue ){
+				
+		switch( info[0].toLowerCase() ){
+			case "total":
+				outputValue = me.valueToCurrencyString(parseFloat(item.price)*parseInt(item.quantity,10) );
+				break;
+			case "increment":
+				outputValue = me.valueToLink( "+" , "javascript:;" , "onclick=\"simpleCart.items[\'" + item.id + "\'].increment();\"" );
+				break;
+			case "decrement":
+				outputValue = me.valueToLink( "-" , "javascript:;" , "onclick=\"simpleCart.items[\'" + item.id + "\'].decrement();\"" );
+				break;
+			case "remove":
+				outputValue = me.valueToLink( "Remove" , "javascript:;" , "onclick=\"simpleCart.items[\'" + item.id + "\'].remove();\"" );
+				break;
+			case "price":
+				outputValue = me.valueToCurrencyString( item[ info[0].toLowerCase() ] ? item[info[0].toLowerCase()] : " " );
+				break;
+			default: 
+				outputValue = item[ info[0].toLowerCase() ] ? item[info[0].toLowerCase()] : " ";
+				break;
+		}	
+		
+		for( var y=1,ylen=info.length;y<ylen;y++){
+			option = info[y].toLowerCase();
+			switch( option ){
+				case "image":
+				case "img":
+					outputValue = me.valueToImageString( outputValue );		
+					break;
+				case "input":
+					outputValue = me.valueToTextInput( outputValue , "onchange=\"simpleCart.items[\'" + item.id + "\'].set(\'" + info[0].toLowerCase() + "\' , this.value);\""  );
+					break;
+				case "div":
+				case "span":
+				case "h1":
+				case "h2":
+				case "h3":
+				case "h4":
+				case "p":
+					outputValue = me.valueToElement( option , outputValue , "" );
+					break;
+				case "noheader":
+					break;
+				default:
+					error( "unkown header option: " + option );
+					break;
+			}
+		
+		}		  
+		return outputValue;
 	};
 
 	me.addEventToArray = function ( array , functionCall , theEvent ) {
@@ -573,7 +581,11 @@ function Cart(){
 	
 	
 	me.valueToCurrencyString = function( value ) {
-		return parseFloat( value ).toCurrency( me.currencySymbol() );
+		var val =  parseFloat( value ); 
+		if( isNaN(val))
+			val = 0;
+
+		return val.toCurrency( me.currencySymbol() );
 	};
 	
 	me.valueToPercentageString = function( value ){
