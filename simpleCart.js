@@ -50,93 +50,93 @@ function Cart(){
 	me.email = "";
 	me.merchantId	 = "";
 	me.cartHeaders = ['Name','Price','Quantity','Total'];
-	/* 
-		cart headers: 
+	/*
+		cart headers:
 		you can set these to which ever order you would like, and the cart will display the appropriate headers
-		and item info.  any field you have for the items in the cart can be used, and 'Total' will automatically 
-		be price*quantity.  
-		
+		and item info.  any field you have for the items in the cart can be used, and 'Total' will automatically
+		be price*quantity.
+
 		there are keywords that can be used:
-			
+
 			1) "_input" - the field will be a text input with the value set to the given field. when the user
 				changes the value, it will update the cart.  this can be useful for quantity. (ie "Quantity_input")
-			
+
 			2) "increment" - a link with "+" that will increase the item quantity by 1
-			
+
 			3) "decrement" - a link with "-" that will decrease the item quantity by 1
-			
-			4) "remove" - a link that will remove the item from the cart 
-			
+
+			4) "remove" - a link that will remove the item from the cart
+
 			5) "_image" or "Image" - the field will be an img tag with the src set to the value. You can simply use "Image" if
 				you set a field in the items called "Image".  If you have a field named something else, like "Thumb", you can add
 				the "_image" to create the image tag (ie "Thumb_image").
-				
+
 			6) "_noHeader" - this will skip the header for that field (ie "increment_noHeader")
-		
-	
+
+
 	*/
-	
-	
+
+
 
 
 	/******************************************************
-			add/remove items to cart  
+			add/remove items to cart
  	 ******************************************************/
 
 	me.add = function () {
 		var me=this;
 		/* load cart values if not already loaded */
-		if( !me.pageIsReady 	) { 
-			me.initializeView(); 
-			me.update();	
+		if( !me.pageIsReady 	) {
+			me.initializeView();
+			me.update();
 		}
-		if( !me.isLoaded 		) { 
-			me.load(); 
-			me.update();	
+		if( !me.isLoaded 		) {
+			me.load();
+			me.update();
 		}
-		
+
 		var newItem = new CartItem();
-		
+
 		/* check to ensure arguments have been passed in */
 		if( !arguments || arguments.length === 0 ){
 			error( 'No values passed for item.');
 			return;
 		}
 		var argumentArray = arguments;
-		if( arguments[0] && typeof( arguments[0] ) != 'string' && typeof( arguments[0] ) != 'number'  ){ 
-			argumentArray = arguments[0]; 
-		} 
-	
+		if( arguments[0] && typeof( arguments[0] ) != 'string' && typeof( arguments[0] ) != 'number'  ){
+			argumentArray = arguments[0];
+		}
+
 		newItem.parseValuesFromArray( argumentArray );
 		newItem.checkQuantityAndPrice();
-		
+
 		/* if the item already exists, update the quantity */
 		if( me.hasItem(newItem) ) {
 			var id=me.hasItem(newItem);
 			me.items[id].quantity= parseInt(me.items[id].quantity,10) + parseInt(newItem.quantity,10);
 		} else {
 			me.items[newItem.id] = newItem;
-		}	
-		
+		}
+
 		me.update();
 	};
-	
-	
+
+
 	me.remove = function( id ){
 		var tempArray = {};
 		for( var item in this.items ){
-			if( item != id ){ 
-				tempArray[item] = this.items[item]; 
+			if( item != id ){
+				tempArray[item] = this.items[item];
 			}
 		}
 		this.items = tempArray;
 	};
-	
+
 	me.empty = function () {
 		simpleCart.items = {};
 		simpleCart.update();
 	};
-	
+
 	/******************************************************
 			 item accessor functions
      ******************************************************/
@@ -159,7 +159,7 @@ function Cart(){
 	}
 
 	/******************************************************
-			 checkout management 
+			 checkout management
      ******************************************************/
 
 	me.checkout = function() {
@@ -182,52 +182,52 @@ function Cart(){
 				break;
 		}
 	};
-	
+
 	me.paypalCheckout = function() {
-		
+
 		var me = this,
 			winpar = "scrollbars,location,resizable,status",
 			strn  = "https://www.paypal.com/cgi-bin/webscr?cmd=_cart" +
 		   			"&upload=1" +
-		        	"&business=" + me.email + 
+		        	"&business=" + me.email +
 					"&currency_code=" + me.currency,
 			counter = 1,
 			itemsString = "";
-			
-		
+
+
 		if( me.taxRate ){
-			strn = strn + 
+			strn = strn +
 				"&tax_cart=" +  me.currencyStringForPaypalCheckout( me.taxCost );
 		}
-		
+
 		for( var current in me.items ){
 			var item = me.items[current];
-			
+
 			var optionsString = "";
 			for( var field in item ){
 				if( typeof(item[field]) != "function" && field != "id" && field != "price" && field != "quantity" && field != "name" && field != "shipping") {
-					optionsString = optionsString + ", " + field + "=" + item[field] ; 
+					optionsString = optionsString + ", " + field + "=" + item[field] ;
 				}
 			}
 			optionsString = optionsString.substring(2);
-			
+
 			itemsString = itemsString 	+ "&item_name_" 	+ counter + "=" + item.name  +
 									 	  "&item_number_" 	+ counter + "=" + counter +
 										  "&quantity_"		+ counter + "=" + item.quantity +
-										  "&amount_"		+ counter + "=" + me.currencyStringForPaypalCheckout( item.price ) + 
-										  "&on0_" 			+ counter + "=" + "Options" + 
+										  "&amount_"		+ counter + "=" + me.currencyStringForPaypalCheckout( item.price ) +
+										  "&on0_" 			+ counter + "=" + "Options" +
 										  "&os0_"			+ counter + "=" + optionsString;
 			counter++;
 		}
-		
+
 		if( me.shipping() != 0){
 			 itemsString = itemsString 	+ "&item_name_" 	+ counter + "=Shipping"  +
 									 	  "&item_number_" 	+ counter + "=" + counter +
-										  "&quantity_"		+ counter + "=1" + 
+										  "&quantity_"		+ counter + "=1" +
 										  "&amount_"		+ counter + "=" + me.currencyStringForPaypalCheckout( me.shippingCost );
 		}
-		
-		
+
+
 		strn = strn + itemsString ;
 		window.open (strn, "paypal", winpar);
 	};
@@ -240,16 +240,16 @@ function Cart(){
 		} else if( me.merchantId === "" || me.merchantId === null || !me.merchantId ){
 			error( "No merchant Id for google checkout supplied.");
 			return;
-		} 
-		
+		}
+
 		var form = document.createElement("form"),
 			counter = 1;
 		form.style.display = "none";
 		form.method = "POST";
-		form.action = "https://checkout.google.com/api/checkout/v2/checkoutForm/Merchant/" + 
+		form.action = "https://checkout.google.com/api/checkout/v2/checkoutForm/Merchant/" +
 						me.merchantId;
 		form.acceptCharset = "utf-8";
-		
+
 		for( var current in me.items ){
 			var item 				= me.items[current];
 			form.appendChild( me.createHiddenElement( "item_name_" 		+ counter, item.name		) );
@@ -258,34 +258,34 @@ function Cart(){
 			form.appendChild( me.createHiddenElement( "item_currency_" 	+ counter, me.currency 	) );
 			form.appendChild( me.createHiddenElement( "item_tax_rate_" 	+ counter, me.taxRate 	) );
 			form.appendChild( me.createHiddenElement( "_charset_"					 , ""				) );
-			
+
 			var descriptionString = "";
-			
+
 			for( var field in item){
-				if( typeof( item[field] ) != "function" && 
-									field != "id" 		&& 
-									field != "quantity"	&& 
+				if( typeof( item[field] ) != "function" &&
+									field != "id" 		&&
+									field != "quantity"	&&
 									field != "price" )
 				{
-						descriptionString = descriptionString + ", " + field + ": " + item[field];				
+						descriptionString = descriptionString + ", " + field + ": " + item[field];
 				}
 			}
 			descriptionString = descriptionString.substring( 1 );
 			form.appendChild( me.createHiddenElement( "item_description_" + counter, descriptionString) );
 			counter++;
 		}
-		
+
 		document.body.appendChild( form );
 		form.submit();
 		document.body.removeChild( form );
 	};
-	
-	
-	
+
+
+
 	me.emailCheckout = function() {
 		return;
 	};
-	
+
 	me.customCheckout = function() {
 		return;
 	};
@@ -294,9 +294,9 @@ function Cart(){
 
 
 	/******************************************************
-				data storage and retrival 
+				data storage and retrival
 	 ******************************************************/
-	
+
 	/* load cart from cookie */
 	me.load = function () {
 		var me = this;
@@ -304,15 +304,15 @@ function Cart(){
 		me.items = {};
 		me.total = 0.00;
 		me.quantity = 0;
-		
+
 		/* retrieve item data from cookie */
 		if( readCookie('simpleCart') ){
 			var data = unescape(readCookie('simpleCart')).split('++');
 			for(var x=0, xlen=data.length;x<xlen;x++){
-			
+
 				var info = data[x].split('||');
 				var newItem = new CartItem();
-			
+
 				if( newItem.parseValuesFromArray( info ) ){
 					newItem.checkQuantityAndPrice();
 					/* store the new item in the cart */
@@ -322,9 +322,9 @@ function Cart(){
 		}
 		me.isLoaded = true;
 	};
-	
-	
-	
+
+
+
 	/* save cart to cookie */
 	me.save = function () {
 		var dataString = "";
@@ -333,15 +333,15 @@ function Cart(){
 		}
 		createCookie('simpleCart', dataString.substring( 2 ), 30 );
 	};
-	
-	
 
-	
-		
+
+
+
+
 	/******************************************************
-				 view management 
+				 view management
 	 ******************************************************/
-	
+
 	me.initializeView = function() {
 		var me = this;
 		me.totalOutlets 			= getElementsByClassName('simpleCart_total');
@@ -351,38 +351,38 @@ function Cart(){
 		me.taxRateOutlets			= getElementsByClassName('simpleCart_taxRate');
 		me.shippingCostOutlets		= getElementsByClassName('simpleCart_shippingCost');
 		me.finalTotalOutlets		= getElementsByClassName('simpleCart_finalTotal');
-		
+
 		me.addEventToArray( getElementsByClassName('simpleCart_checkout') , simpleCart.checkout , "click");
 		me.addEventToArray( getElementsByClassName('simpleCart_empty') 	, simpleCart.empty , "click" );
-		
+
 		me.Shelf.readPage();
-			
+
 		me.pageIsReady = true;
-		
+
 	};
-	
-	
-	
+
+
+
 	me.updateView = function() {
 		me.updateViewTotals();
-		if( me.cartDivs && me.cartDivs.length > 0 ){ 
-			me.updateCartView(); 
+		if( me.cartDivs && me.cartDivs.length > 0 ){
+			me.updateCartView();
 		}
 	};
-	
+
 	me.updateViewTotals = function() {
-		var outlets = [ ["quantity"		, "none"		] , 
-						["total"		, "currency"	] , 
+		var outlets = [ ["quantity"		, "none"		] ,
+						["total"		, "currency"	] ,
 						["shippingCost"	, "currency"	] ,
 						["taxCost"		, "currency"	] ,
 						["taxRate"		, "percentage"	] ,
 						["finalTotal"	, "currency"	] ];
-						
+
 		for( var x=0,xlen=outlets.length; x<xlen;x++){
-			
+
 			var arrayName = outlets[x][0] + "Outlets",
 				outputString;
-				
+
 			for( var element in me[ arrayName ] ){
 				switch( outlets[x][1] ){
 					case "none":
@@ -402,17 +402,17 @@ function Cart(){
 			}
 		}
 	};
-	
+
 	me.updateCartView = function() {
 		var newRows = [],
 			x,newRow,item,current,header,newCell,info,outputValue,option,headerInfo;
-		
+
 		/* create headers row */
 		newRow = document.createElement('div');
 		for( header in me.cartHeaders ){
 			newCell = document.createElement('div');
 			headerInfo = me.cartHeaders[header].split("_");
-			
+
 			newCell.innerHTML = headerInfo[0];
 			newCell.className = "item" + headerInfo[0];
 			for(x=1,xlen=headerInfo.length;x<xlen;x++){
@@ -421,22 +421,22 @@ function Cart(){
 				}
 			}
 			newRow.appendChild( newCell );
-			
+
 		}
 		newRow.className = "cartHeaders";
 		newRows[0] = newRow;
-		
+
 		/* create a row for each item in the cart */
 		x=1;
 		for( current in me.items ){
 			newRow = document.createElement('div');
 			item = me.items[current];
-			
+
 			for( header in me.cartHeaders ){
-				
+
 				newCell = document.createElement('div');
 				info = me.cartHeaders[header].split("_");
-				
+
 				switch( info[0].toLowerCase() ){
 					case "total":
 						outputValue = me.valueToCurrencyString(parseFloat(item.price)*parseInt(item.quantity,10) );
@@ -453,17 +453,17 @@ function Cart(){
 					case "price":
 						outputValue = me.valueToCurrencyString( item[ info[0].toLowerCase() ] ? item[info[0].toLowerCase()] : " " );
 						break;
-					default: 
+					default:
 						outputValue = item[ info[0].toLowerCase() ] ? item[info[0].toLowerCase()] : " ";
 						break;
-				}	
-				
+				}
+
 				for( var y=1,ylen=info.length;y<ylen;y++){
 					option = info[y].toLowerCase();
 					switch( option ){
 						case "image":
 						case "img":
-							outputValue = me.valueToImageString( outputValue );		
+							outputValue = me.valueToImageString( outputValue );
 							break;
 						case "input":
 							outputValue = me.valueToTextInput( outputValue , "onchange=\"simpleCart.items[\'" + item.id + "\'].set(\'" + outputValue + "\' , this.value);\""  );
@@ -483,32 +483,32 @@ function Cart(){
 							error( "unkown header option: " + option );
 							break;
 					}
-				
-				}		  
+
+				}
 				newCell.innerHTML = outputValue;
 				newCell.className = "item" + info[0];
 				newRow.appendChild( newCell );
-			}			
+			}
 			newRow.className = "itemContainer";
 			newRows[x] = newRow;
 			x++;
 		}
-		
-		
-		
+
+
+
 		for( current in me.cartDivs ){
-			
+
 			/* delete current rows in div */
 			var div = me.cartDivs[current];
 			while( div.childNodes[0] ){
 				div.removeChild( div.childNodes[0] );
 			}
-			
+
 			for(var j=0, jLen = newRows.length; j<jLen; j++){
 				div.appendChild( newRows[j] );
 			}
-			
-			
+
+
 		}
 	};
 
@@ -522,8 +522,8 @@ function Cart(){
 			}
 		}
 	};
-	
-	
+
+
 	me.createHiddenElement = function ( name , value ){
 		var element = document.createElement("input");
 		element.type = "hidden";
@@ -531,14 +531,14 @@ function Cart(){
 		element.value = value;
 		return element;
 	};
-	
-	
-	
+
+
+
 	/******************************************************
 				Currency management
 	 ******************************************************/
-	
-	me.currencySymbol = function() {		
+
+	me.currencySymbol = function() {
 		switch(me.currency){
 			case JPY:
 				return "&yen;";
@@ -546,6 +546,8 @@ function Cart(){
 				return "&euro;";
 			case GBP:
 				return "&pound;";
+			case CHF:
+				return "CHF";
 			case USD:
 			case CAD:
 			case AUD:
@@ -557,8 +559,8 @@ function Cart(){
 				return "";
 		}
 	};
-	
-	
+
+
 	me.currencyStringForPaypalCheckout = function( value ){
 		if( me.currencySymbol() == "&#36;" ){
 			return "$" + parseFloat( value ).toFixed(2);
@@ -566,20 +568,20 @@ function Cart(){
 			return "" + parseFloat(value ).toFixed(2);
 		}
 	};
-	
+
 	/******************************************************
 				Formatting
 	 ******************************************************/
-	
-	
+
+
 	me.valueToCurrencyString = function( value ) {
 		return parseFloat( value ).toCurrency( me.currencySymbol() );
 	};
-	
+
 	me.valueToPercentageString = function( value ){
 		return parseFloat( 100*value ) + "%";
 	};
-	
+
 	me.valueToImageString = function( value ){
 		if( value.match(/<\s*img.*src\=/) ){
 			return value;
@@ -587,54 +589,54 @@ function Cart(){
 			return "<img src=\"" + value + "\" />";
 		}
 	};
-	
+
 	me.valueToTextInput = function( value , html ){
 		return "<input type=\"text\" value=\"" + value + "\" " + html + " />";
 	};
-	
+
 	me.valueToLink = function( value, link, html){
 		return "<a href=\"" + link + "\" " + html + " >" + value + "</a>";
 	};
-	
+
 	me.valueToElement = function( type , value , html ){
 		return "<" + type + " " + html + " > " + value + "</" + type + ">";
 	};
-	
+
 	/******************************************************
 				Duplicate management
 	 ******************************************************/
-	
+
 	me.hasItem = function ( item ) {
 		for( var current in me.items ) {
 			var testItem = me.items[current];
 			var matches = true;
 			for( var field in item ){
-				if( typeof( item[field] ) != "function"	&& 
-					field != "quantity"  				&& 
+				if( typeof( item[field] ) != "function"	&&
+					field != "quantity"  				&&
 					field != "id" 						){
 					if( item[field] != testItem[field] ){
 						matches = false;
 					}
-				}	
+				}
 			}
-			if( matches ){ 
-				return current; 
+			if( matches ){
+				return current;
 			}
 		}
 		return false;
 	};
-	
-	
-	
-	
+
+
+
+
 	/******************************************************
 				Cart Update managment
 	 ******************************************************/
-	
+
 	me.update = function() {
 		if( !simpleCart.isLoaded ){
 			simpleCart.load();
-		} 
+		}
 		if( !simpleCart.pageIsReady ){
 			simpleCart.initializeView();
 		}
@@ -642,30 +644,30 @@ function Cart(){
 		me.updateView();
 		me.save();
 	};
-	
+
 	me.updateTotals = function() {
 		me.total = 0 ;
 		me.quantity  = 0;
 		for( var current in me.items ){
 			var item = me.items[current];
-			if( item.quantity < 1 ){ 
+			if( item.quantity < 1 ){
 				item.remove();
 			} else if( item.quantity !== null && item.quantity != "undefined" ){
-				me.quantity = parseInt(me.quantity,10) + parseInt(item.quantity,10); 
+				me.quantity = parseInt(me.quantity,10) + parseInt(item.quantity,10);
 			}
-			if( item.price ){ 
-				me.total = parseFloat(me.total) + parseInt(item.quantity,10)*parseFloat(item.price); 
+			if( item.price ){
+				me.total = parseFloat(me.total) + parseInt(item.quantity,10)*parseFloat(item.price);
 			}
 		}
 		me.shippingCost = me.shipping();
 		me.taxCost = parseFloat(me.total)*me.taxRate;
 		me.finalTotal = me.shippingCost + me.taxCost + me.total;
 	};
-	
+
 	me.shipping = function(){
 		if( parseInt(me.quantity,10)===0 )
 			return 0;
-		var shipping = 	parseFloat(me.shippingFlatRate) + 
+		var shipping = 	parseFloat(me.shippingFlatRate) +
 					  	parseFloat(me.shippingTotalRate)*parseFloat(me.total) +
 						parseFloat(me.shippingQuantityRate)*parseInt(me.quantity,10),
 			nextItem,
@@ -680,16 +682,16 @@ function Cart(){
 				}
 			}
 		}
-		
+
 		return shipping;
 	}
-	
+
 	me.initialize = function() {
 		simpleCart.initializeView();
 		simpleCart.load();
 		simpleCart.update();
 	};
-				
+
 }
 
 /********************************************************************************************************
@@ -716,18 +718,18 @@ function CartItem() {
 			} else {
 				this[field] = value;
 				this.checkQuantityAndPrice();
-			}			
+			}
 		} else {
 			error( "Cannot change " + field + ", this is a reserved field.");
 		}
 		simpleCart.update();
 	};
-	
+
 	CartItem.prototype.increment = function(){
 		this.quantity = parseInt(this.quantity,10) + 1;
 		simpleCart.update();
 	};
-	
+
 	CartItem.prototype.decrement = function(){
 		if( parseInt(this.quantity,10) < 2 ){
 			this.remove();
@@ -736,7 +738,7 @@ function CartItem() {
 			simpleCart.update();
 		}
 	};
-	
+
 	CartItem.prototype.print = function () {
 		var returnString = '';
 		for( var field in this ) {
@@ -746,43 +748,43 @@ function CartItem() {
 		}
 		return returnString.substring(0,returnString.length-2);
 	};
-	
-	
+
+
 	CartItem.prototype.checkQuantityAndPrice = function() {
-		if( !this.price || this.quantity == null || this.quantity == 'undefined'){ 
+		if( !this.price || this.quantity == null || this.quantity == 'undefined'){
 			this.quantity = 1;
 			error('No quantity for item.');
 		} else {
 			this.quantity = ("" + this.quantity).replace(/,*/gi, "" );
-			this.quantity = parseInt( ("" + this.quantity).replace( /[^(\d|\.)]*/gi, "") , 10); 
+			this.quantity = parseInt( ("" + this.quantity).replace( /[^(\d|\.)]*/gi, "") , 10);
 			if( isNaN(this.quantity) ){
 				error('Quantity is not a number.');
 				this.quantity = 1;
 			}
 		}
-				
+
 		if( !this.price || this.price == null || this.price == 'undefined'){
 			this.price=0.00;
 			error('No price for item or price not properly formatted.');
 		} else {
 			this.price = ("" + this.price).replace(/,*/gi, "" );
-			this.price = parseFloat( ("" + this.price).replace( /[^(\d|\.)]*/gi, "") ); 
+			this.price = parseFloat( ("" + this.price).replace( /[^(\d|\.)]*/gi, "") );
 			if( isNaN(this.price) ){
 				error('Price is not a number.');
 				this.price = 0.00;
 			}
 		}
 	};
-	
-	
+
+
 	CartItem.prototype.parseValuesFromArray = function( array ) {
 		if( array && array.length && array.length > 0) {
 			for(var x=0, xlen=array.length; x<xlen;x++ ){
-			
+
 				/* ensure the pair does not have key delimeters */
 				array[x].replace(/||/, "| |");
 				array[x].replace(/\+\+/, "+ +");
-			
+
 				/* split the pair and save the unescaped values to the item */
 				var value = array[x].split('=');
 				if( value.length>1 ){
@@ -799,12 +801,12 @@ function CartItem() {
 			return false;
 		}
 	};
-	
+
 	CartItem.prototype.remove = function() {
 		simpleCart.remove(this.id);
 		simpleCart.update();
 	};
-	
+
 
 
 /********************************************************************************************************
@@ -813,7 +815,7 @@ function CartItem() {
 
 function Shelf(){
 	this.items = {};
-}	
+}
 	Shelf.prototype.readPage = function () {
 		this.items = {};
 		var newItems = getElementsByClassName( "simpleCart_shelfItem" );
@@ -823,16 +825,16 @@ function Shelf(){
 			this.items[newItem.id] = newItem;
 		}
 	};
-	
+
 	Shelf.prototype.checkChildren = function ( item , newItem) {
-		
+
 		for(var x=0;item.childNodes[x];x++){
-			
+
 			var node = item.childNodes[x];
 			if( node.className && node.className.match(/item_[^ ]+/) ){
-				
+
 				var data = /item_[^ ]+/.exec(node.className)[0].split("_");
-				
+
 				if( data[1] == "add" || data[1] == "Add" ){
 					var tempArray = [];
 					tempArray.push( node );
@@ -842,18 +844,18 @@ function Shelf(){
 				} else {
 					newItem[data[1]]  = node;
 				}
-			}		
-			if( node.childNodes[0] ){ 
-				this.checkChildren( node , newItem );	
-			}	
+			}
+			if( node.childNodes[0] ){
+				this.checkChildren( node , newItem );
+			}
 		}
 	};
-	
+
 	Shelf.prototype.empty = function () {
 		this.items = {};
 	};
-	
-	
+
+
 	Shelf.prototype.addToCart = function ( id ) {
 		return function(){
 			if( simpleCart.Shelf.items[id]){
@@ -863,7 +865,7 @@ function Shelf(){
 			}
 		};
 	};
-	
+
 
 /********************************************************************************************************
  *			Shelf Item Object
@@ -872,22 +874,22 @@ function Shelf(){
 
 function ShelfItem(){
 	this.id = "s" + NextId++;
-}	
+}
 	ShelfItem.prototype.remove = function () {
 		simpleCart.Shelf.items[this.id] = null;
 	};
-	
-	
+
+
 	ShelfItem.prototype.addToCart = function () {
 		var outStrings = [],valueString;
 		for( var field in this ){
 			if( typeof( this[field] ) != "function" && field != "id" ){
 				valueString = "";
-				
+
 				switch(field){
 					case "price":
 						if( this[field].value ){
-							valueString = this[field].value; 
+							valueString = this[field].value;
 						} else if( this[field].innerHTML ) {
 							valueString = this[field].innerHTML;
 						}
@@ -900,7 +902,7 @@ function ShelfItem(){
 						break;
 					default:
 						if( this[field].value ){
-							valueString = this[field].value; 
+							valueString = this[field].value;
 						} else if( this[field].innerHTML ) {
 							valueString = this[field].innerHTML;
 						} else if( this[field].src ){
@@ -913,10 +915,10 @@ function ShelfItem(){
 				outStrings.push( field + "=" + valueString );
 			}
 		}
-		
+
 		simpleCart.add( outStrings );
 	};
-	
+
 
 
 /********************************************************************************************************
@@ -952,7 +954,7 @@ function eraseCookie(name) {
 /*
 	Developed by Robert Nyman, http://www.robertnyman.com
 	Code/licensing: http://code.google.com/p/getelementsbyclassname/
-*/	
+*/
 var getElementsByClassName = function (className, tag, elm){
 	if (document.getElementsByClassName) {
 		getElementsByClassName = function (className, tag, elm) {
@@ -1040,13 +1042,13 @@ Number.prototype.toCurrency=function(){return(arguments[0]?arguments[0]:"$")+thi
 
 
 /********************************************************************************************************
- * error management 
+ * error management
  ********************************************************************************************************/
 
 function error( message ){
-	try{ 
-		console.log( message ); 
-	}catch(err){ 
+	try{
+		console.log( message );
+	}catch(err){
 	//	alert( message );
 	}
 }
@@ -1054,6 +1056,6 @@ function error( message ){
 
 var simpleCart = new Cart();
 
-if( typeof jQuery !== 'undefined' ) $(document).ready(function(){simpleCart.initialize();}); 
+if( typeof jQuery !== 'undefined' ) $(document).ready(function(){simpleCart.initialize();});
 else if( typeof Prototype !== 'undefined') Event.observe( window, 'load', function(){simpleCart.initialize();});
 else window.onload = simpleCart.initialize;
