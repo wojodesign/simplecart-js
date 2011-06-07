@@ -50,6 +50,8 @@ function Cart(){
 	me.checkoutTo = PayPal;
 	me.email = "";
 	me.merchantId	 = "";
+	me.successUrl = null;
+	me.cancelUrl = null;
 	me.cartHeaders = ['Name','Price','Quantity','Total'];
 	/*
 		cart headers:
@@ -226,6 +228,14 @@ function Cart(){
 									 	  "&item_number_" 	+ counter + "=" + counter +
 										  "&quantity_"		+ counter + "=1" +
 										  "&amount_"		+ counter + "=" + me.currencyStringForPaypalCheckout( me.shippingCost );
+		}
+		
+		if( me.successUrl ){
+			itemsString = itemsString + "&return=" + me.successUrl;
+		}
+		
+		if( me.cancelUrl ){
+			itemsString = itemsString + "&cancel_return=" + me.cancelUrl;
 		}
 
 
