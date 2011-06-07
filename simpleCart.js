@@ -104,7 +104,7 @@ function Cart(){
 		/* check to ensure arguments have been passed in */
 		if( !arguments || arguments.length === 0 ){
 			error( 'No values passed for item.');
-			return;
+			return null;
 		}
 		var argumentArray = arguments;
 		if( arguments[0] && typeof( arguments[0] ) != 'string' && typeof( arguments[0] ) != 'number'  ){
@@ -123,6 +123,8 @@ function Cart(){
 		}
 
 		me.update();
+		return newItem;
+		
 	};
 
 
