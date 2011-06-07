@@ -52,6 +52,7 @@ function Cart(){
 	me.merchantId	 = "";
 	me.successUrl = null;
 	me.cancelUrl = null;
+	me.cookieDuration = 30; // default duration in days
 	me.cartHeaders = ['Name','Price','Quantity','Total'];
 	/*
 		cart headers:
@@ -342,11 +343,12 @@ function Cart(){
 
 	/* save cart to cookie */
 	me.save = function () {
-		var dataString = "";
+		var dataString = "",
+			me = this;
 		for( var item in this.items ){
 			dataString = dataString + "++" + this.items[item].print();
 		}
-		createCookie('simpleCart', dataString.substring( 2 ), 30 );
+		createCookie('simpleCart', dataString.substring( 2 ), me.cookieDuration );
 	};
 
 
