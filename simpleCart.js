@@ -289,6 +289,13 @@ function Cart(){
 			form.appendChild( me.createHiddenElement( "item_description_" + counter, descriptionString) );
 			counter++;
 		}
+		
+		// hack for adding shipping
+		if( me.shipping() != 0){
+		   form.appendChild(me.createHiddenElement("ship_method_name_1", "Shipping"));
+		   form.appendChild(me.createHiddenElement("ship_method_price_1", parseFloat(me.shippingCost).toFixed(2)));
+		   form.appendChild(me.createHiddenElement("ship_method_currency_1", me.currency));
+    	}
 
 		document.body.appendChild( form );
 		form.submit();
