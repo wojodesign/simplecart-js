@@ -35,10 +35,10 @@
 		same( simpleCart.items['c99'].name , "Bob" , "Item not overwritten" );
 	});
 	
+	
 	test('return item after adding to cart', function(){
 		
 		var item = simpleCart.add("name=Jeff","price=14.00");
-		
 		same( item.name , "Jeff" , "Name is the same" );
 		same( simpleCart.items[ item.id ] , item , "Item accessible by id in simpleCart.items" );
 		item.remove();
