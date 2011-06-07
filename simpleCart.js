@@ -118,6 +118,7 @@ function Cart(){
 		if( me.hasItem(newItem) ) {
 			var id=me.hasItem(newItem);
 			me.items[id].quantity= parseInt(me.items[id].quantity,10) + parseInt(newItem.quantity,10);
+			newItem = me.items[id];
 		} else {
 			me.items[newItem.id] = newItem;
 		}
