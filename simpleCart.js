@@ -26,11 +26,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
 
-var NextId=1,Custom="Custom",GoogleCheckout="GoogleCheckout",PayPal="PayPal",Email="Email",AustralianDollar=AUD="AUD",CanadianDollar=CAD="CAD",CzechKoruna=CZK="CZK",DanishKrone=DKK="DKK",Euro=EUR="EUR",HongKongDollar=HKD="HKD",HungarianForint=HUF="HUF",IsraeliNewSheqel=ILS="ILS",JapaneseYen=JPY="JPY",MexicanPeso=MXN="MXN",NorwegianKrone=NOK="NOK",NewZealandDollar=NZD="NZD",PolishZloty=PLN="PLN",PoundSterling=GBP="GBP",SingaporeDollar=SGD="SGD",SwedishKrona=SEK="SEK",SwissFranc=CHF="CHF",USDollar=USD="USD";
+var Custom="Custom",GoogleCheckout="GoogleCheckout",PayPal="PayPal",Email="Email",AustralianDollar=AUD="AUD",CanadianDollar=CAD="CAD",CzechKoruna=CZK="CZK",DanishKrone=DKK="DKK",Euro=EUR="EUR",HongKongDollar=HKD="HKD",HungarianForint=HUF="HUF",IsraeliNewSheqel=ILS="ILS",JapaneseYen=JPY="JPY",MexicanPeso=MXN="MXN",NorwegianKrone=NOK="NOK",NewZealandDollar=NZD="NZD",PolishZloty=PLN="PLN",PoundSterling=GBP="GBP",SingaporeDollar=SGD="SGD",SwedishKrona=SEK="SEK",SwissFranc=CHF="CHF",USDollar=USD="USD";
 function Cart(){
 
 	var me = this;
 	/* member variables */
+	me.nextId = 1;
 	me.Version = '2.1';
 	me.Shelf = new Shelf();
 	me.items = {};
@@ -320,6 +321,10 @@ function Cart(){
 				}
  			}
 		}
+		for( var id in me.items ){
+			
+		}
+		
 		me.isLoaded = true;
 	};
 
@@ -724,7 +729,10 @@ function Cart(){
  ********************************************************************************************************/
 
 function CartItem() {
-	this.id = "c" + NextId++;
+	while( simpleCart.items["c" + simpleCart.nextId] )	
+		simpleCart.nextId++;
+		
+	this.id = "c" + simpleCart.nextId;
 }
 	CartItem.prototype.set = function ( field , value ){
 		field = field.toLowerCase();
@@ -899,7 +907,7 @@ function Shelf(){
 
 
 function ShelfItem(){
-	this.id = "s" + NextId++;
+	this.id = "s" + simpleCart.nextId++;
 }
 	ShelfItem.prototype.remove = function () {
 		simpleCart.Shelf.items[this.id] = null;

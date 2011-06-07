@@ -24,3 +24,14 @@
 		
 	});
 	
+	
+	module("saving items");
+	test('items not overwritten because of duplicate id', function(){
+		simpleCart.empty();
+		simpleCart.nextId=99;
+		simpleCart.add("name=Bob","price=13.00");
+		simpleCart.nextId=99;
+		simpleCart.add("name=Joe","price=13.00");
+		same( simpleCart.items['c99'].name , "Bob" , "Item not overwritten" );
+	});
+	
