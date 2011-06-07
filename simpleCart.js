@@ -265,10 +265,10 @@ function Cart(){
 			var item 				= me.items[current];
 			form.appendChild( me.createHiddenElement( "item_name_" 		+ counter, item.name		) );
 			form.appendChild( me.createHiddenElement( "item_quantity_" 	+ counter, item.quantity 	) );
-			form.appendChild( me.createHiddenElement( "item_price_" 		+ counter, item.price		) );
-			form.appendChild( me.createHiddenElement( "item_currency_" 	+ counter, me.currency 	) );
-			form.appendChild( me.createHiddenElement( "item_tax_rate_" 	+ counter, me.taxRate 	) );
-			form.appendChild( me.createHiddenElement( "_charset_"					 , ""				) );
+			form.appendChild( me.createHiddenElement( "item_price_" 	+ counter, item.price		) );
+			form.appendChild( me.createHiddenElement( "item_currency_" 	+ counter, me.currency 		) );
+			form.appendChild( me.createHiddenElement( "item_tax_rate_" 	+ counter, me.taxRate 		) );
+			form.appendChild( me.createHiddenElement( "_charset_"				 , ""				) );
 
 			var descriptionString = "";
 
@@ -428,7 +428,7 @@ function Cart(){
 			newCell = document.createElement('div');
 			headerInfo = me.cartHeaders[header].split("_");
 
-			newCell.innerHTML = headerInfo[0];
+			newCell.innerHTML = me.print( headerInfo[0] );
 			newCell.className = "item" + headerInfo[0];
 			for(x=1,xlen=headerInfo.length;x<xlen;x++){
 				if( headerInfo[x].toLowerCase() == "noheader" ){
@@ -665,8 +665,31 @@ function Cart(){
 		}
 		return false;
 	};
-
-
+	
+	/******************************************************
+				Language managment
+	 ******************************************************/
+	me.ln = {
+		"en_us": {
+			  quantity: "Quantity"
+			, price: "Price"
+			, total: "Total"
+			, decrement: "Decrement"
+			, increment: "Increment"
+			, remove: "Remove"
+			, tax: "Tax"
+			, shipping: "Shipping"
+			, image: "Image"
+		} 
+	};
+	
+	me.language = "en_us"; 
+	
+	me.print = function( input ) {
+		var me = this;
+		return me.ln[me.language] && me.ln[me.language][input.toLowerCase()] ? me.ln[me.language][input.toLowerCase()] : input;
+		
+	};
 
 
 	/******************************************************

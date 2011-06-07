@@ -35,3 +35,26 @@
 		same( simpleCart.items['c99'].name , "Bob" , "Item not overwritten" );
 	});
 	
+	module("language");
+	test("change language", function(){
+		simpleCart.ln.fake = {
+			  quantity: "Bleh"
+			, price: "Boom"
+			, total: "Pow"
+			, decrement: "Crack"
+			, increment: "Click"
+			, remove: "Snap"
+			, tax: "Crash"
+			, shipping: "Zoom"
+			, image: "Zap"
+		};
+		
+		simpleCart.language = "fake";
+		simpleCart.update();
+		
+		same( simpleCart.print("Price") , "Boom" , "Humanized name translated");
+		same( simpleCart.print("price") , "Boom" , "Lower case name translated");
+		same( simpleCart.print("Boom")  , "Boom" , "No translation returns input");
+		
+		
+	});
