@@ -429,18 +429,18 @@ function Cart(){
 
 	me.updateCartView = function() {
 		var newRows = [],
-			x,newRow,item,current,header,newCell,info,outputValue,option,headerInfo;
+			y,x,newRow,item,current,header,newCell,info,outputValue,option,headerInfo;
 
 		/* create headers row */
 		newRow = document.createElement('div');
-		for( header in me.cartHeaders ){
+		for(var y=0,ylen = me.cartHeaders.length; y<ylen; y++ ){
 			newCell = document.createElement('div');
-			headerInfo = me.cartHeaders[header].split("_");
+			headerInfo = me.cartHeaders[y].split("_");
 
 			newCell.innerHTML = me.print( headerInfo[0] );
 			newCell.className = "item" + headerInfo[0];
-			for(x=1,xlen=headerInfo.length;x<xlen;x++){
-				if( headerInfo[x].toLowerCase() == "noheader" ){
+			for(var z=1,zlen=headerInfo.length;z<zlen;z++){
+				if( headerInfo[z].toLowerCase() == "noheader" ){
 					newCell.style.display = "none";
 				}
 			}
@@ -456,9 +456,9 @@ function Cart(){
 			newRow = document.createElement('div');
 			item = me.items[current];
 
-			for( header in me.cartHeaders ){
-			newCell = document.createElement('div');
-				info = me.cartHeaders[header].split("_");
+			for(var y=0,ylen = me.cartHeaders.length; y<ylen; y++ ){
+				newCell = document.createElement('div');
+				info = me.cartHeaders[y].split("_");
 				
 				outputValue = me.createCartRow( info , item , outputValue );
 
@@ -478,14 +478,16 @@ function Cart(){
 
 			/* delete current rows in div */
 			var div = me.cartDivs[current];
-			while( div.childNodes[0] ){
-				div.removeChild( div.childNodes[0] );
-			}
+			if( div.childNodes && div.appendChild ){
+				while( div.childNodes[0] ){
+					div.removeChild( div.childNodes[0] );
+				}
+			
 
-			for(var j=0, jLen = newRows.length; j<jLen; j++){
-				div.appendChild( newRows[j] );
+				for(var j=0, jLen = newRows.length; j<jLen; j++){
+					div.appendChild( newRows[j] );
+				}
 			}
-
 
 		}
 	};
@@ -905,7 +907,8 @@ function Shelf(){
 	};
 
 	Shelf.prototype.checkChildren = function ( item , newItem) {
-
+		if( !item.childNodes )
+			return;
 		for(var x=0;item.childNodes[x];x++){
 
 			var node = item.childNodes[x];
