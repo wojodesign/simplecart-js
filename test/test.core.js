@@ -1,5 +1,48 @@
 
-
+	module('simpleCart core functions');
+	test("simpleCart.each() function works", function(){
+		
+		var myarray = ['bob' , 'joe' , function bill(){} , 'jeff' ];
+		
+		function test_bill(){
+			var test = true;
+			simpleCart.each( myarray , function(item,x){
+				if( x === 3 ){
+					test = false;
+				}
+			});
+			return test;
+		}
+		
+		function test_names(){
+			var ms = "";
+			simpleCart.each( myarray , function(item,x){
+				ms += item;
+			});
+			return ms;
+		}
+		
+		ok( test_bill() , "function dismissed in each" );
+		same( test_names() , "bobjoejeff" , "items iterated properly");
+		
+		
+		
+		function test_cart_items(){
+			var items = simpleCart.items,
+				pass = true;
+				
+			simpleCart.each(function(item,x){
+				if( items[item.id] !== item ){
+					pass = fail;
+				}
+			});
+			
+			return pass;
+		}
+	
+		ok( test_cart_items() , "simpleCart items iterated correctly with .each");
+	
+	});
 	
 	
 	module('update view');

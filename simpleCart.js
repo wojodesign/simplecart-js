@@ -26,14 +26,14 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
 
-var Custom="Custom",GoogleCheckout="GoogleCheckout",PayPal="PayPal",Email="Email",AustralianDollar=AUD="AUD",CanadianDollar=CAD="CAD",CzechKoruna=CZK="CZK",DanishKrone=DKK="DKK",Euro=EUR="EUR",HongKongDollar=HKD="HKD",HungarianForint=HUF="HUF",IsraeliNewSheqel=ILS="ILS",JapaneseYen=JPY="JPY",MexicanPeso=MXN="MXN",NorwegianKrone=NOK="NOK",NewZealandDollar=NZD="NZD",PolishZloty=PLN="PLN",PoundSterling=GBP="GBP",SingaporeDollar=SGD="SGD",SwedishKrona=SEK="SEK",SwissFranc=CHF="CHF",ThaiBaht=THB="THB",USDollar=USD="USD";
+var Custom="Custom",GoogleCheckout="GoogleCheckout",PayPal="PayPal",Email="Email",AustralianDollar="AUD",AUD="AUD",CanadianDollar="CAD",CAD="CAD",CzechKoruna="CZK",CZK="CZK",DanishKrone="DKK",DKK="DKK",Euro="EUR",EUR="EUR",HongKongDollar="HKD",HKD="HKD",HungarianForint="HUF",HUF="HUF",IsraeliNewSheqel="ILS",ILS="ILS",JapaneseYen="JPY",JPY="JPY",MexicanPeso="MXN",MXN="MXN",NorwegianKrone="NOK",NOK="NOK",NewZealandDollar="NZD",NZD="NZD",PolishZloty="PLN",PLN="PLN",PoundSterling="GBP",GBP="GBP",SingaporeDollar="SGD",SGD="SGD",SwedishKrona="SEK",SEK="SEK",SwissFranc="CHF",CHF="CHF",ThaiBaht="THB",THB="THB",USDollar="USD",USD="USD";
 function Cart(){
 
 	var me = this;
 	/* member variables */
 	me.nextId = 1;
 	me.Version = '2.1';
-	me.Shelf = new Shelf();
+	me.Shelf = null;
 	me.items = {};
 	me.isLoaded = false;
 	me.pageIsReady = false;
@@ -57,13 +57,13 @@ function Cart(){
 	/*
 		cart headers:
 		you can set these to which ever order you would like, and the cart will display the appropriate headers
-		and item info.  any field you have for the items in the cart can be used, and 'Total' will automatically
+		and item info.	any field you have for the items in the cart can be used, and 'Total' will automatically
 		be price*quantity.
 
 		there are keywords that can be used:
 
 			1) "_input" - the field will be a text input with the value set to the given field. when the user
-				changes the value, it will update the cart.  this can be useful for quantity. (ie "Quantity_input")
+				changes the value, it will update the cart.	 this can be useful for quantity. (ie "Quantity_input")
 
 			2) "increment" - a link with "+" that will increase the item quantity by 1
 
@@ -85,16 +85,16 @@ function Cart(){
 
 	/******************************************************
 			add/remove items to cart
- 	 ******************************************************/
+	 ******************************************************/
 
-	me.add = function () {
+	me.add = function ( values ) {
 		var me=this;
 		/* load cart values if not already loaded */
-		if( !me.pageIsReady 	) {
+		if( !me.pageIsReady		) {
 			me.initializeView();
 			me.update();
 		}
-		if( !me.isLoaded 		) {
+		if( !me.isLoaded		) {
 			me.load();
 			me.update();
 		}
@@ -107,8 +107,8 @@ function Cart(){
 			return null;
 		}
 		var argumentArray = arguments;
-		if( arguments[0] && typeof( arguments[0] ) != 'string' && typeof( arguments[0] ) != 'number'  ){
-			argumentArray = arguments[0];
+		if( values && typeof( values ) !== 'string' && typeof( values ) !== 'number'  ){
+			argumentArray = values;
 		}
 
 		newItem.parseValuesFromArray( argumentArray );
@@ -131,11 +131,12 @@ function Cart(){
 
 	me.remove = function( id ){
 		var tempArray = {};
-		for( var item in this.items ){
-			if( item != id ){
-				tempArray[item] = this.items[item];
+			
+		me.each(function(item){
+			if( item.id !== id ){
+				tempArray[item.id] = item;
 			}
-		}
+		});
 		this.items = tempArray;
 	};
 
@@ -146,28 +147,63 @@ function Cart(){
 
 	/******************************************************
 			 item accessor functions
-     ******************************************************/
+	 ******************************************************/
 
 	me.find = function (criteria) {
-		if( !criteria )
+		if( !criteria ){
 			return null;
-		var results = [];
-		for( var next in me.items ){
-			var item = me.items[next],
-				fits = true;
-			for( var name in criteria ){
-				if( !item[name] || item[name] != criteria[name] )
-					fits = false;
-			}
-			if( fits )
-				results.push( me.next )
 		}
-		return (results.length == 0 ) ? null : results;
-	}
+		
+		var results = [];
+			
+		me.each(function(item,x,next){ 	
+	
+			fits = true;
+		
+			me.each( criteria , function(value,j,name){
+				if( !item[name] || item[name] != value ){
+					fits = false;
+				}
+			});
+			
+			if( fits ){
+				results.push( item );
+			}
+		});
+		return (results.length === 0 ) ? null : results;
+	};
+	
+	
+	me.each = function( array , callback ){
+		var next,
+			x=0, 
+			result;
+
+		if( typeof array === 'function' ){
+			var cb = array
+				items = me.items;
+		} else if( typeof callback === 'function' ){
+			var cb = callback,
+				items = array;
+		} else {
+			return;
+		}
+		
+		for( next in items ){
+			if( typeof items[next] !== "function" ){
+				result = cb.call( me , items[next] , x , next );
+				if( result === false ){
+					return;
+				}
+				x++;
+			}
+		}
+		
+	};
 
 	/******************************************************
 			 checkout management
-     ******************************************************/
+	 ******************************************************/
 
 	me.checkout = function() {
 		if( simpleCart.quantity === 0 ){
@@ -195,40 +231,44 @@ function Cart(){
 		var me = this,
 			winpar = "scrollbars,location,resizable,status",
 			strn  = "https://www.paypal.com/cgi-bin/webscr?cmd=_cart" +
-		   			"&upload=1" +
-		        	"&business=" + me.email +
+					"&upload=1" +
+					"&business=" + me.email +
 					"&currency_code=" + me.currency,
 			counter = 1,
-			itemsString = "";
+			itemsString = "",
+			current,
+			item,
+			optionsString,
+			field;
 
 
 		if( me.taxRate ){
 			strn = strn +
-				"&tax_cart=" +  me.currencyStringForPaypalCheckout( me.taxCost );
+				"&tax_cart=" +	me.currencyStringForPaypalCheckout( me.taxCost );
 		}
 
-		for( var current in me.items ){
-			var item = me.items[current];
-
-			var optionsString = "";
-			for( var field in item ){
-				if( typeof(item[field]) != "function" && field != "id" && field != "price" && field != "quantity" && field != "name" && field != "shipping") {
-					optionsString = optionsString + ", " + field + "=" + item[field] ;
+		me.each(function(item,iter){
+			
+			counter = iter+1;
+			optionsString = "";
+			
+			me.each( item , function( value, x , field ){
+				if( field !== "id" && field !== "price" && field !== "quantity" && field !== "name" && field !== "shipping") {
+					optionsString = optionsString + ", " + field + "=" + value ;
 				}
-			}
+			});
 			optionsString = optionsString.substring(2);
 
-			itemsString = itemsString 	+ "&item_name_" 	+ counter + "=" + item.name  +
-									 	  "&item_number_" 	+ counter + "=" + counter +
+			itemsString = itemsString	+ "&item_name_"		+ counter + "=" + item.name	 +
+										  "&item_number_"	+ counter + "=" + counter +
 										  "&quantity_"		+ counter + "=" + item.quantity +
 										  "&amount_"		+ counter + "=" + me.currencyStringForPaypalCheckout( item.price ) +
-										  "&on0_" 			+ counter + "=" + "Options" +
+										  "&on0_"			+ counter + "=" + "Options" +
 										  "&os0_"			+ counter + "=" + optionsString;
-			counter++;
-		}
+		});
 
-		if( me.shipping() != 0){
-			 itemsString = itemsString 	+   "&shipping=" + me.currencyStringForPaypalCheckout( me.shippingCost );
+		if( me.shipping() !== 0){
+			 itemsString = itemsString	+	"&shipping=" + me.currencyStringForPaypalCheckout( me.shippingCost );
 		}
 		
 		if( me.successUrl ){
@@ -246,7 +286,9 @@ function Cart(){
 
 	me.googleCheckout = function() {
 		var me = this;
-		if( me.currency != USD && me.currency != GBP ){
+		
+		
+		if( me.currency !== USD && me.currency !== GBP ){
 			error( "Google Checkout only allows the USD and GBP for currency.");
 			return;
 		} else if( me.merchantId === "" || me.merchantId === null || !me.merchantId ){
@@ -255,44 +297,51 @@ function Cart(){
 		}
 
 		var form = document.createElement("form"),
-			counter = 1;
+			counter=1,
+			current,
+			item,
+			descriptionString;
+			
 		form.style.display = "none";
 		form.method = "POST";
 		form.action = "https://checkout.google.com/api/checkout/v2/checkoutForm/Merchant/" +
 						me.merchantId;
 		form.acceptCharset = "utf-8";
 
-		for( var current in me.items ){
-			var item 				= me.items[current];
-			form.appendChild( me.createHiddenElement( "item_name_" 		+ counter, item.name		) );
-			form.appendChild( me.createHiddenElement( "item_quantity_" 	+ counter, item.quantity 	) );
-			form.appendChild( me.createHiddenElement( "item_price_" 	+ counter, item.price		) );
-			form.appendChild( me.createHiddenElement( "item_currency_" 	+ counter, me.currency 		) );
-			form.appendChild( me.createHiddenElement( "item_tax_rate_" 	+ counter, me.taxRate 		) );
+		me.each(function(item,iter){
+				
+			counter = iter+1;
+		
+			form.appendChild( me.createHiddenElement( "item_name_"		+ counter, item.name		) );
+			form.appendChild( me.createHiddenElement( "item_quantity_"	+ counter, item.quantity	) );
+			form.appendChild( me.createHiddenElement( "item_price_"		+ counter, item.price		) );
+			form.appendChild( me.createHiddenElement( "item_currency_"	+ counter, me.currency		) );
+			form.appendChild( me.createHiddenElement( "item_tax_rate_"	+ counter, me.taxRate		) );
 			form.appendChild( me.createHiddenElement( "_charset_"				 , ""				) );
 
-			var descriptionString = "";
+			descriptionString = "";
 
-			for( var field in item){
-				if( typeof( item[field] ) != "function" &&
-									field != "id" 		&&
-									field != "quantity"	&&
-									field != "price" )
-				{
-						descriptionString = descriptionString + ", " + field + ": " + item[field];
+			me.each( item , function( value , x , field ){
+			
+				if( field !== "id"		&&
+					field !== "quantity" &&
+					field !== "price" ) {
+						
+						descriptionString = descriptionString + ", " + field + ": " + value;
 				}
-			}
+			});
+			
 			descriptionString = descriptionString.substring( 1 );
 			form.appendChild( me.createHiddenElement( "item_description_" + counter, descriptionString) );
-			counter++;
-		}
+
+		});
 		
 		// hack for adding shipping
-		if( me.shipping() != 0){
+		if( me.shipping() !== 0){
 		   form.appendChild(me.createHiddenElement("ship_method_name_1", "Shipping"));
 		   form.appendChild(me.createHiddenElement("ship_method_price_1", parseFloat(me.shippingCost).toFixed(2)));
 		   form.appendChild(me.createHiddenElement("ship_method_currency_1", me.currency));
-    	}
+		}
 
 		document.body.appendChild( form );
 		form.submit();
@@ -318,7 +367,9 @@ function Cart(){
 
 	/* load cart from cookie */
 	me.load = function () {
-		var me = this;
+		var me = this,
+			id;
+			
 		/* initialize variables and items array */
 		me.items = {};
 		me.total = 0.00;
@@ -326,23 +377,23 @@ function Cart(){
 
 		/* retrieve item data from cookie */
 		if( readCookie('simpleCart') ){
-			var data = unescape(readCookie('simpleCart')).split('++');
+			var data = unescape(readCookie('simpleCart')).split('++'),
+				info,
+				newItem;
+				
 			for(var x=0, xlen=data.length;x<xlen;x++){
 
-				var info = data[x].split('||');
-				var newItem = new CartItem();
+				info = data[x].split('||');
+				newItem = new CartItem();
 
 				if( newItem.parseValuesFromArray( info ) ){
 					newItem.checkQuantityAndPrice();
 					/* store the new item in the cart */
 					me.items[newItem.id] = newItem;
 				}
- 			}
+			}
 		}
-		for( var id in me.items ){
-			
-		}
-		
+	
 		me.isLoaded = true;
 	};
 
@@ -350,11 +401,12 @@ function Cart(){
 
 	/* save cart to cookie */
 	me.save = function () {
-		var dataString = "",
-			me = this;
-		for( var item in this.items ){
-			dataString = dataString + "++" + this.items[item].print();
-		}
+		var dataString = "";
+			
+		me.each(function(item){
+			dataString = dataString + "++" + item.print();
+		});
+		
 		createCookie('simpleCart', dataString.substring( 2 ), me.cookieDuration );
 	};
 
@@ -368,17 +420,18 @@ function Cart(){
 
 	me.initializeView = function() {
 		var me = this;
-		me.totalOutlets 			= getElementsByClassName('simpleCart_total');
-		me.quantityOutlets 			= getElementsByClassName('simpleCart_quantity');
-		me.cartDivs 				= getElementsByClassName('simpleCart_items');
+		me.totalOutlets				= getElementsByClassName('simpleCart_total');
+		me.quantityOutlets			= getElementsByClassName('simpleCart_quantity');
+		me.cartDivs					= getElementsByClassName('simpleCart_items');
 		me.taxCostOutlets			= getElementsByClassName('simpleCart_taxCost');
 		me.taxRateOutlets			= getElementsByClassName('simpleCart_taxRate');
 		me.shippingCostOutlets		= getElementsByClassName('simpleCart_shippingCost');
 		me.finalTotalOutlets		= getElementsByClassName('simpleCart_finalTotal');
 
 		me.addEventToArray( getElementsByClassName('simpleCart_checkout') , simpleCart.checkout , "click");
-		me.addEventToArray( getElementsByClassName('simpleCart_empty') 	, simpleCart.empty , "click" );
-
+		me.addEventToArray( getElementsByClassName('simpleCart_empty')	, simpleCart.empty , "click" );
+		
+		me.Shelf = new Shelf();
 		me.Shelf.readPage();
 
 		me.pageIsReady = true;
@@ -397,7 +450,7 @@ function Cart(){
 	me.updateViewTotals = function() {
 		var outlets = [ ["quantity"		, "none"		] ,
 						["total"		, "currency"	] ,
-						["shippingCost"	, "currency"	] ,
+						["shippingCost" , "currency"	] ,
 						["taxCost"		, "currency"	] ,
 						["taxRate"		, "percentage"	] ,
 						["finalTotal"	, "currency"	] ];
@@ -405,9 +458,10 @@ function Cart(){
 		for( var x=0,xlen=outlets.length; x<xlen;x++){
 
 			var arrayName = outlets[x][0] + "Outlets",
-				outputString;
+				outputString,
+				element;
 
-			for( var element in me[ arrayName ] ){
+			for( var y = 0,ylen = me[ arrayName ].length; y<ylen; y++ ){ 
 				switch( outlets[x][1] ){
 					case "none":
 						outputString = "" + me[outlets[x][0]];
@@ -422,14 +476,14 @@ function Cart(){
 						outputString = "" + me[outlets[x][0]];
 						break;
 				}
-				me[arrayName][element].innerHTML = "" + outputString;
+				me[arrayName][y].innerHTML = "" + outputString;
 			}
 		}
 	};
 
 	me.updateCartView = function() {
 		var newRows = [],
-			y,x,newRow,item,current,header,newCell,info,outputValue,option,headerInfo;
+			y,newRow,current,header,newCell,info,outputValue,option,headerInfo;
 
 		/* create headers row */
 		newRow = document.createElement('div');
@@ -451,33 +505,30 @@ function Cart(){
 		newRows[0] = newRow;
 
 		/* create a row for each item in the cart */
-		x=1;
-		for( current in me.items ){
+		me.each(function(item, x){
 			newRow = document.createElement('div');
-			item = me.items[current];
 
 			for(var y=0,ylen = me.cartHeaders.length; y<ylen; y++ ){
 				newCell = document.createElement('div');
 				info = me.cartHeaders[y].split("_");
-				
+			
 				outputValue = me.createCartRow( info , item , outputValue );
 
 				newCell.innerHTML = outputValue;
 				newCell.className = "item" + info[0];
-				
+			
 				newRow.appendChild( newCell );
 			}
 			newRow.className = "itemContainer";
-			newRows[x] = newRow;
-			x++;
-		}
+			newRows[x+1] = newRow;
+		});
 
 
 
-		for( current in me.cartDivs ){
+		for( var x=0,xlen=me.cartDivs.length; x<xlen; x++){
 
 			/* delete current rows in div */
-			var div = me.cartDivs[current];
+			var div = me.cartDivs[x];
 			if( div.childNodes && div.appendChild ){
 				while( div.childNodes[0] ){
 					div.removeChild( div.childNodes[0] );
@@ -523,7 +574,7 @@ function Cart(){
 					outputValue = me.valueToImageString( outputValue );		
 					break;
 				case "input":
-					outputValue = me.valueToTextInput( outputValue , "onchange=\"simpleCart.items[\'" + item.id + "\'].set(\'" + info[0].toLowerCase() + "\' , this.value);\""  );
+					outputValue = me.valueToTextInput( outputValue , "onchange=\"simpleCart.items[\'" + item.id + "\'].set(\'" + info[0].toLowerCase() + "\' , this.value);\""	);
 					break;
 				case "div":
 				case "span":
@@ -546,12 +597,15 @@ function Cart(){
 	};
 
 	me.addEventToArray = function ( array , functionCall , theEvent ) {
-		for( var outlet in array ){
-			var element = array[outlet];
+		var outlet, 
+			element;
+		
+		for(var x=0,xlen=array.length; x<xlen; x++ ){
+			element = array[x];
 			if( element.addEventListener ) {
 				element.addEventListener(theEvent, functionCall , false );
 			} else if( element.attachEvent ) {
-			  	element.attachEvent( "on" + theEvent, functionCall );
+				element.attachEvent( "on" + theEvent, functionCall );
 			}
 		}
 	};
@@ -660,23 +714,29 @@ function Cart(){
 	 ******************************************************/
 
 	me.hasItem = function ( item ) {
-		for( var current in me.items ) {
-			var testItem = me.items[current];
-			var matches = true;
-			for( var field in item ){
-				if( typeof( item[field] ) != "function"	&&
-					field != "quantity"  				&&
-					field != "id" 						){
-					if( item[field] != testItem[field] ){
-						matches = false;
-					}
+		var current, 
+			matches,
+			field,
+			match=false;
+		
+		me.each(function(testItem){ 
+			
+			matches = true;
+			
+			me.each( item , function( value , x , field ){ 
+				
+				if( field !== "quantity" && field !== "id" && item[field] !== testItem[field] ){
+					matches = false;
 				}
-			}
+			});
+			
 			if( matches ){
-				return current;
+				match = current;
+				return false;
 			}
-		}
-		return false;
+			
+		});
+		return match;
 	};
 	
 	/******************************************************
@@ -722,19 +782,21 @@ function Cart(){
 	};
 
 	me.updateTotals = function() {
+			
 		me.total = 0 ;
-		me.quantity  = 0;
-		for( var current in me.items ){
-			var item = me.items[current];
+		me.quantity	 = 0;
+		me.each(function(item){ 
+			
 			if( item.quantity < 1 ){
 				item.remove();
-			} else if( item.quantity !== null && item.quantity != "undefined" ){
+			} else if( item.quantity !== null && item.quantity !== "undefined" ){
 				me.quantity = parseInt(me.quantity,10) + parseInt(item.quantity,10);
 			}
 			if( item.price ){
 				me.total = parseFloat(me.total) + parseInt(item.quantity,10)*parseFloat(item.price);
 			}
-		}
+			
+		});
 		me.shippingCost = me.shipping();
 		me.taxCost = parseFloat(me.total)*me.taxRate;
 		me.finalTotal = me.shippingCost + me.taxCost + me.total;
@@ -743,13 +805,12 @@ function Cart(){
 	me.shipping = function(){
 		if( parseInt(me.quantity,10)===0 )
 			return 0;
-		var shipping = 	parseFloat(me.shippingFlatRate) +
-					  	parseFloat(me.shippingTotalRate)*parseFloat(me.total) +
+		var shipping =	parseFloat(me.shippingFlatRate) +
+						parseFloat(me.shippingTotalRate)*parseFloat(me.total) +
 						parseFloat(me.shippingQuantityRate)*parseInt(me.quantity,10),
-			nextItem,
 			next;
-		for(next in me.items){
-			nextItem = me.items[next];
+		
+		me.each(function(nextItem){ 		
 			if( nextItem.shipping ){
 				if( typeof nextItem.shipping == 'function' ){
 					shipping += parseFloat(nextItem.shipping());
@@ -757,7 +818,7 @@ function Cart(){
 					shipping += parseFloat(nextItem.shipping);
 				}
 			}
-		}
+		});
 
 		return shipping;
 	}
@@ -782,7 +843,7 @@ function CartItem() {
 }
 	CartItem.prototype.set = function ( field , value ){
 		field = field.toLowerCase();
-		if( typeof( this[field] ) != "function" && field != "id" ){
+		if( typeof( this[field] ) !== "function" && field !== "id" ){
 			if( field == "quantity" ){
 				value = value.replace( /[^(\d|\.)]*/gi , "" );
 				value = value.replace(/,*/gi, "");
@@ -823,12 +884,11 @@ function CartItem() {
 	};
 
 	CartItem.prototype.print = function () {
-		var returnString = '';
-		for( var field in this ) {
-			if( typeof( this[field] ) != "function" ) {
-				returnString+= escape(field) + "=" + escape(this[field]) + "||";
-			}
-		}
+		var returnString = '',
+			field;
+		simpleCart.each(this ,function(item,x,name){ 	
+			returnString+= escape(name) + "=" + escape(item) + "||";
+		});
 		return returnString.substring(0,returnString.length-2);
 	};
 
@@ -907,11 +967,14 @@ function Shelf(){
 }
 	Shelf.prototype.readPage = function () {
 		this.items = {};
-		var newItems = getElementsByClassName( "simpleCart_shelfItem" );
-		for( var current in newItems ){
-			var newItem = new ShelfItem();
-			this.checkChildren( newItems[current] , newItem );
-			this.items[newItem.id] = newItem;
+		var newItems = getElementsByClassName( "simpleCart_shelfItem" ),
+			newItem;
+			me = this;
+		
+		for( var x = 0, xlen = newItems.length; x<xlen; x++){
+			newItem = new ShelfItem();
+			me.checkChildren( newItems[x] , newItem );
+			me.items[newItem.id] = newItem;
 		}
 	};
 
@@ -971,9 +1034,12 @@ function ShelfItem(){
 
 
 	ShelfItem.prototype.addToCart = function () {
-		var outStrings = [],valueString;
-		for( var field in this ){
-			if( typeof( this[field] ) != "function" && field != "id" ){
+		var outStrings = [],
+			valueString,
+			field;
+			
+		for( field in this ){
+			if( typeof( this[field] ) !== "function" && field !== "id" ){
 				valueString = "";
 
 				switch(field){
@@ -1080,7 +1146,7 @@ var getElementsByClassName = function (className, tag, elm){
 			for(var j=0, jl=classes.length; j<jl; j+=1){
 				classesToCheck += "[contains(concat(' ', @class, ' '), ' " + classes[j] + " ')]";
 			}
-			try	{
+			try {
 				elements = document.evaluate(".//" + tag + classesToCheck, elm, namespaceResolver, 0, null);
 			}
 			catch (e) {
@@ -1126,7 +1192,7 @@ var getElementsByClassName = function (className, tag, elm){
 
 
 /********************************************************************************************************
- *  Helpers
+ *	Helpers
  ********************************************************************************************************/
 
 
