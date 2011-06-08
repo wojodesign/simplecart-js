@@ -27,7 +27,7 @@
 	
 	module("saving/removing items");
 	test('items not overwritten because of duplicate id', function(){
-		simpleCart.empty();
+		//simpleCart.empty();
 		simpleCart.nextId=99;
 		simpleCart.add("name=Bob","price=13.00");
 		simpleCart.nextId=99;
@@ -44,9 +44,18 @@
 		item.remove();
 		same( simpleCart.items[ item.id ] , undefined , "Item removed properly with pointer");
 		
-		
 	});
 	
+	test('special characters removed from new item', function(){
+		
+		var item = simpleCart.add("name=Bill~","price=1422.00");
+		same( item.name , "Bill" , "~ removed from new item" );
+		item.set( 'name' , "Nick=");
+		same( item.name , "Nick" , "= removed from item update" );
+		item.set( 'name' , "John~");
+		same( item.name , "John" , "~ removed from item update" );
+		
+	});
 	
 	
 	module("language");

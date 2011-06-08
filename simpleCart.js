@@ -795,6 +795,10 @@ function CartItem() {
 			if( typeof(value) == "number" && isNaN( value ) ){
 				error( "Improperly formatted input.");
 			} else {
+				if( value.match(/\~|\=/) ){
+					error("Special character ~ or = not allowed: " + value);
+				}
+				value = value.replace(/\~|\=/g, "");
 				this[field] = value;
 				this.checkQuantityAndPrice();
 			}
@@ -862,8 +866,13 @@ function CartItem() {
 			for(var x=0, xlen=array.length; x<xlen;x++ ){
 
 				/* ensure the pair does not have key delimeters */
-				array[x].replace(/||/, "| |");
-				array[x].replace(/\+\+/, "+ +");
+				array[x] = array[x].replace(/\|\|/g, "| |");
+				array[x] = array[x].replace(/\+\+/g, "+ +");
+				if( array[x].match(/\~/) ){
+					error("Special character ~ not allowed: " + array[x]);
+				}
+				array[x] = array[x].replace(/\~/g, "");
+				
 
 				/* split the pair and save the unescaped values to the item */
 				var value = array[x].split('=');
@@ -1012,7 +1021,8 @@ function createCookie(name,value,days) {
 		var expires = "; expires="+date.toGMTString();
 	}
 	else var expires = "";
-	document.cookie = name+"="+value+expires+"; path=/";
+	value = value.replace(/\=/g, '~');
+	document.cookie = name + "=" + value + expires + "; path=/";
 }
 
 function readCookie(name) {
@@ -1021,7 +1031,10 @@ function readCookie(name) {
 	for(var i=0;i < ca.length;i++) {
 		var c = ca[i];
 		while (c.charAt(0)==' ') c = c.substring(1,c.length);
-		if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length,c.length);
+		if (c.indexOf(nameEQ) === 0){
+			var value = c.substring(nameEQ.length, c.length);
+			return value.replace(/\~/g, '=');
+		} 
 	}
 	return null;
 }
