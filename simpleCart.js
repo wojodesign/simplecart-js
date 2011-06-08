@@ -228,10 +228,7 @@ function Cart(){
 		}
 
 		if( me.shipping() != 0){
-			 itemsString = itemsString 	+ "&item_name_" 	+ counter + "=Shipping"  +
-									 	  "&item_number_" 	+ counter + "=" + counter +
-										  "&quantity_"		+ counter + "=1" +
-										  "&amount_"		+ counter + "=" + me.currencyStringForPaypalCheckout( me.shippingCost );
+			 itemsString = itemsString 	+   "&shipping=" + me.currencyStringForPaypalCheckout( me.shippingCost );
 		}
 		
 		if( me.successUrl ){
