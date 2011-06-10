@@ -1,5 +1,5 @@
 /****************************************************************************
-Copyright (c) 2009 The Wojo Group
+Copyright (c) 2011 The Wojo Group
 
 thewojogroup.com
 simplecartjs.com
@@ -32,7 +32,7 @@ function Cart(){
 	var me = this;
 	/* member variables */
 	me.nextId = 1;
-	me.Version = '2.1';
+	me.Version = '2.2';
 	me.Shelf = null;
 	me.items = {};
 	me.isLoaded = false;
