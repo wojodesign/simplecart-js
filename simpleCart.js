@@ -53,6 +53,8 @@ function Cart(){
 	me.successUrl = null;
 	me.cancelUrl = null;
 	me.cookieDuration = 30; // default duration in days
+	me.storagePrefix = "sc_";
+	me.MAX_COOKIE_SIZE = 4000;
 	me.cartHeaders = ['Name','Price','Quantity','Total'];
 	/*
 		cart headers:
@@ -116,9 +118,9 @@ function Cart(){
 
 		/* if the item already exists, update the quantity */
 		if( me.hasItem(newItem) ) {
-			var id=me.hasItem(newItem);
-			me.items[id].quantity= parseInt(me.items[id].quantity,10) + parseInt(newItem.quantity,10);
-			newItem = me.items[id];
+			var foundItem=me.hasItem(newItem);
+			foundItem.quantity= parseInt(foundItem.quantity,10) + parseInt(newItem.quantity,10);
+			newItem = foundItem;
 		} else {
 			me.items[newItem.id] = newItem;
 		}
@@ -200,6 +202,16 @@ function Cart(){
 		}
 		
 	};
+	
+	
+	me.chunk = function(str, n) {
+		if (typeof n==='undefined'){ 
+			n=2;
+		}
+		var result = str.match(RegExp('.{1,'+n+'}','g'));
+		return result || [];
+	};
+
 
 	/******************************************************
 			 checkout management
@@ -376,10 +388,21 @@ function Cart(){
 		me.quantity = 0;
 
 		/* retrieve item data from cookie */
-		if( readCookie('simpleCart') ){
-			var data = unescape(readCookie('simpleCart')).split('++'),
+		if( readCookie(simpleCart.storagePrefix + 'simpleCart_' + "chunks") ){
+			var chunkCount = 1*readCookie(simpleCart.storagePrefix + 'simpleCart_' + "chunks"),
+				dataArray = [],
+				dataString = "",
+				data,
 				info,
-				newItem;
+				newItem,
+				y=0;
+				
+			for( y=0;y<chunkCount;y++){
+				dataArray.push( readCookie( simpleCart.storagePrefix + 'simpleCart_' + (1 + y ) ) );
+			}
+			
+			dataString = unescape( dataArray.join("") );
+			data = dataString.split("++");
 				
 			for(var x=0, xlen=data.length;x<xlen;x++){
 
@@ -401,16 +424,29 @@ function Cart(){
 
 	/* save cart to cookie */
 	me.save = function () {
-		var dataString = "";
+		var dataString = "",
+			dataArray = [],
+			chunkCount = 0;
+			
+		chunkCount = 1*readCookie(simpleCart.storagePrefix + 'simpleCart_' + "chunks");
+		for( var j=0;j<chunkCount;j++){
+			eraseCookie(simpleCart.storagePrefix + 'simpleCart_'+ j);
+		}
+		eraseCookie(simpleCart.storagePrefix + 'simpleCart_' + "chunks");
+		
 			
 		me.each(function(item){
 			dataString = dataString + "++" + item.print();
 		});
 		
-		createCookie('simpleCart', dataString.substring( 2 ), me.cookieDuration );
+		dataArray = simpleCart.chunk( dataString.substring(2) , simpleCart.MAX_COOKIE_SIZE );
+		
+		for( var x=0,xlen = dataArray.length;x<xlen;x++){
+			createCookie(simpleCart.storagePrefix + 'simpleCart_' + (1 + x ), dataArray[x], me.cookieDuration );
+		}
+				
+		createCookie( simpleCart.storagePrefix + 'simpleCart_' + "chunks", "" + dataArray.length , me.cookieDuration );
 	};
-
-
 
 
 
@@ -731,8 +767,7 @@ function Cart(){
 			});
 			
 			if( matches ){
-				match = current;
-				return false;
+				match = testItem;
 			}
 			
 		});
@@ -1088,7 +1123,7 @@ function createCookie(name,value,days) {
 	}
 	else var expires = "";
 	value = value.replace(/\=/g, '~');
-	document.cookie = name + "=" + value + expires + "; path=/";
+	document.cookie = name + "=" + escape(value) + expires + "; path=/";
 }
 
 function readCookie(name) {
@@ -1098,7 +1133,7 @@ function readCookie(name) {
 		var c = ca[i];
 		while (c.charAt(0)==' ') c = c.substring(1,c.length);
 		if (c.indexOf(nameEQ) === 0){
-			var value = c.substring(nameEQ.length, c.length);
+			var value = unescape(c.substring(nameEQ.length, c.length));
 			return value.replace(/\~/g, '=');
 		} 
 	}

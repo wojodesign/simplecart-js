@@ -1,5 +1,16 @@
 
 	module('simpleCart core functions');
+	test("simpleCart.chunk() function works", function(){
+		
+		var str = "11111" + "11111" + "11111" + "11111" + "11111",
+			array = [ "11111" , "11111" , "11111" , "11111" , "11111" ];
+			test = simpleCart.chunk( str , 5 );
+			
+		same( test , array , "chunked array properly into 5 piece chunks");
+		
+	});
+	
+	
 	test("simpleCart.each() function works", function(){
 		
 		var myarray = ['bob' , 'joe' , function bill(){} , 'jeff' ];
@@ -100,6 +111,36 @@
 		
 	});
 	
+	
+	test('duplicate items increase quantity', function(){
+		
+		
+		var before = 0,
+			before_q,
+			before_iq,
+			after = 0,
+		 	item;
+		
+		item = simpleCart.add("name=Jorge","price=1.00");
+		
+		simpleCart.each(function(item,x){
+			before++;
+		});
+		before_iq = item.quantity;
+		before_q = simpleCart.quantity;
+		
+		item = simpleCart.add("name=Jorge","price=1.00");
+		
+		simpleCart.each(function(item,x){
+			after++;
+		});
+		
+		same( before , after , "individual item count remains the same" );
+		same( simpleCart.quantity , before_q+1, "cart quantity increased" );
+		same( item.quantity , before_iq+1, "item quantity increased" );
+	});
+	
+
 	
 	module("language");
 	test("change language", function(){
