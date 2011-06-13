@@ -392,18 +392,18 @@ function Cart(){
 			var chunkCount = 1*readCookie(simpleCart.storagePrefix + 'simpleCart_' + "chunks"),
 				dataArray = [],
 				dataString = "",
-				data,
+				data = "",
 				info,
 				newItem,
 				y=0;
-				
-			for( y=0;y<chunkCount;y++){
-				dataArray.push( readCookie( simpleCart.storagePrefix + 'simpleCart_' + (1 + y ) ) );
-			}
+			if(chunkCount>0) {	
+				for( y=0;y<chunkCount;y++){
+					dataArray.push( readCookie( simpleCart.storagePrefix + 'simpleCart_' + (1 + y ) ) );
+				}
 			
-			dataString = unescape( dataArray.join("") );
-			data = dataString.split("++");
-				
+				dataString = unescape( dataArray.join("") );
+				data = dataString.split("++");
+			}
 			for(var x=0, xlen=data.length;x<xlen;x++){
 
 				info = data[x].split('||');
