@@ -56,6 +56,7 @@ function Cart(){
 	me.storagePrefix = "sc_";
 	me.MAX_COOKIE_SIZE = 4000;
 	me.cartHeaders = ['Name','Price','Quantity','Total'];
+	me.events = {};
 	/*
 		cart headers:
 		you can set these to which ever order you would like, and the cart will display the appropriate headers
@@ -656,6 +657,47 @@ function Cart(){
 	};
 
 
+	/******************************************************
+			Event Management
+	 ******************************************************/
+	
+	me.bind = function( name , callback ){
+		if( typeof callback !== 'function' ){
+			return me;
+		}
+		
+		
+		if (me.events[name] === true ){
+			callback.call( me );
+		} else if( typeof me.events[name] !== 'undefined' ){
+			me.events[name].push( callback );
+		} else {
+			me.events[name] = [ callback ];
+		}
+		return me;
+	};
+
+	me.trigger = function( name ){
+		if( typeof me.events[name] !== 'undefined'){
+			for( var x=0,xlen=me.events[name].length; x<xlen; x++ ){
+				me.events[name][x].call( me );
+			}
+		}
+		return me;
+	};
+	
+	me.ready = function( callback ){
+		if( !callback ){
+			me.trigger( 'ready' );
+			me.events['ready'] = true;
+		} else {
+			me.bind( 'ready' , callback );
+		}
+		return me;
+	};
+
+
+
 
 	/******************************************************
 				Currency management
@@ -859,9 +901,10 @@ function Cart(){
 	}
 
 	me.initialize = function() {
-		simpleCart.initializeView();
-		simpleCart.load();
-		simpleCart.update();
+		me.initializeView();
+		me.load();
+		me.update();
+		me.ready();
 	};
 
 }

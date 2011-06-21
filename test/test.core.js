@@ -55,6 +55,13 @@
 	
 	});
 	
+	asyncTest("simpleCart.ready() works", function(){
+		simpleCart.ready(function(){
+			ok(true);
+			start();
+		});
+	});
+	
 	
 	module('update view');
 	test("cart row input event property" , function(){
