@@ -32,7 +32,7 @@ function Cart(){
 	var me = this;
 	/* member variables */
 	me.nextId = 1;
-	me.Version = '2.2';
+	me.Version = '2.3';
 	me.Shelf = null;
 	me.items = {};
 	me.isLoaded = false;
@@ -144,8 +144,8 @@ function Cart(){
 	};
 
 	me.empty = function () {
-		simpleCart.items = {};
-		simpleCart.update();
+		me.items = {};
+		me.update();
 	};
 
 	/******************************************************
@@ -219,22 +219,22 @@ function Cart(){
 	 ******************************************************/
 
 	me.checkout = function() {
-		if( simpleCart.quantity === 0 ){
+		if( me.quantity === 0 ){
 			error("Cart is empty");
 			return;
 		}
-		switch( simpleCart.checkoutTo ){
+		switch( me.checkoutTo ){
 			case PayPal:
-				simpleCart.paypalCheckout();
+				me.paypalCheckout();
 				break;
 			case GoogleCheckout:
-				simpleCart.googleCheckout();
+				me.googleCheckout();
 				break;
 			case Email:
-				simpleCart.emailCheckout();
+				me.emailCheckout();
 				break;
 			default:
-				simpleCart.customCheckout();
+				me.customCheckout();
 				break;
 		}
 	};
@@ -919,7 +919,11 @@ function CartItem() {
 		
 	this.id = "c" + simpleCart.nextId;
 }
-	CartItem.prototype.set = function ( field , value ){
+
+
+CartItem.prototype = {
+	
+	set : function ( field , value ){
 		field = field.toLowerCase();
 		if( typeof( this[field] ) !== "function" && field !== "id" ){
 			if( field == "quantity" ){
@@ -945,33 +949,33 @@ function CartItem() {
 			error( "Cannot change " + field + ", this is a reserved field.");
 		}
 		simpleCart.update();
-	};
+	},
 
-	CartItem.prototype.increment = function(){
+	increment : function(){
 		this.quantity = parseInt(this.quantity,10) + 1;
 		simpleCart.update();
-	};
+	},
 
-	CartItem.prototype.decrement = function(){
+	decrement : function(){
 		if( parseInt(this.quantity,10) < 2 ){
 			this.remove();
 		} else {
 			this.quantity = parseInt(this.quantity,10) - 1;
 			simpleCart.update();
 		}
-	};
+	},
 
-	CartItem.prototype.print = function () {
+	print : function () {
 		var returnString = '',
 			field;
 		simpleCart.each(this ,function(item,x,name){ 	
 			returnString+= escape(name) + "=" + escape(item) + "||";
 		});
 		return returnString.substring(0,returnString.length-2);
-	};
+	},
 
 
-	CartItem.prototype.checkQuantityAndPrice = function() {
+	checkQuantityAndPrice : function() {
 
 		if( !this.quantity || this.quantity == null || this.quantity == 'undefined'){ 
 			this.quantity = 1;
@@ -996,10 +1000,10 @@ function CartItem() {
 				this.price = 0.00;
 			}
 		}
-	};
+	},
 
 
-	CartItem.prototype.parseValuesFromArray = function( array ) {
+	parseValuesFromArray : function( array ) {
 		if( array && array.length && array.length > 0) {
 			for(var x=0, xlen=array.length; x<xlen;x++ ){
 
@@ -1027,12 +1031,13 @@ function CartItem() {
 		} else {
 			return false;
 		}
-	};
+	},
 
-	CartItem.prototype.remove = function() {
+	remove : function() {
 		simpleCart.remove(this.id);
 		simpleCart.update();
-	};
+	}
+};
 
 
 
@@ -1043,7 +1048,9 @@ function CartItem() {
 function Shelf(){
 	this.items = {};
 }
-	Shelf.prototype.readPage = function () {
+Shelf.prototype = { 
+		
+	readPage : function () {
 		this.items = {};
 		var newItems = getElementsByClassName( "simpleCart_shelfItem" ),
 			newItem;
@@ -1054,9 +1061,9 @@ function Shelf(){
 			me.checkChildren( newItems[x] , newItem );
 			me.items[newItem.id] = newItem;
 		}
-	};
+	},
 
-	Shelf.prototype.checkChildren = function ( item , newItem) {
+	checkChildren : function ( item , newItem) {
 		if( !item.childNodes )
 			return;
 		for(var x=0;item.childNodes[x];x++){
@@ -1080,14 +1087,14 @@ function Shelf(){
 				this.checkChildren( node , newItem );
 			}
 		}
-	};
+	},
 
-	Shelf.prototype.empty = function () {
+	empty : function () {
 		this.items = {};
-	};
+	},
 
 
-	Shelf.prototype.addToCart = function ( id ) {
+	addToCart : function ( id ) {
 		return function(){
 			if( simpleCart.Shelf.items[id]){
 				simpleCart.Shelf.items[id].addToCart();
@@ -1095,7 +1102,8 @@ function Shelf(){
 				error( "Shelf item with id of " + id + " does not exist.");
 			}
 		};
-	};
+	}
+};
 
 
 /********************************************************************************************************
@@ -1106,12 +1114,14 @@ function Shelf(){
 function ShelfItem(){
 	this.id = "s" + simpleCart.nextId++;
 }
-	ShelfItem.prototype.remove = function () {
+
+ShelfItem.prototype = {
+	
+	remove : function () {
 		simpleCart.Shelf.items[this.id] = null;
-	};
+	},
 
-
-	ShelfItem.prototype.addToCart = function () {
+	addToCart : function () {
 		var outStrings = [],
 			valueString,
 			field;
@@ -1151,7 +1161,8 @@ function ShelfItem(){
 		}
 
 		simpleCart.add( outStrings );
-	};
+	}
+};
 
 
 
