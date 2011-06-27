@@ -290,10 +290,10 @@ function Cart(){
 			var option_count = 0;
 
 			me.each( item , function( value, x , field ){
-				if( field !== "id" && field !== "price" && field !== "quantity" && field !== "name" && field !== "shipping") {
-					form.appendChild( me.createHiddenElement( "on" + x + "_"	+ counter, 	field ) );
-					form.appendChild( me.createHiddenElement( "os" + x + "_"	+ counter, 	value ) );
-					option_count=x;
+				if( field !== "id" && field !== "price" && field !== "quantity" && field !== "name" && field !== "shipping" && option_count < 10) {
+					form.appendChild( me.createHiddenElement( "on" + option_count + "_"	+ counter, 	field ) );
+					form.appendChild( me.createHiddenElement( "os" + option_count + "_"	+ counter, 	value ) );
+					option_count++;
 				}
 			});
 
