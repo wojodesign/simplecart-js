@@ -241,60 +241,71 @@ function Cart(){
 
 	me.paypalCheckout = function() {
 
-		var me = this,
-			winpar = "scrollbars,location,resizable,status",
-			strn  = "https://www.paypal.com/cgi-bin/webscr?cmd=_cart" +
-					"&upload=1" +
-					"&business=" + me.email +
-					"&currency_code=" + me.currency,
-			counter = 1,
-			itemsString = "",
+		
+		var form = document.createElement("form"),
+			counter=1,
 			current,
 			item,
-			optionsString,
-			field;
-
-
+			descriptionString;
+			
+		form.style.display = "none";
+		form.method = "POST";
+		form.action = "https://www.paypal.com/cgi-bin/webscr";
+		form.acceptCharset = "utf-8";
+			
+			
+		// setup hidden fields
+		form.appendChild(me.createHiddenElement("cmd", "_cart"));
+		form.appendChild(me.createHiddenElement("upload", "1"));
+		form.appendChild(me.createHiddenElement("business", me.email ));
+		form.appendChild(me.createHiddenElement("currency_code", "me.currency"));
+		
 		if( me.taxRate ){
-			strn = strn +
-				"&tax_cart=" +	me.currencyStringForPaypalCheckout( me.taxCost );
+			form.appendChild(me.createHiddenElement("tax_cart",me.taxCost ));
 		}
-
-		me.each(function(item,iter){
-			
-			counter = iter+1;
-			optionsString = "";
-			
-			me.each( item , function( value, x , field ){
-				if( field !== "id" && field !== "price" && field !== "quantity" && field !== "name" && field !== "shipping") {
-					optionsString = optionsString + ", " + field + "=" + value ;
-				}
-			});
-			optionsString = optionsString.substring(2);
-
-			itemsString = itemsString	+ "&item_name_"		+ counter + "=" + item.name	 +
-										  "&item_number_"	+ counter + "=" + counter +
-										  "&quantity_"		+ counter + "=" + item.quantity +
-										  "&amount_"		+ counter + "=" + me.currencyStringForPaypalCheckout( item.price ) +
-										  "&on0_"			+ counter + "=" + "Options" +
-										  "&os0_"			+ counter + "=" + optionsString;
-		});
-
+		
 		if( me.shipping() !== 0){
-			 itemsString = itemsString	+	"&shipping=" + me.currencyStringForPaypalCheckout( me.shippingCost );
+			form.appendChild(me.createHiddenElement("shipping",  me.shippingCost ));
 		}
 		
 		if( me.successUrl ){
-			itemsString = itemsString + "&return=" + me.successUrl;
+			form.appendChild(me.createHiddenElement("return",  me.successUrl ));
 		}
 		
 		if( me.cancelUrl ){
-			itemsString = itemsString + "&cancel_return=" + me.cancelUrl;
+			form.appendChild(me.createHiddenElement("cancel_return",  me.cancelUrl ));
 		}
+		
+		
+
+		me.each(function(item,iter){
+
+			counter = iter+1;
+		
+			form.appendChild( me.createHiddenElement( "item_name_"		+ counter, item.name		) );
+			form.appendChild( me.createHiddenElement( "quantity_"		+ counter, item.quantity	) );
+			form.appendChild( me.createHiddenElement( "amount_"			+ counter, item.price		) );
+			form.appendChild( me.createHiddenElement( "item_number_"	+ counter, counter			) );
+			
+			var option_count = 0;
+
+			me.each( item , function( value, x , field ){
+				if( field !== "id" && field !== "price" && field !== "quantity" && field !== "name" && field !== "shipping") {
+					form.appendChild( me.createHiddenElement( "on" + x + "_"	+ counter, 	field ) );
+					form.appendChild( me.createHiddenElement( "os" + x + "_"	+ counter, 	value ) );
+					option_count=x;
+				}
+			});
+
+			form.appendChild( me.createHiddenElement( "option_index_" + counter, option_count) );
+
+		});
 
 
-		strn = strn + itemsString ;
-		window.open (strn, "paypal", winpar);
+		document.body.appendChild( form );
+		form.submit();
+		document.body.removeChild( form );
+		
 	};
 
 	me.googleCheckout = function() {
