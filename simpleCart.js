@@ -32,7 +32,7 @@ function Cart(){
 	var me = this;
 	/* member variables */
 	me.nextId = 1;
-	me.Version = '2.3';
+	me.Version = '2.2.1';
 	me.Shelf = null;
 	me.items = {};
 	me.isLoaded = false;
