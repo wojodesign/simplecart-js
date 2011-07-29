@@ -265,7 +265,7 @@ function Cart(){
 		}
 		
 		if( me.shipping() !== 0){
-			form.appendChild(me.createHiddenElement("shipping",  me.shippingCost ));
+			form.appendChild(me.createHiddenElement("handling_cart",  me.shippingCost ));
 		}
 		
 		if( me.successUrl ){
