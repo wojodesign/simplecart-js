@@ -937,11 +937,12 @@ CartItem.prototype = {
 	set : function ( field , value ){
 		field = field.toLowerCase();
 		if( typeof( this[field] ) !== "function" && field !== "id" ){
-			if( field == "quantity" ){
+			value = "" + value;
+			if( field == "quantity"){
 				value = value.replace( /[^(\d|\.)]*/gi , "" );
 				value = value.replace(/,*/gi, "");
 				value = parseInt(value,10);
-			} else if( field == "price"){
+			} else if( field == "price" ){
 				value = value.replace( /[^(\d|\.)]*/gi, "");
 				value = value.replace(/,*/gi , "");
 				value = parseFloat( value );
@@ -949,10 +950,12 @@ CartItem.prototype = {
 			if( typeof(value) == "number" && isNaN( value ) ){
 				error( "Improperly formatted input.");
 			} else {
-				if( value.match(/\~|\=/) ){
-					error("Special character ~ or = not allowed: " + value);
+				if( typeof( value ) === "string" ){
+					if( value.match(/\~|\=/) ){
+						error("Special character ~ or = not allowed: " + value);
+					}
+					value = value.replace(/\~|\=/g, "");
 				}
-				value = value.replace(/\~|\=/g, "");
 				this[field] = value;
 				this.checkQuantityAndPrice();
 			}

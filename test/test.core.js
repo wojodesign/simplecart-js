@@ -147,6 +147,23 @@
 		same( item.quantity , before_iq+1, "item quantity increased" );
 	});
 	
+	
+	module("updating items");
+	test('updates to quantity using item.set() with number value work', function(){
+		//simpleCart.empty();
+		var item = simpleCart.add("name=Cool Tshirt","price=132.00");
+		item.set( 'quantity' , 30 );
+		same( item.quantity , 30 , "Quantity with number properly updated" );
+	});
+	
+	test('updates to quantity using item.set() with string value work', function(){
+		//simpleCart.empty();
+		var item = simpleCart.add("name=Cool Tshirt","price=132.00");
+		item.set( 'quantity' , "30" );
+		same( item.quantity , 30 , "Quantity with string properly updated" );
+	});
+	
+	
 
 	
 	module("language");
