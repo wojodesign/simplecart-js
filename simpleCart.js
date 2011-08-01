@@ -57,6 +57,8 @@ function Cart(){
 	me.MAX_COOKIE_SIZE = 4000;
 	me.cartHeaders = ['Name','Price','Quantity','Total'];
 	me.events = {};
+	me.sandbox = false;
+	me.paypalHTTPMethod = "GET";
 	/*
 		cart headers:
 		you can set these to which ever order you would like, and the cart will display the appropriate headers
@@ -116,17 +118,25 @@ function Cart(){
 
 		newItem.parseValuesFromArray( argumentArray );
 		newItem.checkQuantityAndPrice();
+		
+		if( me.trigger('beforeAdd', [newItem] ) === false ){
+			return false;
+		}
+		var isNew = true;
 
 		/* if the item already exists, update the quantity */
 		if( me.hasItem(newItem) ) {
 			var foundItem=me.hasItem(newItem);
 			foundItem.quantity= parseInt(foundItem.quantity,10) + parseInt(newItem.quantity,10);
 			newItem = foundItem;
+			isNew = false;
 		} else {
 			me.items[newItem.id] = newItem;
 		}
 
 		me.update();
+		me.trigger('afterAdd', [newItem,isNew] );
+		
 		return newItem;
 		
 	};
@@ -249,13 +259,14 @@ function Cart(){
 			descriptionString;
 			
 		form.style.display = "none";
-		form.method = "POST";
-		form.action = "https://www.paypal.com/cgi-bin/webscr";
+		form.method = me.paypalHTTPMethod =="GET" || me.paypalHTTPMethod == "POST" ? me.paypalHTTPMethod : "GET";
+		form.action = me.sandbox ? "https://www.sandbox.paypal.com/cgi-bin/webscr" : "https://www.paypal.com/cgi-bin/webscr";
 		form.acceptCharset = "utf-8";
 			
 			
 		// setup hidden fields
 		form.appendChild(me.createHiddenElement("cmd", "_cart"));
+		form.appendChild(me.createHiddenElement("rm", me.paypalHTTPMethod == "POST" ? "2" : "0" ));
 		form.appendChild(me.createHiddenElement("upload", "1"));
 		form.appendChild(me.createHiddenElement("business", me.email ));
 		form.appendChild(me.createHiddenElement("currency_code", "me.currency"));
@@ -610,7 +621,11 @@ function Cart(){
 				outputValue = me.valueToCurrencyString( item[ info[0].toLowerCase() ] ? item[info[0].toLowerCase()] : " " );
 				break;
 			default: 
-				outputValue = item[ info[0].toLowerCase() ] ? item[info[0].toLowerCase()] : " ";
+				outputValue = item[ info[0].toLowerCase() ] ? 
+							typeof 	item[info[0].toLowerCase()] === 'function' ?
+							 		item[info[0].toLowerCase()].call(item) :
+									item[info[0].toLowerCase()] :
+									" ";
 				break;
 		}	
 		
@@ -672,6 +687,7 @@ function Cart(){
 			Event Management
 	 ******************************************************/
 	
+	// bind a callback to a simpleCart event
 	me.bind = function( name , callback ){
 		if( typeof callback !== 'function' ){
 			return me;
@@ -679,7 +695,7 @@ function Cart(){
 		
 		
 		if (me.events[name] === true ){
-			callback.call( me );
+			callback.apply( me );
 		} else if( typeof me.events[name] !== 'undefined' ){
 			me.events[name].push( callback );
 		} else {
@@ -687,16 +703,24 @@ function Cart(){
 		}
 		return me;
 	};
-
-	me.trigger = function( name ){
+	
+	
+	// trigger event
+	me.trigger = function( name , options ){
+		var returnval = true;
 		if( typeof me.events[name] !== 'undefined'){
 			for( var x=0,xlen=me.events[name].length; x<xlen; x++ ){
-				me.events[name][x].call( me );
+				returnval = me.events[name][x].apply( me , options );
 			}
 		}
-		return me;
+		if( returnval === false ){
+			return false;
+		} else {
+			return true;
+		}
 	};
 	
+	// shortcut for ready function
 	me.ready = function( callback ){
 		if( !callback ){
 			me.trigger( 'ready' );
