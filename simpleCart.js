@@ -32,7 +32,7 @@ function Cart(){
 	var me = this;
 	/* member variables */
 	me.nextId = 1;
-	me.Version = '2.2.1';
+	me.Version = '2.2.2';
 	me.Shelf = null;
 	me.items = {};
 	me.isLoaded = false;
@@ -708,9 +708,9 @@ function Cart(){
 	// trigger event
 	me.trigger = function( name , options ){
 		var returnval = true;
-		if( typeof me.events[name] !== 'undefined'){
+		if( typeof me.events[name] !== 'undefined' && typeof me.events[name][0] === 'function'){
 			for( var x=0,xlen=me.events[name].length; x<xlen; x++ ){
-				returnval = me.events[name][x].apply( me , options );
+				returnval = me.events[name][x].apply( me , (options ? options : [] ) );
 			}
 		}
 		if( returnval === false ){
