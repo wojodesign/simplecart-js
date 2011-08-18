@@ -1,4 +1,23 @@
 
+module('simpleCart core functions');
+test("simpleCart.add() function works", function(){
+	
+	var item = simpleCart.add({
+		name: "Cool T-shirt",
+		price: 25,
+	});
+	
+	same( simpleCart.quantity() , 1 , "Quantity correct after one item added" );
+	same( simpleCart.total() , 25 , "Total correct after one item added" );
+	same( item.get( 'price' ) , 25 , "Price is correctly saved" );
+	
+	
+});
+
+
+
+
+/*
 	module('simpleCart core functions');
 	test("simpleCart.chunk() function works", function(){
 		
@@ -189,3 +208,4 @@
 		
 		
 	});
+*/

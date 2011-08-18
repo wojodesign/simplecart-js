@@ -3,7 +3,7 @@ Copyright (c) 2011 The Wojo Group
 
 thewojogroup.com
 simplecartjs.com
-http://github.com/thewojogroup/simplecart-js/tree/master
+http://github.com/wojodesign/simplecart-js/tree/master
 
 The MIT License
 
@@ -67,21 +67,46 @@ simpleCart = (function(){
 		, "AUD": [ "AUD", "$", "Australian Dollar" ] 
 	},
 	
+	// default options
+	settings = {
+		  checkout				: "PayPal"
+		, currency				: "USD"
+		, language				: "english-us"
+		, cookieDuration		: 30
+		
+		, paypalHTTPMethod		: "GET"
+		, paypalSandbox			: false
+		, storagePrefix			: "sc_"
+		, email					: ""
+	}, 
+	
 	
 	
  	simpleCart = function( options ){
-		
+		return simpleCart.extend( settings , options );
 	};
 	
 
 	
-	simpleCart._ = simpleCart.prototype = {
-		constructor: simpleCart,
+	simpleCart.extend = function( target , opts ){
+		if( isUndefined( opts ) ){
+			opts = target;
+			target = simpleCart;
+		}
+		
+		for( var next in opts ){
+			target[ next ] = opts[ next ];
+		}
+		return target;
+	};
+		
+		
+	simpleCart.extend({
 		
 		// this is where the magic happens, the add function
 		add: function( values ){
 			var info 		= values || {},
-				newItem 	= new simpleCart._.Item( info ),
+				newItem 	= new simpleCart.Item( info ),
 				oldItem;
 				
 			// trigger before add event
@@ -125,7 +150,7 @@ simpleCart = (function(){
 			}
 
 			for( next in items ){
-				if( isFunction( items[next] ) ){
+				if( !isFunction( items[next] ) ){
 					result = cb.call( simpleCart , items[next] , x , next );
 					if( result === false ){
 						return;
@@ -133,6 +158,29 @@ simpleCart = (function(){
 					x++;
 				}
 			}
+		},
+		
+		// check to see if item is in the cart already
+		has: function( item ){
+			var current, 
+				matches,
+				field,
+				match=false;
+
+			simpleCart.each(function(testItem){ 
+				matches = true;
+				simpleCart.each( item , function( value , x , field ){ 
+					if( field !== "quantity" && field !== "id" && item[field] !== testItem[field] ){
+						matches = false;
+					}
+				});
+
+				if( matches ){
+					match = testItem;
+				}
+
+			});
+			return match;
 		},
 		
 		
@@ -154,25 +202,15 @@ simpleCart = (function(){
 		},
 		
 		
-		
-		
-		
-		
-		
-		
-		
-		
-
-		
-		shelf: function(){
+		// update
+		update: function(){
 			
 		}
-		
 
-	};
+	});
 	
 	// class for cart items
-	var Item = simpleCart._.Item = function( info ){
+	var Item = simpleCart.Item = function( info ){
 		
 		// we use the data object to track values for the item
 		var _data = {},
@@ -181,7 +219,7 @@ simpleCart = (function(){
 		// cycle through given attributes and set them to the data object
 		if( isObject( info ) ){
 			for( var attr in info ){
-				if( !isFunction( info[attr] ) && isObject( info[attr] ) ){
+				if( !isFunction( info[attr] ) && !isObject( info[attr] ) ){
 					_data[attr] = info[attr];
 				}
 			}		
@@ -196,16 +234,20 @@ simpleCart = (function(){
 		}
 		
 		// getter and setter methods to access private variables
-		me.get = function( name ){
+		me.get = function( name , usePrototypes ){
+			
+			usePrototypes = isUndefined( usePrototypes ) && usePrototypes;
+			
 			if( isUndefined( name ) ){
 				return name;
 			}
 			
 			// return the value in order of the data object and then the prototype 	
 			return 	isFunction( _data[name] ) 	? _data[name].call(me) : 
-					isUndefined( _data[name] ) 	? _data[name] :
-					isFunction( me[name] ) 		? me[name].call(me) :
-					isUndefined( me[name] ) 	? me[name] :
+					!isUndefined( _data[name] ) ? _data[name] :
+					
+					isFunction( me[name] ) && usePrototypes		? me[name].call(me) :
+					!isUndefined( me[name] ) && usePrototypes	? me[name] :
 					_data[name];
 		};
 		me.set = function( name , value ){
@@ -243,10 +285,13 @@ simpleCart = (function(){
 		// shortcuts for getter/setters. can
 		// be overwritten for customization
 		quantity: function( val ){
-			return parseInt( isUndefined( val ) ? this.get("quantity") || 1 : this.set("quantity", val ) , 2 );
+			return isUndefined( val ) ? parseInt( this.get("quantity",false) || 1 , 2 ) : this.set("quantity", val );
 		},
 		price: function( val ){
-			return parseFloat( isUndefined( val ) ? this.get("price") || 1 : this.set("price", val ) );
+			return isUndefined( val ) ? parseFloat(  this.get("price",false) || 1 ) : this.set("price", val );
+		},
+		id: function(){
+			return this.get( 'id',false );
 		},
 		total:function(){
 			return this.quantity()*this.price();
@@ -257,7 +302,49 @@ simpleCart = (function(){
 	
 	
 	// Event Management
-	
+	var eventFunctions = {
+
+		// bind a callback to an event
+		bind: function( name , callback ){
+			if( !isFunction( callback ) ){
+				return this;
+			}
+			
+			if( !this._events ){
+				this._events = {};
+			}
+
+			if (this._events[name] === true ){
+				callback.apply( this );
+			} else if( !isUndefined( this._events[name] ) ){
+				this._events[name].push( callback );
+			} else {
+				this._events[name] = [ callback ];
+			}
+			return this;
+		},
+
+		// trigger event
+		trigger: function( name , options ){
+			var returnval = true;
+			if( !this._events ){
+				this._events = {};
+			}
+			if( !isUndefined( this._events[name] ) && isFunction( this._events[name][0] ) ){
+				for( var x=0,xlen=this._events[name].length; x<xlen; x++ ){
+					returnval = this._events[name][x].apply( this , (options ? options : [] ) );
+				}
+			}
+			if( returnval === false ){
+				return false;
+			} else {
+				return true;
+			}
+		}
+		
+	};
+	simpleCart.extend( eventFunctions );
+	simpleCart.extend( simpleCart.Item._ , eventFunctions );
 	
 	
 	return simpleCart;
