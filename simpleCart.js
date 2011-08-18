@@ -251,7 +251,7 @@ simpleCart = (function(){
 					_data[name];
 		};
 		me.set = function( name , value ){
-			if( isUndefined( name ) ){
+			if( !isUndefined( name ) ){
 				_data[name] = value;
 			}
 			return me;
@@ -262,7 +262,9 @@ simpleCart = (function(){
 		
 		// editing the item quantity
 		increment: function( amount ){
-			var diff = parseInt( amount , 2);
+			var diff = amount || 1;
+			diff = parseInt( diff , 10);
+			
 			this.quantity( this.quantity() + diff );
 			if( this.quantity() < 1 ){
 				this.remove();
@@ -272,10 +274,11 @@ simpleCart = (function(){
 
 		},
 		decrement: function( amount ){
-			return this.increment(-amount);
+			var diff = amount || 1;
+			return this.increment( -parseInt( diff , 10 ) );
 		},
 		remove: function(){
-			sc_items[this.id()] = null;
+			delete sc_items[this.id()];
 			simpleCart.update();
 			return null;
 		},
@@ -285,7 +288,7 @@ simpleCart = (function(){
 		// shortcuts for getter/setters. can
 		// be overwritten for customization
 		quantity: function( val ){
-			return isUndefined( val ) ? parseInt( this.get("quantity",false) || 1 , 2 ) : this.set("quantity", val );
+			return isUndefined( val ) ? parseInt( this.get("quantity",false) || 1 , 10 ) : this.set("quantity", val );
 		},
 		price: function( val ){
 			return isUndefined( val ) ? parseFloat(  this.get("price",false) || 1 ) : this.set("price", val );

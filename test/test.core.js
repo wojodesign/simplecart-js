@@ -10,6 +10,32 @@ test("simpleCart.add() function works", function(){
 	same( simpleCart.quantity() , 1 , "Quantity correct after one item added" );
 	same( simpleCart.total() , 25 , "Total correct after one item added" );
 	same( item.get( 'price' ) , 25 , "Price is correctly saved" );
+	same( item.get( 'name' ) , "Cool T-shirt", "Name is correctly saved" );
+	
+	item.set( "name" , "Really Cool Shorts" );
+	item.set("quantity" , 2 );
+	
+	same( item.get( "name" ) , "Really Cool Shorts" , "Name attribute updated with .set" );
+	same( item.get( "quantity" ) , 2 , "quantity updated with .set" );
+	
+	item.quantity(2);
+	
+	same( item.quantity() , 2 , "Setting quantity with item.quantity() works" );
+	
+	item.increment();
+	
+	same( simpleCart.quantity() , 3 , "Quantity is two after item incremented");
+	same( item.quantity() , 3 , "Item quantity incremented to 2" );
+	same( simpleCart.total() , 75 , "Total increased properly after incremented item");
+	
+	item.increment( 5 );
+	
+	same( item.quantity() , 8 , "Quantity incremented with larger value");
+	
+	item.remove();
+	
+	same( simpleCart.quantity() , 0 , "Quantity correct after item removed" );
+	same( simpleCart.total() , 0 , "Total correct after item removed" );
 	
 	
 });
