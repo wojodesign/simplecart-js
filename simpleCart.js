@@ -50,7 +50,6 @@ simpleCart = (function(){
 		"jQuery"							: "*",
 		"dojo"								: "*.query"
 	},
-	selectorMethod,
 	
 	// local variables for internal use
 	item_id 				= 1,
@@ -183,6 +182,12 @@ simpleCart = (function(){
 			return match;
 		},
 		
+		// empty the cart
+		empty: function(){
+			sc_items = {};
+			simpleCart.update();
+		},
+		
 		
 		// functions for accessing cart info
 		quantity: function(){
@@ -202,11 +207,37 @@ simpleCart = (function(){
 		},
 		
 		
-		// update
+		// updating functions
 		update: function(){
-			
+			simpleCart.save();
+			simpleCart.trigger("update");
+		},
+		
+		init: function(){
+			simpleCart.update();
+			simpleCart.trigger('ready');
+		},
+		
+		
+		// view management
+		$:{},
+		
+		setupViewTool: function(){
+			// Determine the "best fit" selector engine
+			for (var engine in selectorEngines) {
+				var members, member, context = win;
+				if (window[engine]) {
+					members = selectorEngines[engine].replace("*", engine).split(".");
+					while ((member = members.shift()) && (context = context[member])) {}
+					if (typeof context == "function") {
+						var viewFunctions = {};
+						viewFunctions.get = context;
+						return;
+					}
+				}
+			}
 		}
-
+		
 	});
 	
 	// class for cart items
@@ -350,8 +381,53 @@ simpleCart = (function(){
 	simpleCart.extend( simpleCart.Item._ , eventFunctions );
 	
 	
-	return simpleCart;
 
+	ContentLoaded(window, simpleCart.init );
+	
+	
+	/*!
+	 * ContentLoaded.js by Diego Perini, modified for IE<9 only (to save space)
+	 *
+	 * Author: Diego Perini (diego.perini at gmail.com)
+	 * Summary: cross-browser wrapper for DOMContentLoaded
+	 * Updated: 20101020
+	 * License: MIT
+	 * Version: 1.2
+	 *
+	 * URL:
+	 * http://javascript.nwbox.com/ContentLoaded/
+	 * http://javascript.nwbox.com/ContentLoaded/MIT-LICENSE
+	 *
+	 */
+
+	// @w window reference
+	// @f function reference
+	function ContentLoaded(win, fn) {
+
+		var done = false, top = true,
+		init = function(e) {
+			if (e.type == "readystatechange" && doc.readyState != "complete") return;
+			(e.type == "load" ? win : doc).detachEvent("on" + e.type, init, false);
+			if (!done && (done = true)) fn.call(win, e.type || e);
+		},
+		poll = function() {
+			try { root.doScroll("left"); } catch(e) { setTimeout(poll, 50); return; }
+			init('poll');
+		};
+
+		if (doc.readyState == "complete") fn.call(win, EMPTY_STRING);
+		else {
+			if (doc.createEventObject && root.doScroll) {
+				try { top = !win.frameElement; } catch(e) { }
+				if (top) poll();
+			}
+			addEvent(doc,"readystatechange", init);
+			addEvent(win,"load", init);
+		}
+	};
+	
+	
+	return simpleCart;
 }());
 
 	

@@ -1,6 +1,10 @@
 
 module('simpleCart core functions');
-test("simpleCart.add() function works", function(){
+test("adding and removing items", function(){
+	
+	simpleCart.empty();
+	
+	same( simpleCart.quantity() , 0 , "Quantity correct after one item added" );
 	
 	var item = simpleCart.add({
 		name: "Cool T-shirt",
@@ -11,6 +15,16 @@ test("simpleCart.add() function works", function(){
 	same( simpleCart.total() , 25 , "Total correct after one item added" );
 	same( item.get( 'price' ) , 25 , "Price is correctly saved" );
 	same( item.get( 'name' ) , "Cool T-shirt", "Name is correctly saved" );
+});
+
+test("editing items", function(){	
+	
+	simpleCart.empty();
+	
+	var item = simpleCart.add({
+		name: "Cool T-shirt",
+		price: 25,
+	});
 	
 	item.set( "name" , "Really Cool Shorts" );
 	item.set("quantity" , 2 );
@@ -37,9 +51,7 @@ test("simpleCart.add() function works", function(){
 	same( simpleCart.quantity() , 0 , "Quantity correct after item removed" );
 	same( simpleCart.total() , 0 , "Total correct after item removed" );
 	
-	
 });
-
 
 
 
