@@ -468,23 +468,34 @@ simpleCart = (function(){
 	var _target = function( selector ){
 		return isString( selector ) ? simpleCart.$.get( selector ) : selector;
 	} ,
-	VALUE = 'value',
-	TEXT = 'text',
+	
+	_VALUE_ 	= 'value',
+	_TEXT_	 	= 'text',
+	_HTML_ 		= 'html',
 	
 	selectorFunctions = {
 		
 		"MooTools"		: {
 			text: function( selector , text ){
-				return simpleCart.$.attr( selector , TEXT , val );
+				return simpleCart.$.attr( selector , _TEXT_ , text );
+			} ,
+			html: function( selector , html ){
+				return simpleCart.$.attr( selector , _HTML_ , html );
 			} ,
 			val: function( selector , val ){
-				return simpleCart.$.attr( selector , VALUE , val );
+				return simpleCart.$.attr( selector , _VALUE_ , val );
 			} ,
 			attr: function( selector , attr , val ){
 				return isUndefined( val ) ? _target( selector ).get( attr ) : _target( selector ).set( attr , val );
 			} ,
 			remove: function( selector ){
 				return _target( selector ).dispose();
+			} , 
+			addClass: function( selector , klass ){
+				return _target( selector ).addClass( klass );
+			} ,
+			removeClass: function( selector , klass ){
+				return _target( selector ).removeClass( klass );
 			}
 		},
 		
@@ -492,20 +503,33 @@ simpleCart = (function(){
 			text: function( selector , text ){
 				return isUndefined( text ) ? _target( selector ).innerHTML : _target( selector ).update( text );
 			} ,
+			html: function( selector , html ){
+				return simpleCart.$.text( selector , html );
+			} ,
 			val: function( selector , val ){
-				return simpleCart.$.attr( selector , VALUE , val );
+				return simpleCart.$.attr( selector , _VALUE_ , val );
 			} ,
 			attr: function( selector , attr , val ){
 				return isUndefined( val ) ? _target( selector ).readAttribute( attr ) : _target( selector ).writeAttribute( attr , val );
 			} ,
 			remove: function( selector ){
 				return _target( selector ).remove();
+			} ,
+			addClass: function( selector , klass ){
+				return _target( selector ).addClassName( klass );
+			} , 
+			removeClass: function( selector , klass ){
+				return _target( selector ).removeClassName( klass );
 			}
+			
 		},
 		
 		"jQuery"		: {
 			text: function( selector , text ){
 				return isUndefined( text ) ? _target( selector ).text() : _target( selector ).text( text );
+			} ,
+			html: function( selector , html ){
+				return isUndefined( selector ) ? _target( selector ).html() : _target( selector ).html( html );
 			} ,
 			val: function( selector , val ){
 				return isUndefined( val ) ? _target( selector ).val() : _target( selector ).val( val );
@@ -515,7 +539,13 @@ simpleCart = (function(){
 			} ,
 			remove: function( selector ){
 				return _target( selector ).remove();
-			} 
+			} ,
+			addClass: function( selector , klass ){
+				return _target( selector ).addClass( klass );
+			} , 
+			removeClass: function( selector , klass ){
+				return _target( selector ).removeClass( klass );
+			}
 		}
 	};
 	
