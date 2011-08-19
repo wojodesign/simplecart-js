@@ -29,10 +29,12 @@ THE SOFTWARE.
 (function(window,undefined){
 	
 	
-var	typeof_undefined		= typeof undefined,
+var	typeof_string			= typeof "",
+	typeof_undefined		= typeof undefined,
 	typeof_function			= typeof function(){},
 	typeof_object			= typeof {},
 	isTypeOf				= function( item , type ){ return typeof item === type },
+	isString				= function( item ){ return isTypeOf( item , typeof_string ); },
 	isUndefined				= function( item ){ return isTypeOf( item , typeof_undefined ); },
 	isFunction				= function( item ){ return isTypeOf( item , typeof_function ); },
 	isObject				= function( item ){ return isTypeOf( item , typeof_object ); },
@@ -99,6 +101,8 @@ simpleCart = (function(){
 		
 	// add in the core functionality 	
 	simpleCart.extend({
+		
+		isReady: false,
 		
 		// this is where the magic happens, the add function
 		add: function( values ){
@@ -212,8 +216,9 @@ simpleCart = (function(){
 		},
 		
 		init: function(){
+			simpleCart.load();
 			simpleCart.update();
-			simpleCart.trigger('ready');
+			simpleCart.ready();
 		},
 		
 		
@@ -223,7 +228,7 @@ simpleCart = (function(){
 		setupViewTool: function(){
 			// Determine the "best fit" selector engine
 			for (var engine in selectorEngines) {
-				var members, member, context = win;
+				var members, member, context = window;
 				if (window[engine]) {
 					members = selectorEngines[engine].replace("*", engine).split(".");
 					while ((member = members.shift()) && (context = context[member])) {}
@@ -238,14 +243,81 @@ simpleCart = (function(){
 		
 		
 		// storage 
-		
 		save: function(){
+			simpleCart.trigger('beforeSave');
 			
+			// TODO: save
+			
+			simpleCart.trigger('afterSave');
 		}, 
 		
 		load: function(){
+			// TODO: load
+			simpleCart.trigger('load');
+		},
+		
+		// ready function used as a shortcut for bind('ready',fn)
+		ready: function(fn){
 			
-		}
+			if(isFunction( fn )){ 
+				// call function if already ready already
+				if( simpleCart.isReady ){
+					fn.call(simpleCart);
+				} 
+				// bind if not ready
+				else {
+					simpleCart.bind( 'ready' , fn );
+				}
+			}
+			
+			// trigger ready event
+			else if( isUndefined(fn) && !simpleCart.isReady ){
+				simpleCart.trigger('ready');
+				simpleCart.isReady = true;
+			}
+			
+		},
+		
+		// bind ready event used from jquery
+		bindReady: function() {
+
+				// Catch cases where $(document).ready() is called after the
+				// browser event has already occurred.
+				if ( document.readyState === "complete" ) {
+					// Handle it asynchronously to allow scripts the opportunity to delay ready
+					return setTimeout( simpleCart.init, 1 );
+				}
+
+				// Mozilla, Opera and webkit nightlies currently support this event
+				if ( document.addEventListener ) {
+					// Use the handy event callback
+					document.addEventListener( "DOMContentLoaded", DOMContentLoaded, false );
+
+					// A fallback to window.onload, that will always work
+					window.addEventListener( "load", simpleCart.init, false );
+
+				// If IE event model is used
+				} else if ( document.attachEvent ) {
+					// ensure firing before onload,
+					// maybe late but safe also for iframes
+					document.attachEvent( "onreadystatechange", DOMContentLoaded );
+
+					// A fallback to window.onload, that will always work
+					window.attachEvent( "onload", simpleCart.init );
+
+					// If IE and not a frame
+					// continually check to see if the document is ready
+					var toplevel = false;
+
+					try {
+						toplevel = window.frameElement == null;
+					} catch(e) {}
+
+					if ( document.documentElement.doScroll && toplevel ) {
+						doScrollCheck();
+					}
+				}
+			}
 		
 		
 		
@@ -393,135 +465,103 @@ simpleCart = (function(){
 	
 	
 	// selector engines 
-	var selectorFunctions = {
+	var _target = function( selector ){
+		return isString( selector ) ? simpleCart.$.get( selector ) : selector;
+	} ,
+	VALUE = 'value',
+	TEXT = 'text',
+	
+	selectorFunctions = {
 		
 		"MooTools"		: {
 			text: function( selector , text ){
-				if( isUndefined( text ) ){
-					return simpleCart.$.get( selector ).get('text');
-				} else {
-					return simpleCart.$.get( selector ).set( 'text' , text );
-				}
+				return simpleCart.$.attr( selector , TEXT , val );
 			} ,
 			val: function( selector , val ){
-				if( isUndefined( val ) ){
-					return simpleCart.$.get( selector ).get('value');
-				} else {
-					return simpleCart.$.get( selector ).set( 'value' , val );
-				}
+				return simpleCart.$.attr( selector , VALUE , val );
 			} ,
 			attr: function( selector , attr , val ){
-				if( isUndefined( val ) ){
-					return simpleCart.$.get( selector ).get( attr );
-				} else {
-					return simpleCart.$.get( selector ).set( attr , val );
-				}
+				return isUndefined( val ) ? _target( selector ).get( attr ) : _target( selector ).set( attr , val );
 			} ,
 			remove: function( selector ){
-				return simpleCart.$.get( selector ).dispose();
+				return _target( selector ).dispose();
 			}
 		},
 		
 		"Prototype"		: {
 			text: function( selector , text ){
-				if( isUndefined( text ) ){
-					return simpleCart.$.get( selector ).innerHTML;
-				} else {
-					return simpleCart.$.get( selector ).update( text );
-				}
+				return isUndefined( text ) ? _target( selector ).innerHTML : _target( selector ).update( text );
 			} ,
 			val: function( selector , val ){
-				if( isUndefined( val ) ){
-					return simpleCart.$.get( selector ).readAttribute( 'value' );
-				} else {
-					return simpleCart.$.get( selector ).writeAttribute( 'value' , val );
-				}
+				return simpleCart.$.attr( selector , VALUE , val );
 			} ,
 			attr: function( selector , attr , val ){
-				if( isUndefined( val ) ){
-					return simpleCart.$.get( selector ).readAttribute( attr );
-				} else {
-					return simpleCart.$.get( selector ).writeAttribute( attr , val );
-				}
+				return isUndefined( val ) ? _target( selector ).readAttribute( attr ) : _target( selector ).writeAttribute( attr , val );
 			} ,
 			remove: function( selector ){
-				return simpleCart.$.get( selector ).remove();
+				return _target( selector ).remove();
 			}
 		},
 		
 		"jQuery"		: {
 			text: function( selector , text ){
-				if( isUndefined( text ) ){
-					return simpleCart.$.get( selector ).text();
-				} else {
-					return simpleCart.$.get( selector ).text( text );
-				}
+				return isUndefined( text ) ? _target( selector ).text() : _target( selector ).text( text );
 			} ,
 			val: function( selector , val ){
-				if( isUndefined( val ) ){
-					return simpleCart.$.get( selector ).val();
-				} else {
-					return simpleCart.$.get( selector ).val( val );
-				}
+				return isUndefined( val ) ? _target( selector ).val() : _target( selector ).val( val );
 			} ,
 			attr: function( selector , attr , val ){
-				if( isUndefined( val ) ){
-					return simpleCart.$.get( selector ).attr( attr );
-				} else {
-					return simpleCart.$.get( selector ).attr( attr , val );
-				}
+				return isUndefined( val ) ? _target( selector ).attr( attr ) : _target( selector ).attr( attr , val );
 			} ,
 			remove: function( selector ){
-				return simpleCart.$.get( selector ).remove();
+				return _target( selector ).remove();
 			} 
 		}
 	};
 	
 	// bind the DOM setup to the ready event
-	simpleCart.bind( 'ready', simpleCart.setupViewTool );
+	simpleCart.ready( simpleCart.setupViewTool );
 
-	ContentLoaded(window, simpleCart.init );
-	
-	
-	/*!
-	 * ContentLoaded.js by Diego Perini, modified for IE<9 only (to save space)
-	 *
-	 * Author: Diego Perini (diego.perini at gmail.com)
-	 * Summary: cross-browser wrapper for DOMContentLoaded
-	 * Updated: 20101020
-	 * License: MIT
-	 * Version: 1.2
-	 *
-	 * URL:
-	 * http://javascript.nwbox.com/ContentLoaded/
-	 * http://javascript.nwbox.com/ContentLoaded/MIT-LICENSE
-	 *
-	 */
 
-	// @w window reference
-	// @f function reference
-	function ContentLoaded(win, fn) {
-
-		var done = false, top = true,
-		init = function(e) {
-			if (e.type == "readystatechange" && document.readyState != "complete") return;
-			(e.type == "load" ? win : document).detachEvent("on" + e.type, init, false);
-			if (!done && (done = true)) fn.call(win, e.type || e);
-		},
-		poll = function() {
-			try { root.doScroll("left"); } catch(e) { setTimeout(poll, 50); return; }
-			init('poll');
+	// Cleanup functions for the document ready method
+	// used from jQuery
+	if ( document.addEventListener ) {
+		DOMContentLoaded = function() {
+			document.removeEventListener( "DOMContentLoaded", DOMContentLoaded, false );
+			simpleCart.init();
 		};
 
-		if (document.readyState == "complete") fn.call(win, EMPTY_STRING);
-		else {
-			if (document.createEventObject && root.doScroll) {
-				try { top = !win.frameElement; } catch(e) { }
-				if (top) poll();
+	} else if ( document.attachEvent ) {
+		DOMContentLoaded = function() {
+			// Make sure body exists, at least, in case IE gets a little overzealous (ticket #5443).
+			if ( document.readyState === "complete" ) {
+				document.detachEvent( "onreadystatechange", DOMContentLoaded );
+				simpleCart.init();
 			}
+		};
+	}
+	// The DOM ready check for Internet Explorer
+	// used from jQuery
+	function doScrollCheck() {
+		if ( simpleCart.isReady ) {
+			return;
 		}
-	};
+
+		try {
+			// If IE is used, use the trick by Diego Perini
+			// http://javascript.nwbox.com/IEContentLoaded/
+			document.documentElement.doScroll("left");
+		} catch(e) {
+			setTimeout( doScrollCheck, 1 );
+			return;
+		}
+
+		// and execute any waiting functions
+		simpleCart.init();
+	}
 	
+	// bind the ready event
+	simpleCart.bindReady();	
 	
 	return simpleCart;
 }());

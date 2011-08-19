@@ -54,7 +54,13 @@ test("editing items", function(){
 });
 
 
+module('DOM functions');
+test("editing items", function(){	
 
+	
+
+
+});
 /*
 	module('simpleCart core functions');
 	test("simpleCart.chunk() function works", function(){
