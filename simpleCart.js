@@ -234,6 +234,17 @@ simpleCart = (function(){
 					}
 				}
 			}
+		}, 
+		
+		
+		// storage 
+		
+		save: function(){
+			
+		}, 
+		
+		load: function(){
+			
 		}
 		
 	});
@@ -489,8 +500,8 @@ simpleCart = (function(){
 
 		var done = false, top = true,
 		init = function(e) {
-			if (e.type == "readystatechange" && doc.readyState != "complete") return;
-			(e.type == "load" ? win : doc).detachEvent("on" + e.type, init, false);
+			if (e.type == "readystatechange" && document.readyState != "complete") return;
+			(e.type == "load" ? win : document).detachEvent("on" + e.type, init, false);
 			if (!done && (done = true)) fn.call(win, e.type || e);
 		},
 		poll = function() {
@@ -498,14 +509,12 @@ simpleCart = (function(){
 			init('poll');
 		};
 
-		if (doc.readyState == "complete") fn.call(win, EMPTY_STRING);
+		if (document.readyState == "complete") fn.call(win, EMPTY_STRING);
 		else {
-			if (doc.createEventObject && root.doScroll) {
+			if (document.createEventObject && root.doScroll) {
 				try { top = !win.frameElement; } catch(e) { }
 				if (top) poll();
 			}
-			addEvent(doc,"readystatechange", init);
-			addEvent(win,"load", init);
 		}
 	};
 	
