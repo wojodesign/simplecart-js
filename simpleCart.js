@@ -50,6 +50,8 @@ simpleCart = (function(){
 		"Prototype"							: "$$",
 		"jQuery"							: "*"
 	},
+	selectorEngine,
+	
 	
 	// local variables for internal use
 	item_id 				= 1,
@@ -223,7 +225,9 @@ simpleCart = (function(){
 		
 		
 		// view management
-		$:{},
+		$: function( selector ){
+			return new simpleCart.ELEMENT( selectorEngine( selector ) );
+		},
 		
 		setupViewTool: function(){
 			// Determine the "best fit" selector engine
@@ -233,8 +237,10 @@ simpleCart = (function(){
 					members = selectorEngines[engine].replace("*", engine).split(".");
 					while ((member = members.shift()) && (context = context[member])) {}
 					if (typeof context == "function") {
-						simpleCart.$.get = context;
-						simpleCart.extend( simpleCart.$ , selectorFunctions[ engine ] );
+						// set the selector engine and extend the prototype of our 
+						// element wrapper class
+						selectorEngine = context;
+						simpleCart.extend( simpleCart.ELEMENT._ , selectorFunctions[ engine ] );
 						return;
 					}
 				}
@@ -465,7 +471,7 @@ simpleCart = (function(){
 	
 	
 	// class for wrapping DOM selector shit
-	var ELEMENT = simpleCart._ELEMENT = function( el ){
+	var ELEMENT = simpleCart.ELEMENT = function( el ){
 		this.el = el;
 	},
 	
@@ -585,6 +591,7 @@ simpleCart = (function(){
 			}
 		}
 	};
+	ELEMENT._ = ELEMENT.prototype;
 	
 	// bind the DOM setup to the ready event
 	simpleCart.ready( simpleCart.setupViewTool );
