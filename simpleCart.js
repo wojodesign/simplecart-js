@@ -70,7 +70,7 @@ simpleCart = (function(){
 	
 	// default options
 	settings = {
-		  checkout				: "PayPal"
+		  checkout				: [ { type: "PayPal" , email: "test@test.com" } ]
 		, currency				: "USD"
 		, language				: "english-us"
 		, cookieDuration		: 30
@@ -78,7 +78,21 @@ simpleCart = (function(){
 		, paypalHTTPMethod		: "GET"
 		, paypalSandbox			: false
 		, storagePrefix			: "sc_"
-		, email					: ""
+		
+		, cartStyle				: "table"
+		, cartColumns			: [
+			  { attribute: "name" , label: "Name" }
+			, { attribute: "price" , label: "Price" }
+			, { view: "decrement" , label: false }
+			, { attribute: "quantity" , label: "Qty" }
+			, { view: "increment" , label: false }
+			, { attribute: "total" , label: "SubTotal" }
+			, { view: "remove" , text: "Remove" , label: false }
+		]
+		
+		, excludeFromCheckout	: []
+	
+		
 	}, 
 	
 	
@@ -222,8 +236,7 @@ simpleCart = (function(){
 			simpleCart.update();
 			simpleCart.ready();
 		},
-		
-		
+				
 		// view management
 		$: function( selector ){
 			return new simpleCart.ELEMENT( selectorEngine( selector ) );
@@ -470,6 +483,9 @@ simpleCart = (function(){
 	simpleCart.extend( simpleCart.Item._ , eventFunctions );
 	
 	
+					
+
+	
 	// class for wrapping DOM selector shit
 	var ELEMENT = simpleCart.ELEMENT = function( el ){
 		this.el = el;
@@ -640,8 +656,7 @@ simpleCart = (function(){
 	return simpleCart;
 }());
 
-	
-	
+
 	
 
 window.simpleCart = simpleCart;
