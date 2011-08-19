@@ -101,7 +101,10 @@ simpleCart = (function(){
 		// shortcut for simpleCart.ready
 		if( isFunction( options ) ){
 			return simpleCart.ready( options );
-		} else if( isObject( options ) ){
+		} 
+		
+		// set options
+		else if( isObject( options ) ){
 			return simpleCart.extend( settings , options );
 		}
 	};
