@@ -353,8 +353,63 @@ simpleCart = (function(){
 		} , 
 		
 		
-		// basic structure for cart column 
-		cartColumn: function( opts ){
+		// write out cart
+		writeCart: function(){
+			var TABLE = settings.cartStyle,
+				isTable = TABLE === 'table',
+				TR = isTable ? "tr" : "div",
+				TH = isTable ? 'th' : 'div',
+				TD = isTable ? 'td' : 'div',
+				cart_container = simpleCart.$create( TABLE ),
+				header_container = simpleCart.$create( TR ).addClass('headerRow');
+				
+			// create header 
+			for( var x=0,xlen = settings.cartColumns.length; x<xlen; x++ ){
+				var column 	= cartColumn( settings.cartColumns[x] ),
+					klass 	=  "item-" + (column.attr || column.view || column.label || column.text || "cell" ) + " " + column.className,
+					label 	= column.label || "";
+					
+				// append the header cell
+				header_container.append(
+					simpleCart.$create( TH ).addClass( klass ).html( label )
+				);
+			}
+			cart_container.append( header_container );
+			
+			// cycle through the items
+			simpleCart.each( function( item, y ){
+				cart_container.append( simpleCart.createCartRow( item , y , TR , TD ) );
+			});
+			
+			return cart_container.el;
+		},
+		
+		// generate a cart row from an item
+		createCartRow: function( item , y , TR , TD ){
+			var row = simpleCart.$create( TR )
+								.addClass( 'itemRow row-' + y + " " + ( y%2 ? "even" : "odd" )  )
+								.attr('id' , "cartItem-" + item.id() );
+				
+			// cycle through the columns to create each cell for the item
+			for( var j=0,jlen=settings.cartColumns.length; j<jlen; j++ ){
+				var column 	= cartColumn( settings.cartColumns[ j ] ),
+					klass 	= "item-" + (column.attr || column.view || column.label || column.text || "cell" ) + " " + column.className,
+					content = cartCellView( item , column ),
+					cell 	= simpleCart.$create( TD ).addClass( klass ).html( content );
+				
+				row.append( cell );
+			}
+			return row;
+		}
+		
+		
+		
+	});
+	
+	// protected simpleCart functions
+	
+	// basic structure for cart column 
+	var	cartColumn = function( opts ){
 			var options = opts || {}
 			return simpleCart.extend({
 				  attr			: "" 
@@ -367,7 +422,7 @@ simpleCart = (function(){
 		} ,
 		
 		// built in cart views for item cells
-		cartColumnViews: {
+		cartColumnViews = {
 			  attr: function( item , column ){ 
 				return item.get( column.attr ) || "";
 			}
@@ -391,67 +446,18 @@ simpleCart = (function(){
 			}
 		} ,
 		
-		cartCellView: function( item , column ){
-			var viewFunc = isFunction( column.view ) ? column.view :
-							isString( column.view ) && isFunction( simpleCart.cartColumnView[ column.view ] ) ? simpleCart.cartColumnView[ column.view ] :
-							simpleCart.cartColumnView['attr'];
+		cartCellView = function( item , column ){
+			var viewFunc =  isFunction( column.view ) ? column.view :
+							isString( column.view ) && isFunction( cartColumnViews[ column.view ] ) ? cartColumnViews[ column.view ] :
+							cartColumnViews['attr'];
 							
 			return viewFunc.call( simpleCart , item , column );
-		} , 
-		
-		// write out cart
-		writeCart: function(){
-			var TABLE = settings.cartStyle,
-				isTable = TABLE === 'table',
-				TR = isTable ? "tr" : "div",
-				TH = isTable ? 'th' : 'div',
-				TD = isTable ? 'td' : 'div',
-				cart_container = simpleCart.$create( TABLE ),
-				header_container = simpleCart.$create( TR ).addClass('headerRow');
-				
-			// create header 
-			for( var x=0,xlen = settings.cartColumns.length; x<xlen; x++ ){
-				var column = simpleCart.cartColumn( settings.cartColumns[x] ),
-					klass =  "item-" + (column.attr || column.view || column.label || column.text || "cell" ) + " " + column.className,
-					label = column.label || "";
-					
-				// append the header cell
-				header_container.append(
-					simpleCart.$create( TH ).addClass( klass ).html( label )
-				);
-			}
-			cart_container.append( header_container );
-			
-			// cycle through the items
-			simpleCart.each( function( item, y ){
-				var row = simpleCart.$create( TR )
-									.addClass( 'itemRow row-' + y + " " + ( y%2 ? "even" : "odd" )  )
-									.attr('id' , "cartItem-" + item.id() );
-					
-				// cycle through the columns to create each cell for the item
-				for( var j=0,jlen=settings.cartColumns.length; j<jlen; j++ ){
-					var column = simpleCart.cartColumn( settings.cartColumns[ j ] ),
-						klass =  "item-" + (column.attr || column.view || column.label || column.text || "cell" ) + " " + column.className,
-						content = simpleCart.cartCellView( item , column ),
-						cell = simpleCart.$create( TD ).addClass( klass ).html( content );
-					
-					row.append( cell );
-				}
-				cart_container.append( row );
-			});
-			
-			return cart_container;
-		}
-		
-		
-		
-	});
+		} 
+	},
 	
 	
-	
-	
-	// class for cart items
-	var Item = simpleCart.Item = function( info ){
+		// class for cart items
+	 	Item = simpleCart.Item = function( info ){
 		
 		// we use the data object to track values for the item
 		var _data = {},
