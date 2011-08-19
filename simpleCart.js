@@ -46,9 +46,7 @@ simpleCart = (function(){
 	var selectorEngines = {
 		"MooTools"							: "$$",
 		"Prototype"							: "$$",
-		"YAHOO"								: "*.util.Selector.query",
-		"jQuery"							: "*",
-		"dojo"								: "*.query"
+		"jQuery"							: "*"
 	},
 	
 	// local variables for internal use
@@ -230,8 +228,8 @@ simpleCart = (function(){
 					members = selectorEngines[engine].replace("*", engine).split(".");
 					while ((member = members.shift()) && (context = context[member])) {}
 					if (typeof context == "function") {
-						var viewFunctions = {};
-						viewFunctions.get = context;
+						simpleCart.$.get = context;
+						simpleCart.extend( simpleCart.$ , selectorFunctions[ engine ] );
 						return;
 					}
 				}
@@ -380,6 +378,91 @@ simpleCart = (function(){
 	simpleCart.extend( eventFunctions );
 	simpleCart.extend( simpleCart.Item._ , eventFunctions );
 	
+	
+	// selector engines 
+	var selectorFunctions = {
+		
+		"MooTools"		: {
+			text: function( selector , text ){
+				if( isUndefined( text ) ){
+					return simpleCart.$.get( selector ).get('text');
+				} else {
+					return simpleCart.$.get( selector ).set( 'text' , text );
+				}
+			} ,
+			val: function( selector , val ){
+				if( isUndefined( val ) ){
+					return simpleCart.$.get( selector ).get('value');
+				} else {
+					return simpleCart.$.get( selector ).set( 'value' , val );
+				}
+			} ,
+			attr: function( selector , attr , val ){
+				if( isUndefined( val ) ){
+					return simpleCart.$.get( selector ).get( attr );
+				} else {
+					return simpleCart.$.get( selector ).set( attr , val );
+				}
+			} ,
+			remove: function( selector ){
+				return simpleCart.$.get( selector ).dispose();
+			}
+		},
+		
+		"Prototype"		: {
+			text: function( selector , text ){
+				if( isUndefined( text ) ){
+					return simpleCart.$.get( selector ).innerHTML;
+				} else {
+					return simpleCart.$.get( selector ).update( text );
+				}
+			} ,
+			val: function( selector , val ){
+				if( isUndefined( val ) ){
+					return simpleCart.$.get( selector ).readAttribute( 'value' );
+				} else {
+					return simpleCart.$.get( selector ).writeAttribute( 'value' , val );
+				}
+			} ,
+			attr: function( selector , attr , val ){
+				if( isUndefined( val ) ){
+					return simpleCart.$.get( selector ).readAttribute( attr );
+				} else {
+					return simpleCart.$.get( selector ).writeAttribute( attr , val );
+				}
+			} ,
+			remove: function( selector ){
+				return simpleCart.$.get( selector ).remove();
+			}
+		},
+		
+		"jQuery"		: {
+			text: function( selector , text ){
+				if( isUndefined( text ) ){
+					return simpleCart.$.get( selector ).text();
+				} else {
+					return simpleCart.$.get( selector ).text( text );
+				}
+			} ,
+			val: function( selector , val ){
+				if( isUndefined( val ) ){
+					return simpleCart.$.get( selector ).val();
+				} else {
+					return simpleCart.$.get( selector ).val( val );
+				}
+			} ,
+			attr: function( selector , attr , val ){
+				if( isUndefined( val ) ){
+					return simpleCart.$.get( selector ).attr( attr );
+				} else {
+					return simpleCart.$.get( selector ).attr( attr , val );
+				}
+			} ,
+			remove: function( selector ){
+				return simpleCart.$.get( selector ).remove();
+			} 
+		}
+	};
 	
 
 	ContentLoaded(window, simpleCart.init );
