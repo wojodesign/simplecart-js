@@ -309,47 +309,139 @@ simpleCart = (function(){
 		// bind ready event used from jquery
 		bindReady: function() {
 
-				// Catch cases where $(document).ready() is called after the
-				// browser event has already occurred.
-				if ( document.readyState === "complete" ) {
-					// Handle it asynchronously to allow scripts the opportunity to delay ready
-					return setTimeout( simpleCart.init, 1 );
-				}
+			// Catch cases where $(document).ready() is called after the
+			// browser event has already occurred.
+			if ( document.readyState === "complete" ) {
+				// Handle it asynchronously to allow scripts the opportunity to delay ready
+				return setTimeout( simpleCart.init, 1 );
+			}
 
-				// Mozilla, Opera and webkit nightlies currently support this event
-				if ( document.addEventListener ) {
-					// Use the handy event callback
-					document.addEventListener( "DOMContentLoaded", DOMContentLoaded, false );
+			// Mozilla, Opera and webkit nightlies currently support this event
+			if ( document.addEventListener ) {
+				// Use the handy event callback
+				document.addEventListener( "DOMContentLoaded", DOMContentLoaded, false );
 
-					// A fallback to window.onload, that will always work
-					window.addEventListener( "load", simpleCart.init, false );
+				// A fallback to window.onload, that will always work
+				window.addEventListener( "load", simpleCart.init, false );
 
-				// If IE event model is used
-				} else if ( document.attachEvent ) {
-					// ensure firing before onload,
-					// maybe late but safe also for iframes
-					document.attachEvent( "onreadystatechange", DOMContentLoaded );
+			// If IE event model is used
+			} else if ( document.attachEvent ) {
+				// ensure firing before onload,
+				// maybe late but safe also for iframes
+				document.attachEvent( "onreadystatechange", DOMContentLoaded );
 
-					// A fallback to window.onload, that will always work
-					window.attachEvent( "onload", simpleCart.init );
+				// A fallback to window.onload, that will always work
+				window.attachEvent( "onload", simpleCart.init );
 
-					// If IE and not a frame
-					// continually check to see if the document is ready
-					var toplevel = false;
+				// If IE and not a frame
+				// continually check to see if the document is ready
+				var toplevel = false;
 
-					try {
-						toplevel = window.frameElement == null;
-					} catch(e) {}
+				try {
+					toplevel = window.frameElement == null;
+				} catch(e) {}
 
-					if ( document.documentElement.doScroll && toplevel ) {
-						doScrollCheck();
-					}
+				if ( document.documentElement.doScroll && toplevel ) {
+					doScrollCheck();
 				}
 			}
+		} , 
+		
+		
+		// basic structure for cart column 
+		cartColumn: {
+			  attr			: "" 
+			, label			: "" 
+			, view			: "attr"
+			, text			: ""
+			, className		: ""
+			, hide			: false
+		} ,
+		
+		// built in cart views for item cells
+		cartColumnViews: {
+			  attr		 	: function( item , column ){ 
+				return item[column.attr] || "";
+			}
+			, link			: function( item , column ){
+				return "<a href='" + item[column.attr] + "'>" + column.text + "</a>";
+			} 
+			, decrement 	: function( item , column ){
+				return "<a href='javascript:;' class='simpleCart_decrement'>" + ( item[column.text] || "-" ) + "</a>";
+			}
+			, increment 	: function( item , column ){
+				return "<a href='javascript:;' class='simpleCart_increment'>" + ( item[column.text] || "+" ) + "</a>";
+			}
+			, image			: function( item , column ){
+				return "<img src='" + item[column.attr] + "'/>"
+			}
+			, input			: function( item , column ){
+				return "<input type='text' value='" + item[column.attr] + "' class='simpleCart_input'/>";
+			} 
+			, remove 		: function( item , column ){
+				return "<a href='javascript:;' class='simpleCart_remove'>" + ( item[column.text] || "X" ) + "</a>";
+			}
+		} ,
+		
+		cartCellView: function( item , column ){
+			var viewFunc = isFunction( column.view ) ? column.view :
+							isString( column.view ) && isFunction( simpleCart.cartColumnView[ column.view ] ) ? simpleCart.cartColumnView[ column.view ] :
+							simpleCart.cartColumnView['attr'];
+							
+			return viewFunc.call( simpleCart , item , column );
+		} , 
+		
+		// write out cart
+		writeCart: function(){
+			var TABLE = settings.cartStyle,
+				isTable = TABLE === 'table',
+				TR = isTable ? "tr" : "div",
+				TH = isTable ? 'th' : 'div',
+				TD = isTable ? 'td' : 'div',
+				cart_container = simpleCart.$create( TABLE ),
+				header_container = simpleCart.$create( TR ).addClass('headerRow');
+				
+			// create header 
+			for( var x=0,xlen = settings.cartColumns.length; x<xlen; x++ ){
+				var column = settings.cartColumns[x],
+					klass =  "item-" + (column.attr || column.view || column.label || column.text || "cell" ) + " " + column.className,
+					label = cart.label || "";
+					
+				// append the header cell
+				header_container.append(
+					simpleCart.$create( TH ).addClass( klass ).html( label )
+				);
+			}
+			cart_container.append( header_container );
+			
+			// cycle through the items
+			simpleCart.each( function( item, y ){
+				var row = simpleCart.$create( TR )
+									.addClass( 'itemRow row-' + y + " " + ( y%2 ? "even" : "odd" )  )
+									.attr('id' , "cartItem-" + item.id() ),
+					itemObject = item.toObject();
+					
+				// cycle through the columns to create each cell for the item
+				for( var j=0,jlen=settings.cartColumns.length; j<jlen; j++ ){
+					var column = settings.cartColumns[ j ],
+						klass =  "item-" + (column.attr || column.view || column.label || column.text || "cell" ) + " " + column.className,
+						content = simpleCart.cartCellView( item , column ),
+						cell = simpleCart.$create( TD ).addClass( klass ).html( content );
+					
+					row.append( cell );
+				}
+				cart_container.append( row );
+			});
+			
+			return cart_container;
+		}
 		
 		
 		
 	});
+	
+	
+	
 	
 	// class for cart items
 	var Item = simpleCart.Item = function( info ){
@@ -487,25 +579,30 @@ simpleCart = (function(){
 	
 	
 	// basic simpleCart events
-	var events = 	[ 'beforeAdd' 
-					, 'afterAdd' 
-					, 'load' 
-					, 'beforeSave' 
-					, 'afterSave' 
-					, 'update' 
-					, 'ready' 
-					, 'checkoutSuccess' 
-					, 'checkoutFail' 
-					, 'checkout'
-					],
-		x = events.length;
-		
-	while( events[--x] ){
-		// add event to options
-		simpleCart({ events[x]: function(){} });
-		// bind function to call option function
-		simpleCart.bind( events[x] , function(){ settings[events[x]].apply(this,arguments); } );
-	}
+	var emptyFunc = function(){} ,
+		events = 	{ 'beforeAdd' 			: emptyFunc
+					, 'afterAdd' 			: emptyFunc
+					, 'load' 				: emptyFunc
+					, 'beforeSave' 			: emptyFunc
+					, 'afterSave' 			: emptyFunc
+					, 'update' 				: emptyFunc
+					, 'ready' 				: emptyFunc
+					, 'checkoutSuccess' 	: emptyFunc
+					, 'checkoutFail' 		: emptyFunc
+					, 'checkout'			: emptyFunc
+				};
+			
+	// extend events in options
+	simpleCart.extend( events );
+	
+	//bind settings to events
+	simpleCart.each( events , function( val , x , name ){
+		simpleCart.bind( name , function(){
+			if( isFunction( settings[name] ) ){
+				settings[ name ].apply( this , arguments );
+			}
+		});
+	});
 					
 					
 					
