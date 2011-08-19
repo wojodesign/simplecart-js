@@ -98,12 +98,18 @@ simpleCart = (function(){
 	
 	// main simpleCart object, function call is used for setting options
  	simpleCart = function( options ){
-		return simpleCart.extend( settings , options );
+		// shortcut for simpleCart.ready
+		if( isFunction( options ) ){
+			return simpleCart.ready( options );
+		} else if( isObject( options ) ){
+			return simpleCart.extend( settings , options );
+		}
 	};
 	
 
 	// function for extending objects
 	simpleCart.extend = function( target , opts ){
+		
 		if( isUndefined( opts ) ){
 			opts = target;
 			target = simpleCart;
@@ -351,14 +357,8 @@ simpleCart = (function(){
 			
 		// cycle through given attributes and set them to the data object
 		if( isObject( info ) ){
-			for( var attr in info ){
-				if( !isFunction( info[attr] ) && !isObject( info[attr] ) ){
-					_data[attr] = info[attr];
-				}
-			}		
+			simpleCart.extend( _data , info );	
 		}
-		
-		/* TODO: save callbacks */
 			
 		// set the item id
 		_data.id = _data.id || item_id_namespace + (++item_id); 
