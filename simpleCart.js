@@ -483,6 +483,28 @@ simpleCart = (function(){
 	simpleCart.extend( simpleCart.Item._ , eventFunctions );
 	
 	
+	// basic simpleCart events
+	var events = 	[ 'beforeAdd' 
+					, 'afterAdd' 
+					, 'load' 
+					, 'beforeSave' 
+					, 'afterSave' 
+					, 'update' 
+					, 'ready' 
+					, 'checkoutSuccess' 
+					, 'checkoutFail' 
+					, 'checkout'
+					],
+		x = events.length;
+		
+	while( events[--x] ){
+		// add event to options
+		simpleCart({ events[x]: function(){} });
+		// bind function to call option function
+		simpleCart.bind( events[x] , function(){ settings[events[x]].apply(this,arguments); } );
+	}
+					
+					
 					
 
 	
