@@ -247,6 +247,8 @@ simpleCart = (function(){
 			
 		}
 		
+		
+		
 	});
 	
 	// class for cart items
@@ -475,6 +477,8 @@ simpleCart = (function(){
 		}
 	};
 	
+	// bind the DOM setup to the ready event
+	simpleCart.bind( 'ready', simpleCart.setupViewTool );
 
 	ContentLoaded(window, simpleCart.init );
 	
