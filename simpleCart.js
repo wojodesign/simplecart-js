@@ -464,10 +464,10 @@ simpleCart = (function(){
 	simpleCart.extend( simpleCart.Item._ , eventFunctions );
 	
 	
-	// selector engines 
-	var _target = function( selector ){
-		return isString( selector ) ? simpleCart.$.get( selector ) : selector;
-	} ,
+	// class for wrapping DOM selector shit
+	var ELEMENT = simpleCart._ELEMENT = function( el ){
+		this.el = el;
+	},
 	
 	_VALUE_ 	= 'value',
 	_TEXT_	 	= 'text',
@@ -476,75 +476,112 @@ simpleCart = (function(){
 	selectorFunctions = {
 		
 		"MooTools"		: {
-			text: function( selector , text ){
-				return simpleCart.$.attr( selector , _TEXT_ , text );
+			text: function( text ){
+				return this.attr( selector , _TEXT_ , text );
 			} ,
-			html: function( selector , html ){
-				return simpleCart.$.attr( selector , _HTML_ , html );
+			html: function( html ){
+				return this.attr( selector , _HTML_ , html );
 			} ,
-			val: function( selector , val ){
-				return simpleCart.$.attr( selector , _VALUE_ , val );
+			val: function( val ){
+				return this.attr( selector , _VALUE_ , val );
 			} ,
-			attr: function( selector , attr , val ){
-				return isUndefined( val ) ? _target( selector ).get( attr ) : _target( selector ).set( attr , val );
+			attr: function( attr , val ){
+				if( isUndefined( val ) ){
+					return this.el.get( attr )
+				} else { 
+					this.el.set( attr , val );
+					return this;
+				}
 			} ,
-			remove: function( selector ){
-				return _target( selector ).dispose();
+			remove: function(){
+				this.el.dispose();
+				return null;
 			} , 
 			addClass: function( selector , klass ){
-				return _target( selector ).addClass( klass );
+				this.el.addClass( klass );
+				return this;
 			} ,
 			removeClass: function( selector , klass ){
-				return _target( selector ).removeClass( klass );
+				this.el.removeClass( klass );
+				return this;
 			}
 		},
 		
 		"Prototype"		: {
-			text: function( selector , text ){
-				return isUndefined( text ) ? _target( selector ).innerHTML : _target( selector ).update( text );
+			text: function( text ){
+				if( isUndefined( text ) ){ 
+					return this.el.innerHTML; 
+				} else {
+					this.el.update( text );	
+					return this;
+				} 
 			} ,
-			html: function( selector , html ){
-				return simpleCart.$.text( selector , html );
+			html: function( html ){
+				return this.text( selector , html );
 			} ,
-			val: function( selector , val ){
-				return simpleCart.$.attr( selector , _VALUE_ , val );
+			val: function( val ){
+				return this.attr( selector , _VALUE_ , val );
 			} ,
-			attr: function( selector , attr , val ){
-				return isUndefined( val ) ? _target( selector ).readAttribute( attr ) : _target( selector ).writeAttribute( attr , val );
+			attr: function( attr , val ){
+				if( isUndefined( val ) ){	
+					return this.el.readAttribute( attr );
+				} else {
+					this.el.writeAttribute( attr , val );
+					return this;
+				}
 			} ,
-			remove: function( selector ){
-				return _target( selector ).remove();
+			remove: function(){
+				this.el.remove();
+				return this;
 			} ,
-			addClass: function( selector , klass ){
-				return _target( selector ).addClassName( klass );
+			addClass: function( klass ){
+				this.el.addClassName( klass );
+				return this;
 			} , 
-			removeClass: function( selector , klass ){
-				return _target( selector ).removeClassName( klass );
+			removeClass: function( klass ){
+				this.el.removeClassName( klass );
+				return this;
 			}
 			
 		},
 		
 		"jQuery"		: {
-			text: function( selector , text ){
-				return isUndefined( text ) ? _target( selector ).text() : _target( selector ).text( text );
+			passthrough: function( action , val ){
+				if( isUndefined( val ) ){
+					return this.el[action]();
+				} else {
+					this.el[action]( val );
+					return this;
+				}
+			},
+			text: function( text ){
+				return this.passthrough( _TEXT_ , text );
 			} ,
-			html: function( selector , html ){
-				return isUndefined( selector ) ? _target( selector ).html() : _target( selector ).html( html );
+			html: function( html ){
+				return this.passthrough( _HTML_ , html );
 			} ,
-			val: function( selector , val ){
-				return isUndefined( val ) ? _target( selector ).val() : _target( selector ).val( val );
+			val: function( val ){
+				return this.passthrough( _VAL_ , val );
 			} ,
-			attr: function( selector , attr , val ){
-				return isUndefined( val ) ? _target( selector ).attr( attr ) : _target( selector ).attr( attr , val );
+			attr: function( attr , val ){
+				if( isUndefined( val ) ){
+					return this.el.attr( attr );
+				} else {
+					this.el.attr( attr , val );
+					return this;
+				} 
 			} ,
-			remove: function( selector ){
-				return _target( selector ).remove();
+			remove: function(){
+				this.el.remove();
+				return this;
 			} ,
-			addClass: function( selector , klass ){
-				return _target( selector ).addClass( klass );
+			addClass: function( klass ){
+				this.el.addClass( klass );
+				return this;
 			} , 
-			removeClass: function( selector , klass ){
-				return _target( selector ).removeClass( klass );
+			removeClass: function( klass ){
+				this.el.removeClass( klass );
+				return this;
 			}
 		}
 	};
