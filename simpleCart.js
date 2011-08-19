@@ -78,13 +78,13 @@ simpleCart = (function(){
 	}, 
 	
 	
-	
+	// main simpleCart object, function call is used for setting options
  	simpleCart = function( options ){
 		return simpleCart.extend( settings , options );
 	};
 	
 
-	
+	// function for extending objects
 	simpleCart.extend = function( target , opts ){
 		if( isUndefined( opts ) ){
 			opts = target;
@@ -97,7 +97,7 @@ simpleCart = (function(){
 		return target;
 	};
 		
-		
+	// add in the core functionality 	
 	simpleCart.extend({
 		
 		// this is where the magic happens, the add function
