@@ -483,13 +483,13 @@ simpleCart = (function(){
 		
 		"MooTools"		: {
 			text: function( text ){
-				return this.attr( selector , _TEXT_ , text );
+				return this.attr( _TEXT_ , text );
 			} ,
 			html: function( html ){
-				return this.attr( selector , _HTML_ , html );
+				return this.attr( _HTML_ , html );
 			} ,
 			val: function( val ){
-				return this.attr( selector , _VALUE_ , val );
+				return this.attr( _VALUE_ , val );
 			} ,
 			attr: function( attr , val ){
 				if( isUndefined( val ) ){
@@ -503,11 +503,11 @@ simpleCart = (function(){
 				this.el.dispose();
 				return null;
 			} , 
-			addClass: function( selector , klass ){
+			addClass: function( klass ){
 				this.el.addClass( klass );
 				return this;
 			} ,
-			removeClass: function( selector , klass ){
+			removeClass: function( klass ){
 				this.el.removeClass( klass );
 				return this;
 			}
