@@ -50,7 +50,6 @@ simpleCart = (function(){
 		"Prototype"							: "$$",
 		"jQuery"							: "*"
 	},
-	selectorEngine,
 	
 	
 	// local variables for internal use
@@ -81,12 +80,12 @@ simpleCart = (function(){
 		
 		, cartStyle				: "table"
 		, cartColumns			: [
-			  { attribute: "name" , label: "Name" }
-			, { attribute: "price" , label: "Price" }
+			  { attr: "name" , label: "Name" }
+			, { attr: "price" , label: "Price" }
 			, { view: "decrement" , label: false }
-			, { attribute: "quantity" , label: "Qty" }
+			, { attr: "quantity" , label: "Qty" }
 			, { view: "increment" , label: false }
-			, { attribute: "total" , label: "SubTotal" }
+			, { attr: "total" , label: "SubTotal" }
 			, { view: "remove" , text: "Remove" , label: false }
 		]
 		
@@ -248,8 +247,14 @@ simpleCart = (function(){
 				
 		// view management
 		$: function( selector ){
-			return new simpleCart.ELEMENT( selectorEngine( selector ) );
+			return new simpleCart.ELEMENT( simpleCart.$engine( selector ) );
 		},
+		
+		$create: function( tag ){
+			return simpleCart.$( document.createElement(tag) );
+		},
+		
+		$engine: {},
 		
 		setupViewTool: function(){
 			// Determine the "best fit" selector engine
@@ -261,7 +266,7 @@ simpleCart = (function(){
 					if (typeof context == "function") {
 						// set the selector engine and extend the prototype of our 
 						// element wrapper class
-						selectorEngine = context;
+						simpleCart.$engine = context;
 						simpleCart.extend( simpleCart.ELEMENT._ , selectorFunctions[ engine ] );
 						return;
 					}
@@ -349,37 +354,40 @@ simpleCart = (function(){
 		
 		
 		// basic structure for cart column 
-		cartColumn: {
-			  attr			: "" 
-			, label			: "" 
-			, view			: "attr"
-			, text			: ""
-			, className		: ""
-			, hide			: false
+		cartColumn: function( opts ){
+			var options = opts || {}
+			return simpleCart.extend({
+				  attr			: "" 
+				, label			: "" 
+				, view			: "attr"
+				, text			: ""
+				, className		: ""
+				, hide			: false
+			}, options );
 		} ,
 		
 		// built in cart views for item cells
 		cartColumnViews: {
-			  attr		 	: function( item , column ){ 
-				return item[column.attr] || "";
+			  attr: function( item , column ){ 
+				return item.get( column.attr ) || "";
 			}
-			, link			: function( item , column ){
-				return "<a href='" + item[column.attr] + "'>" + column.text + "</a>";
+			, link: function( item , column ){
+				return "<a href='" + item.get( column.attr ) + "'>" + column.text + "</a>";
 			} 
-			, decrement 	: function( item , column ){
-				return "<a href='javascript:;' class='simpleCart_decrement'>" + ( item[column.text] || "-" ) + "</a>";
+			, decrement: function( item , column ){
+				return "<a href='javascript:;' class='simpleCart_decrement'>" + ( column.text || "-" ) + "</a>";
 			}
-			, increment 	: function( item , column ){
-				return "<a href='javascript:;' class='simpleCart_increment'>" + ( item[column.text] || "+" ) + "</a>";
+			, increment: function( item , column ){
+				return "<a href='javascript:;' class='simpleCart_increment'>" + ( column.text || "+" ) + "</a>";
 			}
-			, image			: function( item , column ){
-				return "<img src='" + item[column.attr] + "'/>"
+			, image: function( item , column ){
+				return "<img src='" + item.get( column.attr ) + "'/>"
 			}
-			, input			: function( item , column ){
-				return "<input type='text' value='" + item[column.attr] + "' class='simpleCart_input'/>";
+			, input: function( item , column ){
+				return "<input type='text' value='" + item.get( column.attr ) + "' class='simpleCart_input'/>";
 			} 
-			, remove 		: function( item , column ){
-				return "<a href='javascript:;' class='simpleCart_remove'>" + ( item[column.text] || "X" ) + "</a>";
+			, remove: function( item , column ){
+				return "<a href='javascript:;' class='simpleCart_remove'>" + ( column.text || "X" ) + "</a>";
 			}
 		} ,
 		
@@ -403,9 +411,9 @@ simpleCart = (function(){
 				
 			// create header 
 			for( var x=0,xlen = settings.cartColumns.length; x<xlen; x++ ){
-				var column = settings.cartColumns[x],
+				var column = simpleCart.cartColumn( settings.cartColumns[x] ),
 					klass =  "item-" + (column.attr || column.view || column.label || column.text || "cell" ) + " " + column.className,
-					label = cart.label || "";
+					label = column.label || "";
 					
 				// append the header cell
 				header_container.append(
@@ -418,12 +426,11 @@ simpleCart = (function(){
 			simpleCart.each( function( item, y ){
 				var row = simpleCart.$create( TR )
 									.addClass( 'itemRow row-' + y + " " + ( y%2 ? "even" : "odd" )  )
-									.attr('id' , "cartItem-" + item.id() ),
-					itemObject = item.toObject();
+									.attr('id' , "cartItem-" + item.id() );
 					
 				// cycle through the columns to create each cell for the item
 				for( var j=0,jlen=settings.cartColumns.length; j<jlen; j++ ){
-					var column = settings.cartColumns[ j ],
+					var column = simpleCart.cartColumn( settings.cartColumns[ j ] ),
 						klass =  "item-" + (column.attr || column.view || column.label || column.text || "cell" ) + " " + column.className,
 						content = simpleCart.cartCellView( item , column ),
 						cell = simpleCart.$create( TD ).addClass( klass ).html( content );
@@ -593,7 +600,7 @@ simpleCart = (function(){
 				};
 			
 	// extend events in options
-	simpleCart.extend( events );
+	simpleCart( events );
 	
 	//bind settings to events
 	simpleCart.each( events , function( val , x , name ){
@@ -706,6 +713,11 @@ simpleCart = (function(){
 			} ,
 			val: function( val ){
 				return this.passthrough( _VAL_ , val );
+			} ,
+			append: function( item ){
+				var target = item.el || item;
+				this.el.append( target );
+				return this;
 			} ,
 			attr: function( attr , val ){
 				if( isUndefined( val ) ){
