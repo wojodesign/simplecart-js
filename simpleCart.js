@@ -410,8 +410,8 @@ simpleCart = (function(){
 	
 	// basic structure for cart column 
 	var	cartColumn = function( opts ){
-			var options = opts || {}
-			return simpleCart.extend({
+		var options = opts || {};
+		return simpleCart.extend({
 				  attr			: "" 
 				, label			: "" 
 				, view			: "attr"
@@ -452,52 +452,52 @@ simpleCart = (function(){
 							cartColumnViews['attr'];
 							
 			return viewFunc.call( simpleCart , item , column );
-		} 
-	},
+		},
+	
 	
 	
 		// class for cart items
-	 	Item = simpleCart.Item = function( info ){
+ 	 	Item = simpleCart.Item = function( info ){
 		
-		// we use the data object to track values for the item
-		var _data = {},
-			me = this;
+			// we use the data object to track values for the item
+			var _data = {},
+				me = this;
 			
-		// cycle through given attributes and set them to the data object
-		if( isObject( info ) ){
-			simpleCart.extend( _data , info );	
-		}
-			
-		// set the item id
-		_data.id = _data.id || item_id_namespace + (++item_id); 
-		while( !isUndefined( sc_items[_data.id] ) ){
-			_data.id = item_id_namespace + (++item_id); 
-		}
-		
-		// getter and setter methods to access private variables
-		me.get = function( name , usePrototypes ){
-			
-			usePrototypes = isUndefined( usePrototypes ) && usePrototypes;
-			
-			if( isUndefined( name ) ){
-				return name;
+			// cycle through given attributes and set them to the data object
+			if( isObject( info ) ){
+				simpleCart.extend( _data , info );	
 			}
 			
-			// return the value in order of the data object and then the prototype 	
-			return 	isFunction( _data[name] ) 	? _data[name].call(me) : 
-					!isUndefined( _data[name] ) ? _data[name] :
+			// set the item id
+			_data.id = _data.id || item_id_namespace + (++item_id); 
+			while( !isUndefined( sc_items[_data.id] ) ){
+				_data.id = item_id_namespace + (++item_id); 
+			}
+		
+			// getter and setter methods to access private variables
+			me.get = function( name , usePrototypes ){
+			
+				usePrototypes = isUndefined( usePrototypes ) && usePrototypes;
+			
+				if( isUndefined( name ) ){
+					return name;
+				}
+			
+				// return the value in order of the data object and then the prototype 	
+				return 	isFunction( _data[name] ) 	? _data[name].call(me) : 
+						!isUndefined( _data[name] ) ? _data[name] :
 					
-					isFunction( me[name] ) && usePrototypes		? me[name].call(me) :
-					!isUndefined( me[name] ) && usePrototypes	? me[name] :
-					_data[name];
+						isFunction( me[name] ) && usePrototypes		? me[name].call(me) :
+						!isUndefined( me[name] ) && usePrototypes	? me[name] :
+						_data[name];
+			};
+			me.set = function( name , value ){
+				if( !isUndefined( name ) ){
+					_data[name] = value;
+				}
+				return me;
+			};
 		};
-		me.set = function( name , value ){
-			if( !isUndefined( name ) ){
-				_data[name] = value;
-			}
-			return me;
-		};
-	};
 	
 	Item._ = Item.prototype = {
 		
