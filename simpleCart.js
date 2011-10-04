@@ -388,7 +388,7 @@ simpleCart = (function(){
 				cart_container.append( simpleCart.createCartRow( item , y , TR , TD ) );
 			});
 			
-			return cart_container.el;
+			return cart_container;
 		},
 		
 		// generate a cart row from an item
@@ -637,7 +637,7 @@ simpleCart = (function(){
 		// set function return to outlet
 		setOutlet: function( selector , func ){
 			var val = func.call( simpleCart );
-			if( isElement( val ) ){
+			if( val.el ){
 				simpleCart.$( selector ).html( ' ' ).append( val );
 			} else {
 				simpleCart.$( selector ).text( val );
