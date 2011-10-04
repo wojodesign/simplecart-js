@@ -37,8 +37,15 @@ var	typeof_string			= typeof "",
 	isString				= function( item ){ return isTypeOf( item , typeof_string ); },
 	isUndefined				= function( item ){ return isTypeOf( item , typeof_undefined ); },
 	isFunction				= function( item ){ return isTypeOf( item , typeof_function ); },
-	isObject				= function( item ){ return isTypeOf( item , typeof_object ); },
 	
+	isObject				= function( item ){ return isTypeOf( item , typeof_object ); },
+	//Returns true if it is a DOM element    
+	isElement				= function(o){
+	 	return (
+	    	typeof HTMLElement === "object" ? o instanceof HTMLElement : //DOM2
+	    	typeof o === "object" && o.nodeType === 1 && typeof o.nodeName==="string"
+		);
+	},
 	
 	
 	
@@ -401,9 +408,7 @@ simpleCart = (function(){
 			}
 			return row;
 		}
-		
-		
-		
+
 	});
 	
 	// protected simpleCart functions
@@ -616,7 +621,52 @@ simpleCart = (function(){
 			}
 		});
 	});
-					
+	
+	
+	// Setting up view outlets
+	var outletFunctions = {
+		// bind outlets to function
+		bindOutlets: function( outlets ){
+			simpleCart.each( outlets , function( info , x ){
+				simpleCart.bind( 'update' , function(){
+					simpleCart.setOutlet( "." + namespace + "_" + info.selector , info.callback );
+				});
+			});
+		},
+
+		// set function return to outlet
+		setOutlet: function( selector , func ){
+			var val = func.call( simpleCart );
+			if( isElement( val ) ){
+				simpleCart.$( selector ).html( ' ' ).append( val );
+			} else {
+				simpleCart.$( selector ).text( val );
+			}
+		}
+	} ,
+	
+	outlets = [
+		{ 	  selector: 'total' 
+		  	, callback: function(){
+				return this.total();
+		    } 
+		}
+		, {   selector: 'quantity'
+		  	, callback: function(){
+				return this.quantity();
+			} 
+		}
+		, {   selector: 'items'
+		 	, callback: function(){
+				return this.writeCart();
+			} 
+		}
+	];
+	
+	simpleCart.extend( outletFunctions );
+	simpleCart.ready(function(){
+		simpleCart.bindOutlets( outlets );
+	});
 					
 					
 
@@ -661,42 +711,64 @@ simpleCart = (function(){
 			removeClass: function( klass ){
 				this.el.removeClass( klass );
 				return this;
+			},
+			each: function (callback){
+				if( isFunction(callback) ){
+					simpleCart.each( this.el , callback );
+				}
+				return this;
 			}
 		},
 		
 		"Prototype"		: {
 			text: function( text ){
 				if( isUndefined( text ) ){ 
-					return this.el.innerHTML; 
+					return this.el[0].innerHTML; 
 				} else {
-					this.el.update( text );	
+					this.each(function(e,x){
+						e.update( text );	
+					});
 					return this;
 				} 
 			} ,
 			html: function( html ){
-				return this.text( selector , html );
+				return this.text( html );
 			} ,
 			val: function( val ){
-				return this.attr( selector , _VALUE_ , val );
+				return this.attr( _VALUE_ , val );
 			} ,
 			attr: function( attr , val ){
 				if( isUndefined( val ) ){	
-					return this.el.readAttribute( attr );
+					return this.el[0].readAttribute( attr );
 				} else {
-					this.el.writeAttribute( attr , val );
+					this.each(function(e,x){
+						e.writeAttribute( attr , val );
+					});
 					return this;
 				}
 			} ,
 			remove: function(){
-				this.el.remove();
+				this.each(function(e,x){
+					e.remove();
+				});
 				return this;
 			} ,
 			addClass: function( klass ){
-				this.el.addClassName( klass );
+				this.each(function(e,x){
+					e.addClassName( klass );
+				});
 				return this;
 			} , 
 			removeClass: function( klass ){
-				this.el.removeClassName( klass );
+				this.each(function(e,x){
+					e.removeClassName( klass );
+				});
+				return this;
+			} ,
+			each: function (callback){
+				if( isFunction(callback) ){
+					simpleCart.each( this.el , callback );
+				}
 				return this;
 			}
 			
@@ -744,6 +816,9 @@ simpleCart = (function(){
 			removeClass: function( klass ){
 				this.el.removeClass( klass );
 				return this;
+			} ,
+			each: function( callback ){
+				return this.passthrough( 'each' , callback )
 			}
 		}
 	};
