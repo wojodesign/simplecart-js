@@ -192,6 +192,11 @@ simpleCart = (function(){
 			}
 		},
 		
+		find: function( id ){
+			// TODO: bad ass finder
+			return sc_items[id];
+		},
+		
 		// check to see if item is in the cart already
 		has: function( item ){
 			var current, 
@@ -404,7 +409,7 @@ simpleCart = (function(){
 		createCartRow: function( item , y , TR , TD ){
 			var row = simpleCart.$create( TR )
 								.addClass( 'itemRow row-' + y + " " + ( y%2 ? "even" : "odd" )  )
-								.attr('id' , "cartItem-" + item.id() );
+								.attr('id' , "cartItem_" + item.id() );
 				
 			// cycle through the columns to create each cell for the item
 			for( var j=0,jlen=settings.cartColumns.length; j<jlen; j++ ){
@@ -662,7 +667,6 @@ simpleCart = (function(){
 		} ,
 		
 		
-		
 		// break a string in blocks of size n
 		chunk: function(str, n) {
 			if (typeof n==='undefined'){ 
@@ -682,7 +686,6 @@ simpleCart = (function(){
 	
 	
 	// currency functions
-	
 	simpleCart.extend({
 		currency: function(currency){
 			if( isString(currency) && !isUndefined( currencies[currency] ) ){
@@ -753,13 +756,35 @@ simpleCart = (function(){
 	
 	inputs = [
 		{ 	  selector: 'checkout' 
+			, event: 'click'
 		  	, callback: function(){
 				simpleCart.checkout();
 			}
 		}
 		, {   selector: 'empty'
+			, event: 'click'
 		  	, callback: function(){
 				simpleCart.empty();
+			}
+		}
+		, {   selector: 'increment'
+			, event: 'click'
+		  	, callback: function(e){
+				simpleCart.find( simpleCart.$(this).parent().parent().attr('id').split("_")[1] ).increment();
+				simpleCart.update();
+			}
+		}
+		, {   selector: 'decrement'
+			, event: 'click'
+		  	, callback: function(e){
+				simpleCart.find( simpleCart.$(this).parent().parent().attr('id').split("_")[1] ).decrement();
+				simpleCart.update();
+			}
+		}
+		, {   selector: 'remove'
+			, event: 'click'
+		  	, callback: function(e){
+				simpleCart.find( simpleCart.$(this).parent().parent().attr('id').split("_")[1] ).remove();
 			}
 		}
 	];
@@ -843,6 +868,8 @@ simpleCart = (function(){
 			match: function(selector){
 				return this.el.match(selector);
 			}
+			
+			// TODO: mootools parent()
 		},
 		
 		"Prototype"		: {
@@ -920,6 +947,7 @@ simpleCart = (function(){
 					});
 				}
 			}
+			// TODO: prototype parent()
 			
 		},
 		
@@ -974,6 +1002,10 @@ simpleCart = (function(){
 			} ,
 			live: function( event , callback ){
 				jQuery(document).delegate( this.selector , event , callback );
+				return this;
+			} ,
+			parent: function( ){
+				return this.passthrough( 'parent' );
 			}
 		}
 	};
