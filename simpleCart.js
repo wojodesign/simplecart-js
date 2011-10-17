@@ -88,11 +88,11 @@ simpleCart = (function(){
 		, cartStyle				: "table"
 		, cartColumns			: [
 			  { attr: "name" , label: "Name" }
-			, { attr: "price" , label: "Price" }
+			, { attr: "price" , label: "Price", view: 'currency' }
 			, { view: "decrement" , label: false }
-			, { attr: "quantity" , label: "Qty" }
+			, { attr: "quantity" , label: "Qty", view: 'input' }
 			, { view: "increment" , label: false }
-			, { attr: "total" , label: "SubTotal" }
+			, { attr: "total" , label: "SubTotal", view: 'currency' }
 			, { view: "remove" , text: "Remove" , label: false }
 		]
 		
@@ -443,6 +443,9 @@ simpleCart = (function(){
 			  attr: function( item , column ){ 
 				return item.get( column.attr ) || "";
 			}
+			, currency: function( item , column ){
+				return simpleCart.toCurrency( item.get( column.attr ) || 0 );
+			}
 			, link: function( item , column ){
 				return "<a href='" + item.get( column.attr ) + "'>" + column.text + "</a>";
 			} 
@@ -493,11 +496,20 @@ simpleCart = (function(){
 			while( !isUndefined( sc_items[_data.id] ) ){
 				_data.id = item_id_namespace + (++item_id); 
 			}
+			
+			function checkQuantityAndPrice(){
+				if( _data.quantity <= 0 ){
+					me.remove();
+				}
+				if( _data.price < 0 ){
+					_data.price = 0;
+				}
+			}
 		
 			// getter and setter methods to access private variables
-			me.get = function( name , usePrototypes ){
+			me.get = function( name , skipPrototypes ){
 			
-				usePrototypes = isUndefined( usePrototypes ) && usePrototypes;
+				usePrototypes = !skipPrototypes;
 			
 				if( isUndefined( name ) ){
 					return name;
@@ -515,8 +527,10 @@ simpleCart = (function(){
 				if( !isUndefined( name ) ){
 					_data[name] = value;
 				}
+				checkQuantityAndPrice();
 				return me;
 			};
+			me.checkQuantityAnd
 		};
 	
 	Item._ = Item.prototype = {
@@ -549,10 +563,10 @@ simpleCart = (function(){
 		// shortcuts for getter/setters. can
 		// be overwritten for customization
 		quantity: function( val ){
-			return isUndefined( val ) ? parseInt( this.get("quantity",false) || 1 , 10 ) : this.set("quantity", val );
+			return isUndefined( val ) ? parseInt( this.get("quantity",true) || 1 , 10 ) : this.set("quantity", val );
 		},
 		price: function( val ){
-			return isUndefined( val ) ? parseFloat(  this.get("price",false) || 1 ) : this.set("price", val );
+			return isUndefined( val ) ? parseFloat(  this.get("price",true) || 1 ) : this.set("price", val );
 		},
 		id: function(){
 			return this.get( 'id',false );
@@ -726,13 +740,13 @@ simpleCart = (function(){
 		// bind click events on inputs 
 		bindInputs: function( inputs ){
 			simpleCart.each( inputs , function( info , x ){
-				simpleCart.setInput( "." + namespace + "_" + info.selector , info.callback );
+				simpleCart.setInput( "." + namespace + "_" + info.selector , info.event , info.callback );
 			});
 		},
 		
 		// attach events to inputs  
-		setInput: function( selector , func ){
-			simpleCart.$(selector).live( 'click', func );
+		setInput: function( selector , event , func ){
+			simpleCart.$(selector).live( event, func );
 		}
 	} ,
 	
@@ -785,6 +799,22 @@ simpleCart = (function(){
 			, event: 'click'
 		  	, callback: function(e){
 				simpleCart.find( simpleCart.$(this).parent().parent().attr('id').split("_")[1] ).remove();
+			}
+		}
+		, {   selector: 'input'
+			, event: 'change'
+		  	, callback: function(e){
+				var $input = simpleCart.$(this),
+					$parent = $input.parent(),
+					classList = $parent.attr('class').split(" ");
+				simpleCart.each( classList , function(klass,x){
+					if( klass.match(/item-.+/i) ){
+						var field = klass.split("-")[1];
+						simpleCart.find( $parent.parent().attr('id').split("_")[1] ).set(field,$input.val() );
+						simpleCart.update();
+						return;
+					}
+				});
 			}
 		}
 	];
@@ -967,7 +997,7 @@ simpleCart = (function(){
 				return this.passthrough( _HTML_ , html );
 			} ,
 			val: function( val ){
-				return this.passthrough( _VAL_ , val );
+				return this.passthrough( "val" , val );
 			} ,
 			append: function( item ){
 				var target = item.el || item;
@@ -1005,7 +1035,7 @@ simpleCart = (function(){
 				return this;
 			} ,
 			parent: function( ){
-				return this.passthrough( 'parent' );
+				return simpleCart.$(this.el.parent());
 			}
 		}
 	};
