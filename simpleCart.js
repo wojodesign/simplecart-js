@@ -292,7 +292,9 @@ simpleCart = (function(){
 		}, 
 		
 		load: function(){
+			
 			// TODO: load
+			
 			simpleCart.trigger('load');
 		},
 		
@@ -357,8 +359,15 @@ simpleCart = (function(){
 					doScrollCheck();
 				}
 			}
-		} , 
-		
+		} 
+	});
+	
+	
+	/*******************************************************************
+	 * 	CART VIEWS
+	 *******************************************************************/
+	
+	simpleCart.extend({		
 		
 		// write out cart
 		writeCart: function(){
@@ -408,12 +417,10 @@ simpleCart = (function(){
 			}
 			return row;
 		}
-
+		
 	});
 	
-	// protected simpleCart functions
-	
-	// basic structure for cart column 
+	// cart column wrapper class and functions
 	var	cartColumn = function( opts ){
 		var options = opts || {};
 		return simpleCart.extend({
@@ -461,7 +468,10 @@ simpleCart = (function(){
 	
 	
 	
-		// class for cart items
+		/*******************************************************************
+		 * 	CART ITEM CLASS MANAGEMENT
+		 *******************************************************************/
+		
  	 	Item = simpleCart.Item = function( info ){
 		
 			// we use the data object to track values for the item
@@ -550,7 +560,9 @@ simpleCart = (function(){
 	
 	
 	
-	// Event Management
+	/*******************************************************************
+	 * 	EVENT MANAGEMENT
+	 *******************************************************************/
 	var eventFunctions = {
 
 		// bind a callback to an event
@@ -622,8 +634,30 @@ simpleCart = (function(){
 		});
 	});
 	
+	/*******************************************************************
+	 * 	FORMATTING FUNCTIONS
+	 *******************************************************************/
+	simpleCart.extend({
+		toCurrency: function(number,opts){
+			var num = parseFloat(number,10),
+				options = simpleCart.extend({
+					  symbol: 		"$"
+					, decimal: 		"."
+					, delimiter: 	","
+					, accuracy:  	2
+				},opts);
+				
+			num = num.toFixed(accuracy).split(".");
+		}
 	
-	// Setting up view outlets
+		
+	});
+	
+	
+	
+	/*******************************************************************
+	 * 	VIEW MANAGEMENT
+	 *******************************************************************/
 	var outletFunctions = {
 		// bind outlets to function
 		bindOutlets: function( outlets ){
@@ -828,6 +862,10 @@ simpleCart = (function(){
 	simpleCart.ready( simpleCart.setupViewTool );
 
 
+
+	/*******************************************************************
+	 * 	DOM READY 
+	 *******************************************************************/
 	// Cleanup functions for the document ready method
 	// used from jQuery
 	if ( document.addEventListener ) {
