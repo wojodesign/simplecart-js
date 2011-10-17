@@ -734,13 +734,22 @@ simpleCart = (function(){
 		}
 		, {   selector: 'quantity'
 		  	, callback: function(){
-				return this.quantity();
+				return simpleCart.quantity();
 			} 
 		}
 		, {   selector: 'items'
 		 	, callback: function(){
-				return this.writeCart();
+				return simpleCart.writeCart();
 			} 
+		}
+	],
+	
+	inputs = [
+		{ 	  selector: 'checkout' 
+		  	, callback: simpleCart.checkout
+		}
+		, {   selector: 'empty'
+		  	, callback: simpleCart.empty
 		}
 	];
 	
@@ -760,6 +769,7 @@ simpleCart = (function(){
 	_VALUE_ 	= 'value',
 	_TEXT_	 	= 'text',
 	_HTML_ 		= 'html',
+	_CLICK_ 	= 'click',
 	
 	selectorFunctions = {
 		
@@ -792,11 +802,24 @@ simpleCart = (function(){
 			removeClass: function( klass ){
 				this.el.removeClass( klass );
 				return this;
-			},
+			} ,
 			each: function (callback){
 				if( isFunction(callback) ){
 					simpleCart.each( this.el , callback );
 				}
+				return this;
+			} ,
+			click: function(callback){
+				if( isFunction(callback) ){
+					this.each(function(e,x){
+						e.addEvent(_CLICK_, function(ev){
+							callback.call(e,ev);
+						});
+					});
+				} else if( isUndefined( callback ) ){
+					this.el.fireEvent(_CLICK_);
+				}
+				
 				return this;
 			}
 		},
@@ -851,6 +874,20 @@ simpleCart = (function(){
 					simpleCart.each( this.el , callback );
 				}
 				return this;
+			} ,
+			click: function(callback){
+				if( isFunction(callback) ){
+					this.each(function(e,x){
+						e.observe(_CLICK_,funtion(ev){
+							callback.call(e,ev);
+						});
+					});
+				} else if( isUndefined(callback) ) {
+					this.each(function(e,x){
+						e.fire(_CLICK_);
+					});
+				}
+				return this;
 			}
 			
 		},
@@ -863,7 +900,7 @@ simpleCart = (function(){
 					this.el[action]( val );
 					return this;
 				}
-			},
+			} ,
 			text: function( text ){
 				return this.passthrough( _TEXT_ , text );
 			} ,
@@ -899,7 +936,10 @@ simpleCart = (function(){
 				return this;
 			} ,
 			each: function( callback ){
-				return this.passthrough( 'each' , callback )
+				return this.passthrough( 'each' , callback );
+			} ,
+			click: function( callback ){
+				return this.passthrough( _CLICK_ , callback );
 			}
 		}
 	};
@@ -907,7 +947,7 @@ simpleCart = (function(){
 	
 	// bind the DOM setup to the ready event
 	simpleCart.ready( simpleCart.setupViewTool );
-
+	
 
 
 	/*******************************************************************
