@@ -640,19 +640,66 @@ simpleCart = (function(){
 	simpleCart.extend({
 		toCurrency: function(number,opts){
 			var num = parseFloat(number,10),
-				options = simpleCart.extend({
+				_opts = simpleCart.extend({
 					  symbol: 		"$"
 					, decimal: 		"."
 					, delimiter: 	","
 					, accuracy:  	2
-				},opts);
+					, after: false
+				},opts),
 				
-			num = num.toFixed(accuracy).split(".");
+				numParts = num.toFixed(_opts.accuracy).split("."),
+				dec = numParts[1],
+				ints = numParts[0];
+							
+			ints = simpleCart.chunk( ints.reverse() , 3 ).join(_opts.delimiter).reverse();
+			
+			return 	(!_opts.after ? _opts.symbol : "") + 
+				  	ints + 
+					(dec ? _opts.decimal + dec : "") +
+					(_opts.after ? _opts.symbol : "");
+					
+		} ,
+		
+		
+		
+		// break a string in blocks of size n
+		chunk: function(str, n) {
+			if (typeof n==='undefined'){ 
+				n=2;
+			}
+			var result = str.match(RegExp('.{1,'+n+'}','g'));
+			return result || [];
 		}
 	
-		
 	});
 	
+	
+	// reverse string function
+	String.prototype.reverse = function(){
+		return this.split("").reverse().join("");
+	};
+	
+	
+	// currency functions
+	
+	simpleCart.extend({
+		currency: function(currency){
+			if( isString(currency) && !isUndefined( currencies[currency] ) ){
+				settings.currency = currency;
+			} else if( isArray( currency ) && currency.length === 3 ){
+				currencies[currency[0]] = currency;
+				settings.currency = currency[0];
+			} else {
+				return settings.currency;
+			}
+		}
+	});
+	
+	
+	simpleCart.extend(simpleCart.currency, {
+		
+	})
 	
 	
 	/*******************************************************************
@@ -682,7 +729,7 @@ simpleCart = (function(){
 	outlets = [
 		{ 	  selector: 'total' 
 		  	, callback: function(){
-				return this.total();
+				return simpleCart.toCurrency( this.total() );
 		    } 
 		}
 		, {   selector: 'quantity'

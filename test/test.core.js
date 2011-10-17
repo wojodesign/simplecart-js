@@ -61,7 +61,7 @@ test("editing items", function(){
 
 
 });
-/*
+
 	module('simpleCart core functions');
 	test("simpleCart.chunk() function works", function(){
 		
@@ -70,6 +70,27 @@ test("editing items", function(){
 			test = simpleCart.chunk( str , 5 );
 			
 		same( test , array , "chunked array properly into 5 piece chunks");
+		
+	});
+	
+	test("simpleCart.toCurrency() function works", function(){
+		
+		var number = 2234.23;
+		
+		same( simpleCart.toCurrency( number ), "$2,234.23" , "Currency Base Case");
+		
+		same( simpleCart.toCurrency( number , { delimiter: " " }) ,"$2 234.23" ,  "Changing Delimiter");
+
+		same( simpleCart.toCurrency( number , { decimal: ","  }) ,  "$2,234,23" , "Changing decimal delimiter");
+
+		same(  simpleCart.toCurrency( number , { symbol: "!"  }) , "!2,234.23" , "Changing currency symbol");
+		
+		same( simpleCart.toCurrency( number , { accuracy: 1  }) , "$2,234.2" ,  "Changing decimal accuracy");
+		
+		same( simpleCart.toCurrency( number , { after: true  }) ,  "2,234.23$" , "Changing symbol location");
+		
+		same( simpleCart.toCurrency( number , { symbol: "", accuracy:0, delimiter:"" }) , "2234", "Long hand toInt string" );
+		
 		
 	});
 	
@@ -126,6 +147,9 @@ test("editing items", function(){
 	});
 	
 	
+	
+	
+/*	
 	module('update view');
 	test("cart row input event property" , function(){
 		var info = ['size' , 'input'],
