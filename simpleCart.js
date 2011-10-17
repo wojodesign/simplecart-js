@@ -753,20 +753,18 @@ simpleCart = (function(){
 	
 	inputs = [
 		{ 	  selector: 'checkout' 
-		  	, callback: simpleCart.checkout
+		  	, callback: function(){
+				simpleCart.checkout();
+			}
 		}
 		, {   selector: 'empty'
-		  	, callback: simpleCart.empty
+		  	, callback: function(){
+				simpleCart.empty();
+			}
 		}
 	];
 	
-	simpleCart.extend( outletAndInputFunctions );
-	simpleCart.ready(function(){
-		simpleCart.bindOutlets( outlets );
-		simpleCart.bindInputs( inputs );
-	});
-					
-					
+	simpleCart.extend( outletAndInputFunctions );					
 
 	
 	// class for wrapping DOM selector shit
@@ -901,7 +899,7 @@ simpleCart = (function(){
 			click: function(callback){
 				if( isFunction(callback) ){
 					this.each(function(e,x){
-						e.observe(_CLICK_,funtion(ev){
+						e.observe( _CLICK_ , function(ev){
 							callback.call(e,ev);
 						});
 					});
@@ -984,6 +982,11 @@ simpleCart = (function(){
 	// bind the DOM setup to the ready event
 	simpleCart.ready( simpleCart.setupViewTool );
 	
+	// bind the input and output events 
+	simpleCart.ready(function(){
+		simpleCart.bindOutlets( outlets );
+		simpleCart.bindInputs( inputs );
+	});
 
 
 	/*******************************************************************
@@ -1028,6 +1031,7 @@ simpleCart = (function(){
 	
 	// bind the ready event
 	simpleCart.bindReady();	
+	
 	
 	return simpleCart;
 }());
