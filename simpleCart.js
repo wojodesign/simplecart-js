@@ -70,8 +70,8 @@ simpleCart = (function(){
 	
 	// Currencies
 	currencies = {
-		  "USD": [ "USD", "$", "US Dollar" ] 
-		, "AUD": [ "AUD", "$", "Australian Dollar" ] 
+		  "USD": { code:"USD", symbol:"$", name:"US Dollar" }
+		, "AUD": { code:"AUD", symbol:"$", name:"Australian Dollar" }
 	},
 	
 	// default options
@@ -254,7 +254,7 @@ simpleCart = (function(){
 				
 		// view management
 		$: function( selector ){
-			return new simpleCart.ELEMENT( simpleCart.$engine( selector ) );
+			return new simpleCart.ELEMENT( simpleCart.$engine( selector ), selector );
 		},
 		
 		$create: function( tag ){
@@ -640,13 +640,13 @@ simpleCart = (function(){
 	simpleCart.extend({
 		toCurrency: function(number,opts){
 			var num = parseFloat(number,10),
-				_opts = simpleCart.extend({
+				_opts = simpleCart.extend( simpleCart.extend({
 					  symbol: 		"$"
 					, decimal: 		"."
 					, delimiter: 	","
 					, accuracy:  	2
 					, after: false
-				},opts),
+				}, simpleCart.currency() ), opts ),
 				
 				numParts = num.toFixed(_opts.accuracy).split("."),
 				dec = numParts[1],
@@ -687,9 +687,9 @@ simpleCart = (function(){
 		currency: function(currency){
 			if( isString(currency) && !isUndefined( currencies[currency] ) ){
 				settings.currency = currency;
-			} else if( isArray( currency ) && currency.length === 3 ){
-				currencies[currency[0]] = currency;
-				settings.currency = currency[0];
+			} else if( isObject( currency ) ){
+				currencies[currency.code] = currency;
+				settings.currency = currency.code;
 			} else {
 				return settings.currency;
 			}
@@ -697,15 +697,10 @@ simpleCart = (function(){
 	});
 	
 	
-	simpleCart.extend(simpleCart.currency, {
-		
-	})
-	
-	
 	/*******************************************************************
 	 * 	VIEW MANAGEMENT
 	 *******************************************************************/
-	var outletFunctions = {
+	var outletAndInputFunctions = {
 		// bind outlets to function
 		bindOutlets: function( outlets ){
 			simpleCart.each( outlets , function( info , x ){
@@ -723,6 +718,18 @@ simpleCart = (function(){
 			} else {
 				simpleCart.$( selector ).text( val );
 			}
+		},
+		
+		// bind click events on inputs 
+		bindInputs: function( inputs ){
+			simpleCart.each( inputs , function( info , x ){
+				simpleCart.setInput( "." + namespace + "_" + info.selector , info.callback );
+			});
+		},
+		
+		// attach events to inputs  
+		setInput: function( selector , func ){
+			simpleCart.$(selector).live( 'click', func );
 		}
 	} ,
 	
@@ -753,17 +760,19 @@ simpleCart = (function(){
 		}
 	];
 	
-	simpleCart.extend( outletFunctions );
+	simpleCart.extend( outletAndInputFunctions );
 	simpleCart.ready(function(){
 		simpleCart.bindOutlets( outlets );
+		simpleCart.bindInputs( inputs );
 	});
 					
 					
 
 	
 	// class for wrapping DOM selector shit
-	var ELEMENT = simpleCart.ELEMENT = function( el ){
+	var ELEMENT = simpleCart.ELEMENT = function( el , selector ){
 		this.el = el;
+		this.selector = selector || null; // "#" + this.attr('id'); TODO: test length?
 	},
 	
 	_VALUE_ 	= 'value',
@@ -821,6 +830,20 @@ simpleCart = (function(){
 				}
 				
 				return this;
+			} ,
+			live: function(	event,callback ){
+				var selector = this.selector;
+				if( isFunction( callback) ){
+					simpleCart.$(document).addEvent( event , function(e){
+						var target = simpleCart.$(e.target);
+						if( target.match(selector) ){
+							callback.call( target , e );
+						}
+					});
+				}
+			} ,
+			match: function(selector){
+				return this.el.match(selector);
 			}
 		},
 		
@@ -888,6 +911,16 @@ simpleCart = (function(){
 					});
 				}
 				return this;
+			} ,
+			live: function(event,callback){
+				if( isFunction(callback) ){
+					var selector = this.selector;
+					document.observe( event, function( e, el ){
+						if( el == e.findElement(selector) ){
+							callback.call( el , e );
+						}
+					});
+				}
 			}
 			
 		},
@@ -940,6 +973,9 @@ simpleCart = (function(){
 			} ,
 			click: function( callback ){
 				return this.passthrough( _CLICK_ , callback );
+			} ,
+			live: function( event , callback ){
+				jQuery(document).delegate( this.selector , event , callback );
 			}
 		}
 	};
