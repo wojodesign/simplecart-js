@@ -826,6 +826,38 @@ generateSimpleCart = function(space){
 				});
 			}
 		}
+		, {   selector: 'shelfItem .item_add'
+			, event: 'click'
+		  	, callback: function(e){
+				var $button = simpleCart.$(this),
+					fields = {};
+					
+				$button.closest("." + namespace + "_shelfItem" ).search("item_.+").each(function(item,x){
+					if( !item.hasClass('item_add') ){
+						simpleCart.each( item.attr('class').split(' ') , function( klass , x ){
+							if( klass.match(/item_.+/) ){
+								var attr = klass.split("_")[1],
+									val = "";
+								switch( item.tag() ){
+									case "input":
+									case "checkbox":
+									case "textarea":
+									case "select":
+										val = item.val();
+										break;
+									default:
+										val = item.html();
+										break;
+								}
+								fields[attr] = val;
+							}
+						});
+					}
+				});
+				
+				simpleCart.add(fields);
+			}
+		}
 	];
 	
 	simpleCart.extend( outletAndInputFunctions );					
@@ -912,7 +944,14 @@ generateSimpleCart = function(space){
 			} ,
 			find: function( selector ){
 				return simpleCart.$( this.el.getSiblings( selector ) );
+			} ,
+			closest: function( selector ){
+				return simpleCart.$( this.el.getParent( selector ) );
+			} ,
+			search: function( prefix ){
+				return this.find( "[class^=" + prefix + "]");
 			}
+			
 			
 		},
 		
@@ -996,6 +1035,12 @@ generateSimpleCart = function(space){
 			} ,
 			find: function( selector ){
 				return simpleCart.$( this.el.getElementsBySelector( selector ) );
+			} ,
+			closest: function( selector ){
+				return simpleCart.$( this.el.up( selector ) );
+			} ,
+			search: function( prefix ){
+				return this.find( "[class^=" + prefix + "]")
 			}
 			
 			
@@ -1060,6 +1105,12 @@ generateSimpleCart = function(space){
 			} ,
 			find: function( selector ){
 				return simpleCart.$( this.el.find( selector ) );
+			} ,
+			closest: function( selector ){
+				return simpleCart.$( this.el.closest( selector ) );
+			} ,
+			search: function( prefix ){
+				return this.find(":regex(class," + prefix + ")");
 			}
 			
 		}

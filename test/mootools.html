@@ -1,49 +1,20 @@
 <!DOCTYPE html>  
 <html>  
 <head>  
-    <title>simpleCart(js) - mootools - QUnit Test Suite</title>  
+    <title>simpleCart(js) - MooTools - QUnit Test Suite</title>  
     <link rel="stylesheet" href="css/qunit.css" type="text/css" media="screen">  
 
     <script type="text/javascript" src="inc/mootools-1.3.2-min.js"></script>  
 
 
-    <script type="text/javascript" src="https://raw.github.com/jquery/qunit/master/qunit/qunit.js"></script>  
 	<script>/*<![CDATA[*/!window.QUnit && document.write('<script src="inc/qunit.js"><\/script>')/*]]>*/</script>
-	
-   <!-- Your project file goes here -->  
+
+    <!-- Your project file goes here -->  
     <script type="text/javascript" src="../simpleCart.js"></script>  
     <!-- Your tests file goes here -->  
 
 	<script type="text/javascript">
-		simpleCart.email = "brett@wojodesign.com";
-		simpleCart.checkoutTo = PayPal;
-	//	simpleCart.merchantId = "118575326044237";
-	//	simpleCart.checkoutTo = GoogleCheckout;
-		simpleCart.currency = USD;
-	//	simpleCart.currency = GBP;
-	//  simpleCart.currency = EUR;
-		simpleCart.taxRate  = 0.08;
-	//	simpleCart.shippingFlatRate = 5.25;
-		simpleCart.shippingQuantityRate = 1.00;
-	/*	CartItem.prototype.shipping = function(){
-			if( this.size ){
-				switch( this.size.toLowerCase() ){
-					case 'small':
-						return this.quantity * 10.00;
-					case 'medium':
-						return this.quantity * 12.00;
-					case 'large':
-						return this.quantity * 15.00;
-					case 'bull':
-						return 45.00;
-					default:
-						return this.quantity * 5.00;
-				}
-			}
-		};
-	*/
-
-		simpleCart.cartHeaders = ["Thumb_image_noHeader", "Name" , "Size_input_div_div", "Price" , "decrement_noHeader" , "Quantity", "increment_noHeader", "remove_noHeader", "Total" ];
+	
 	</script>
 	
 	<style >
@@ -76,7 +47,7 @@
 	</style>
 
 
-</head>  
+</head>
 <body>  
 	
 	<h1 id="qunit-header">QUnit Test Suite</h1>  
