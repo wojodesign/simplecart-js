@@ -906,9 +906,11 @@ generateSimpleCart = function(space){
 			} ,
 			match: function(selector){
 				return this.el.match(selector);
+			} ,
+			parent: function(){
+				return simpleCart.$( this.el.getParent() );
 			}
 			
-			// TODO: mootools parent()
 		},
 		
 		"Prototype"		: {
@@ -985,8 +987,11 @@ generateSimpleCart = function(space){
 						}
 					});
 				}
+			} ,
+			parent: function(){
+				return simpleCart.$( this.el.up() );
 			}
-			// TODO: prototype parent()
+			
 			
 		},
 		

@@ -153,7 +153,6 @@ test("editing items", function(){
 			
 		var sc_demo = simpleCart.copy('sc_demo');
 		sc_demo.add({ name:"bob",price:34,size:"big"});
-		//same( test , array , "chunked array properly into 5 piece chunks");
 		
 	});
 	
