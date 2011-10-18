@@ -731,12 +731,120 @@ generateSimpleCart = function(space){
 		
 		
 		GoogleCheckout: function(opts){
-			// TODO: checkout to paypal
+			// account id is required
+			if( !opts.merchantID ){
+				return simpleCart.error("No merchant id provided for GoogleCheckout");
+			}
+			
+			// google only accepts USD and GBP
+			if( simpleCart.currency().code !== "USD" && simpleCart.currency().code !== "GBP"){
+				return simpleCart.error("Google Checkout only accepts USD and GBP");
+			}
+			
+			// build basic form options
+			var data = {
+					// TODO: better shipping support for this google
+					  ship_method_name_1	: "Shipping"
+					, ship_method_price_1	: simpleCart.shipping()
+					, ship_method_currency_1: simpleCart.currency().code
+					, _charset_				: ''
+				},
+				action = "https://checkout.google.com/api/checkout/v2/checkoutForm/Merchant/" + opts.merchantID,
+				method = opts.method === "GET" ? "GET" : "POST";
+	
+			
+			// add items to data
+			simpleCart.each(function(item,x){
+				var counter = x+1,
+					options_list = [];
+				data['item_name_' + counter ] 		= item.get('name');
+				data['item_quantity_' + counter ] 	= item.quantity();
+				data['item_price_' + counter ] 		= item.price();
+				data['item_currency_ ' + counter ] 	= simpleCart.currency().code
+				data['item_tax_rate' + counter ]	= item.get('taxRate') || simpleCart.taxRate();
+				
+				// create array of extra options
+				simpleCart.each( item.options() , function(val,x,attr){
+					// check to see if we need to exclude this from checkout
+					var send = true
+					simpleCart.each( settings.excludeFromCheckout , function(field_name){
+						if( field_name == attr ){ send = false; }
+					});
+					if( send ){
+						options_list.push( attr + ": " + val );
+					}
+				});
+				
+				// add the options to the description
+				data['item_description_' + counter ] = options_list.join(", ");
+			});
+			
+			generateAndSendForm({
+				  action	: action
+				, method	: method
+				, data		: data
+			});
+			
 		} ,
 		
 		
 		SendForm: function(opts){
-			// TODO: checkout to url
+			// url required
+			if( !opts.url ){
+				return simpleCart.error('URL required for SendForm Checkout');
+			}
+			
+			// build basic form options
+			var data = {
+					  currency	: simpleCart.shipping()
+					, shipping	: simpleCart.currency().code
+					, tax		: simpleCart.tax()
+				},
+				action = opts.url
+				method = opts.method === "GET" ? "GET" : "POST";
+	
+			
+			// add items to data
+			simpleCart.each(function(item,x){
+				var counter = x+1,
+					options_list = [];
+				data['item_name_' + counter ] 		= item.get('name');
+				data['item_quantity_' + counter ] 	= item.quantity();
+				data['item_price_' + counter ] 		= item.price();
+				
+				// create array of extra options
+				simpleCart.each( item.options() , function(val,x,attr){
+					// check to see if we need to exclude this from checkout
+					var send = true
+					simpleCart.each( settings.excludeFromCheckout , function(field_name){
+						if( field_name == attr ){ send = false; }
+					});
+					if( send ){
+						options_list.push( attr + ": " + val );
+					}
+				});
+				
+				// add the options to the description
+				data['item_options_' + counter ] = options_list.join(", ");
+			});
+			
+			
+		
+			// check for return and success URLs in the options
+			if( opts.success ){
+				data['return'] = opts.success;
+			}
+			if( opts.cancel ){
+				data['cancel_return'] = opts.cancel;
+			}
+
+			
+			generateAndSendForm({
+				  action	: action
+				, method	: method
+				, data		: data
+			});
+			
 		} ,
 		
 		
