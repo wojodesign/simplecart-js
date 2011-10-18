@@ -909,6 +909,9 @@ generateSimpleCart = function(space){
 			} ,
 			parent: function(){
 				return simpleCart.$( this.el.getParent() );
+			} ,
+			find: function( selector ){
+				return simpleCart.$( this.el.getSiblings( selector ) );
 			}
 			
 		},
@@ -990,7 +993,11 @@ generateSimpleCart = function(space){
 			} ,
 			parent: function(){
 				return simpleCart.$( this.el.up() );
+			} ,
+			find: function( selector ){
+				return simpleCart.$( this.el.getElementsBySelector( selector ) );
 			}
+			
 			
 			
 		},
@@ -1050,7 +1057,11 @@ generateSimpleCart = function(space){
 			} ,
 			parent: function( ){
 				return simpleCart.$(this.el.parent());
+			} ,
+			find: function( selector ){
+				return simpleCart.$( this.el.find( selector ) );
 			}
+			
 		}
 	};
 	ELEMENT._ = ELEMENT.prototype;
