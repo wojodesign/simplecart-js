@@ -76,7 +76,7 @@ generateSimpleCart = function(space){
 	
 	// default options
 	settings = {
-		  checkout				: { type: "PayPal" , email: "test@test.com" } 
+		  checkout				: { type: "PayPal" , email: "brett@wojodesign.com" } 
 		, currency				: "USD"
 		, language				: "english-us"
 		, cookieDuration		: 30 
@@ -92,7 +92,7 @@ generateSimpleCart = function(space){
 			, { view: "remove" , text: "Remove" , label: false }
 		]
 		
-		, excludeFromCheckout	: []
+		, excludeFromCheckout	: [ 'thumb' ]
 		
 		, shippingFlatRate		: 0
 		, shippingQuantityRate	: 0
@@ -378,6 +378,20 @@ generateSimpleCart = function(space){
 		}
 	});
 	
+	/*******************************************************************
+	 * 	TAX AND SHIPPING
+	 *******************************************************************/
+	simpleCart.extend({
+		
+		// TODO: tax and shipping
+		tax: function(){
+			return 0;
+		} ,
+		shipping: function(){
+			return 0;
+		}
+		
+	});
 	
 	/*******************************************************************
 	 * 	CART VIEWS
@@ -574,8 +588,13 @@ generateSimpleCart = function(space){
 			me.options = function(){
 				var data = {};
 				simpleCart.each(_data,function(val,x,label){
-					if( label !== 'quantity' && label !== 'id' && label !== 'item_number' && label !== 'price' && label !== 'name' ){
-						data[label] = val;
+					if( label !== 'quantity' && 
+						label !== 'id' && 
+						label !== 'item_number' && 
+						label !== 'price' && 
+						label !== 'name' &&
+						label !== 'shipping' ){
+						data[label] = me.get(label);
 					}
 				});
 				return data;
@@ -671,7 +690,8 @@ generateSimpleCart = function(space){
 			// add all the items to the form data
 			simpleCart.each(function(item,x){
 				var counter = x+1,
-					item_options = item.options();
+					item_options = item.options(),
+					optionCount = 0;
 					
 				// basic item data
 				data["item_name_" + counter ] = item.get("name");
@@ -682,14 +702,24 @@ generateSimpleCart = function(space){
 				// add the options
 				simpleCart.each( item_options , function(val,k,attr){
 					// paypal limits us to 10 options 
-					if( k < 10){
-						data["on" + k + "_" + x ] = attr;
-						data["os" + k + "_" + x ] = val;
+					if( k < 10 ){
+						
+						// check to see if we need to exclude this from checkout
+						var send = true
+						simpleCart.each( settings.excludeFromCheckout , function(field_name){
+							if( field_name == attr ){ send = false; }
+						});
+						if( send ){
+								optionCount++;
+								data["on" + k + "_" + counter ] = attr;
+								data["os" + k + "_" + counter ] = val;
+						}
+					
 					}
 				});
 				
 				// options count
-				data["option_index_"+ x ] = Math.min( 10 , item_options.length );
+				data["option_index_"+ x ] = Math.min( 10 , optionCount );
 			});
 			
 			generateAndSendForm({
@@ -727,6 +757,7 @@ generateSimpleCart = function(space){
 		form.remove();
 	};
 	
+	
 	simpleCart.extend({
 		checkout: function(){
 			if( settings.checkout.type.toLowerCase() === 'custom' && isFunction(settings.checkout.fn) ){
@@ -736,8 +767,13 @@ generateSimpleCart = function(space){
 			} else {
 				simpleCart.error("No Valid Checkout Method Specified");
 			}
+		} ,
+		extendCheckout: function( methods ){
+			return simpleCart.extend( simpleCart.checkout, checkoutMethods );
 		}
 	});
+	
+	simpleCart.extendCheckout( checkoutMethods );
 	
 	
 	
@@ -790,7 +826,7 @@ generateSimpleCart = function(space){
 	
 	
 	// basic simpleCart events
-	var emptyFunc = function(){} ,
+	var emptyFunc = function(){} , 
 		events = 	{ 'beforeAdd' 			: emptyFunc
 					, 'afterAdd' 			: emptyFunc
 					, 'load' 				: emptyFunc
@@ -800,7 +836,7 @@ generateSimpleCart = function(space){
 					, 'ready' 				: emptyFunc
 					, 'checkoutSuccess' 	: emptyFunc
 					, 'checkoutFail' 		: emptyFunc
-					, 'checkout'			: emptyFunc
+					, 'beforeCheckout'		: emptyFunc
 				};
 			
 	// extend events in options
