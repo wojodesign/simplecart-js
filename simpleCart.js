@@ -76,29 +76,33 @@ generateSimpleCart = function(space){
 	
 	// default options
 	settings = {
-		  checkout				: [ { type: "PayPal" , email: "test@test.com" } ]
+		  checkout				: { type: "PayPal" , email: "test@test.com" } 
 		, currency				: "USD"
 		, language				: "english-us"
-		, cookieDuration		: 30
-		
-		, paypalHTTPMethod		: "GET"
-		, paypalSandbox			: false
-		, storagePrefix			: "sc_"
-		
+		, cookieDuration		: 30 
+				
 		, cartStyle				: "table"
 		, cartColumns			: [
 			  { attr: "name" , label: "Name" }
 			, { attr: "price" , label: "Price", view: 'currency' }
-			, { attr: "size" , label: "Size" }
 			, { view: "decrement" , label: false }
-			, { attr: "quantity" , label: "Qty", view: 'input' }
+			, { attr: "quantity" , label: "Qty" }
 			, { view: "increment" , label: false }
 			, { attr: "total" , label: "SubTotal", view: 'currency' }
 			, { view: "remove" , text: "Remove" , label: false }
 		]
 		
 		, excludeFromCheckout	: []
-	
+		
+		, shippingFlatRate		: 0
+		, shippingQuantityRate	: 0
+		, shippingTotalRate		: 0
+		, shippingCustom		: null
+		
+		, taxRate				: [ 0.06 ]
+		
+		, cartInfo				: {}
+		
 		
 	}, 
 	
@@ -367,7 +371,11 @@ generateSimpleCart = function(space){
 					doScrollCheck();
 				}
 			}
-		} 
+		},
+		
+		error: function(message){
+			try{ console.log("simpleCart(js) Error: " + message ); } catch(e){}
+		}
 	});
 	
 	
@@ -563,6 +571,16 @@ generateSimpleCart = function(space){
 				});
 				return matches;
 			};
+			me.options = function(){
+				var data = {};
+				simpleCart.each(_data,function(val,x,label){
+					if( label !== 'quantity' && label !== 'id' && label !== 'item_number' && label !== 'price' && label !== 'name' ){
+						data[label] = val;
+					}
+				});
+				return data;
+			};
+			
 			
 			checkQuantityAndPrice();
 		};
@@ -612,6 +630,114 @@ generateSimpleCart = function(space){
 		}
 		
 	};
+	
+	
+	
+
+	/*******************************************************************
+	 * 	CHECKOUT MANAGEMENT
+	 *******************************************************************/
+	
+	var checkoutMethods = {
+		PayPal: function(opts){
+			// account email is required
+			if( !opts.email ){
+				return simpleCart.error("No email provided for PayPal checkout");
+			}
+			
+			// build basic form options
+			var data = {
+					  cmd			: "_cart"
+					, upload		: "1"
+					, currency_code	: simpleCart.currency().code
+					, business		: opts.email
+					, rm			: opts.method === "GET" ? "0" : "2"
+					, tax_cart		: simpleCart.tax()
+					, handling_cart : simpleCart.shipping()
+				},
+				action = opts.sandbox ? "https://www.sandbox.paypal.com/cgi-bin/webscr" : "https://www.paypal.com/cgi-bin/webscr",
+				method = opts.method === "GET" ? "GET" : "POST";
+	
+			
+			// check for return and success URLs in the options
+			if( opts.success ){
+				data['return'] = opts.success;
+			}
+			if( opts.cancel ){
+				data['cancel_return'] = opts.cancel;
+			}
+			
+			
+			// add all the items to the form data
+			simpleCart.each(function(item,x){
+				var counter = x+1,
+					item_options = item.options();
+					
+				// basic item data
+				data["item_name_" + counter ] = item.get("name");
+				data["quantity_" + counter ] = item.quantity();
+				data["amount_" + counter] = item.price();
+				data["item_number_" + counter ] = item.get("item_number") || counter;
+				
+				// add the options
+				simpleCart.each( item_options , function(val,k,attr){
+					// paypal limits us to 10 options 
+					if( k < 10){
+						data["on" + k + "_" + x ] = attr;
+						data["os" + k + "_" + x ] = val;
+					}
+				});
+				
+				// options count
+				data["option_index_"+ x ] = Math.min( 10 , item_options.length );
+			});
+			
+			generateAndSendForm({
+				  action	: action
+				, method	: method
+				, data		: data
+			});
+		} ,
+		
+		
+		GoogleCheckout: function(opts){
+			// TODO: checkout to paypal
+		} ,
+		
+		
+		SendForm: function(opts){
+			// TODO: checkout to url
+		} ,
+		
+		
+	} , 
+	
+	generateAndSendForm = function(opts){
+		var form = simpleCart.$create("form");
+		form.attr('style' , 'display:none;' );
+		form.attr('action', opts.action );
+		form.attr('method', opts.method );
+		simpleCart.each(opts.data, function(val , x , name ){
+			form.append( 
+				simpleCart.$create("input").attr("type","hidden").attr("name",name).val(val)
+			);
+		});
+		simpleCart.$("body").append(form);
+		form.el.submit();
+		form.remove();
+	};
+	
+	simpleCart.extend({
+		checkout: function(){
+			if( settings.checkout.type.toLowerCase() === 'custom' && isFunction(settings.checkout.fn) ){
+				settings.checkout.fn.call(simpleCart,settings.checkout)
+			} else if( isFunction( simpleCart.checkout[settings.checkout.type] ) ){
+				simpleCart.checkout[settings.checkout.type].call(simpleCart,settings.checkout);
+			} else {
+				simpleCart.error("No Valid Checkout Method Specified");
+			}
+		}
+	});
 	
 	
 	
