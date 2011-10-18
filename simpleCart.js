@@ -831,12 +831,15 @@ generateSimpleCart = function(space){
 				simpleCart.update();
 			}
 		}
+		/* remove from cart */
 		, {   selector: 'remove'
 			, event: 'click'
 		  	, callback: function(e){
 				simpleCart.find( simpleCart.$(this).parent().parent().attr('id').split("_")[1] ).remove();
 			}
 		}
+		
+		/* cart inputs */
 		, {   selector: 'input'
 			, event: 'change'
 		  	, callback: function(e){
@@ -853,6 +856,8 @@ generateSimpleCart = function(space){
 				});
 			}
 		}
+		
+		/* here is our shelfItem add to cart button listener */
 		, {   selector: 'shelfItem .item_add'
 			, event: 'click'
 		  	, callback: function(e){
@@ -861,7 +866,6 @@ generateSimpleCart = function(space){
 					
 				$button.closest("." + namespace + "_shelfItem" ).descendants().each(function(x,item){
 					var $item = simpleCart.$(item);
-					
 					
 					// check to see if the class matches the item_[fieldname] pattern
 					if( $item.attr("class") && 
