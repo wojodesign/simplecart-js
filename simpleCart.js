@@ -49,7 +49,7 @@ var	typeof_string			= typeof "",
 	
 	
 	
-simpleCart = (function(){	
+generateSimpleCart = function(space){	
 
 	// stealing this from selectivizr
 	var selectorEngines = {
@@ -65,7 +65,7 @@ simpleCart = (function(){
 	shelfitem_id			= 1,
 	shelfitem_id_namespace 	= "SCS-",
 	sc_items 				= {},
-	namespace 				= "simpleCart",
+	namespace 				= space || "simpleCart",
 	
 	
 	// Currencies
@@ -129,6 +129,15 @@ simpleCart = (function(){
 		}
 		return target;
 	};
+	
+	// create copy function
+	simpleCart.extend({
+		copy: function(n){
+			var cp = generateSimpleCart(n);
+			cp.init();
+			return cp;
+		}
+	});
 		
 	// add in the core functionality 	
 	simpleCart.extend({
@@ -1096,10 +1105,9 @@ simpleCart = (function(){
 	
 	
 	return simpleCart;
-}());
+};
 
 
-	
+window.simpleCart = generateSimpleCart();
 
-window.simpleCart = simpleCart;
 }(window));
