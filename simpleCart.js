@@ -89,6 +89,7 @@ generateSimpleCart = function(space){
 		, cartColumns			: [
 			  { attr: "name" , label: "Name" }
 			, { attr: "price" , label: "Price", view: 'currency' }
+			, { attr: "size" , label: "Size" }
 			, { view: "decrement" , label: false }
 			, { attr: "quantity" , label: "Qty", view: 'input' }
 			, { view: "increment" , label: false }
@@ -215,16 +216,9 @@ generateSimpleCart = function(space){
 
 			simpleCart.each(function(testItem){ 
 				matches = true;
-				simpleCart.each( item , function( value , x , field ){ 
-					if( field !== "quantity" && field !== "id" && item[field] !== testItem[field] ){
-						matches = false;
-					}
-				});
-
-				if( matches ){
+				if( testItem.equals( item ) ){
 					match = testItem;
 				}
-
 			});
 			return match;
 		},
@@ -507,12 +501,29 @@ generateSimpleCart = function(space){
 			}
 			
 			function checkQuantityAndPrice(){
-				if( _data.quantity <= 0 ){
-					me.remove();
+				
+				// check to make sure price is valid
+				if( isString(_data.price ) ){
+					_data.price = parseFloat( _data.price.replace(simpleCart.currency().symbol,"").replace(simpleCart.currency().delimiter,"") );
+				}
+				if( isNaN( _data.price ) ){
+					_data.price = 0;
 				}
 				if( _data.price < 0 ){
 					_data.price = 0;
 				}
+				
+				// check to make sure quantity is valid
+				if( isString( _data.quantity ) ){
+					_data.quantity = parseInt( _data.quantity.replace(simpleCart.currency().delimiter,"") );
+				}
+				if( isNaN( _data.quantity ) ){
+					_data.quantity = 1;
+				}
+				if( _data.quantity <= 0 ){
+					me.remove();
+				}
+			
 			}
 		
 			// getter and setter methods to access private variables
@@ -534,12 +545,26 @@ generateSimpleCart = function(space){
 			};
 			me.set = function( name , value ){
 				if( !isUndefined( name ) ){
-					_data[name] = value;
+					_data[name.toLowerCase()] = value;
+					if( name.toLowerCase() === 'price' || name.toLowerCase() === 'quantity' ){
+						checkQuantityAndPrice();
+					}
 				}
-				checkQuantityAndPrice();
 				return me;
 			};
-			me.checkQuantityAnd
+			me.equals = function( item ){
+				var matches = true;
+				simpleCart.each(_data,function(val,x,label){
+					if( label !== 'quantity' && label !== 'id' ){
+						if( item.get(label) != val ){
+							return matches = false;
+						}
+					}
+				});
+				return matches;
+			};
+			
+			checkQuantityAndPrice();
 		};
 	
 	Item._ = Item.prototype = {
@@ -575,7 +600,9 @@ generateSimpleCart = function(space){
 			return isUndefined( val ) ? parseInt( this.get("quantity",true) || 1 , 10 ) : this.set("quantity", val );
 		},
 		price: function( val ){
-			return isUndefined( val ) ? parseFloat(  this.get("price",true) || 1 ) : this.set("price", val );
+			return isUndefined( val ) ? 
+					parseFloat( (""+this.get("price",true)).replace(simpleCart.currency().symbol,"").replace(simpleCart.currency().delimiter,"") || 1 ) : 
+					this.set("price", parseFloat( (""+val).replace(simpleCart.currency().symbol,"").replace(simpleCart.currency().delimiter,"") ) ) ;
 		},
 		id: function(){
 			return this.get( 'id',false );
@@ -717,7 +744,7 @@ generateSimpleCart = function(space){
 				currencies[currency.code] = currency;
 				settings.currency = currency.code;
 			} else {
-				return settings.currency;
+				return currencies[settings.currency];
 			}
 		}
 	});
@@ -832,29 +859,40 @@ generateSimpleCart = function(space){
 				var $button = simpleCart.$(this),
 					fields = {};
 					
-				$button.closest("." + namespace + "_shelfItem" ).search("item_.+").each(function(item,x){
-					if( !item.hasClass('item_add') ){
-						simpleCart.each( item.attr('class').split(' ') , function( klass , x ){
+				$button.closest("." + namespace + "_shelfItem" ).descendants().each(function(x,item){
+					var $item = simpleCart.$(item);
+					
+					
+					// check to see if the class matches the item_[fieldname] pattern
+					if( $item.attr("class") && 
+						$item.attr("class").match(/item_.+/) && 
+						!$item.attr('class').match(/item_add/) ){
+							
+						// find the class name 
+						simpleCart.each( $item.attr('class').split(' ') , function( klass , y ){
+							
+							// get the value or text depending on the tagName
 							if( klass.match(/item_.+/) ){
 								var attr = klass.split("_")[1],
 									val = "";
-								switch( item.tag() ){
+								switch( $item.tag().toLowerCase() ){
 									case "input":
 									case "checkbox":
 									case "textarea":
 									case "select":
-										val = item.val();
+										val = $item.val();
 										break;
 									default:
-										val = item.html();
+										val = $item.text();
 										break;
 								}
-								fields[attr] = val;
+								fields[attr.toLowerCase()] = val;
 							}
 						});
 					}
 				});
 				
+				// add the item
 				simpleCart.add(fields);
 			}
 		}
@@ -943,13 +981,16 @@ generateSimpleCart = function(space){
 				return simpleCart.$( this.el.getParent() );
 			} ,
 			find: function( selector ){
-				return simpleCart.$( this.el.getSiblings( selector ) );
+				return simpleCart.$( this.el.getElements( selector ) );
 			} ,
 			closest: function( selector ){
 				return simpleCart.$( this.el.getParent( selector ) );
 			} ,
-			search: function( prefix ){
-				return this.find( "[class^=" + prefix + "]");
+			descendants: function(){
+				return this.find("*");
+			} ,
+			tag: function(){
+				return this.el[0].tagName;
 			}
 			
 			
@@ -1039,8 +1080,11 @@ generateSimpleCart = function(space){
 			closest: function( selector ){
 				return simpleCart.$( this.el.up( selector ) );
 			} ,
-			search: function( prefix ){
-				return this.find( "[class^=" + prefix + "]")
+			descendants: function(){
+				return simpleCart.$( this.el.descendants() );
+			} ,
+			tag: function( ){
+				return this.el.tagName;
 			}
 			
 			
@@ -1109,9 +1153,13 @@ generateSimpleCart = function(space){
 			closest: function( selector ){
 				return simpleCart.$( this.el.closest( selector ) );
 			} ,
-			search: function( prefix ){
-				return this.find(":regex(class," + prefix + ")");
+			tag: function(){
+				return this.el[0].tagName;
+			} ,
+			descendants: function(){
+				return simpleCart.$(this.el.find("*") );
 			}
+			
 			
 		}
 	};
