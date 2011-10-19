@@ -330,7 +330,7 @@ generateSimpleCart = function(space){
 				
 		// view management
 		$: function( selector ){
-			return new simpleCart.ELEMENT( simpleCart.$engine( selector ), selector );
+			return new simpleCart.ELEMENT( selector );
 		},
 		
 		$create: function( tag ){
@@ -487,14 +487,20 @@ generateSimpleCart = function(space){
 	simpleCart.extend({		
 		
 		// write out cart
-		writeCart: function(){
+		writeCart: function( selector ){
 			var TABLE = settings.cartStyle,
 				isTable = TABLE === 'table',
 				TR = isTable ? "tr" : "div",
 				TH = isTable ? 'th' : 'div',
 				TD = isTable ? 'td' : 'div',
 				cart_container = simpleCart.$create( TABLE ),
-				header_container = simpleCart.$create( TR ).addClass('headerRow');
+				header_container = simpleCart.$create( TR ).addClass('headerRow'),
+				container = simpleCart.$( selector );
+				
+			container.append( cart_container );
+			
+			cart_container.append( header_container );
+				
 				
 			// create header 
 			for( var x=0,xlen = settings.cartColumns.length; x<xlen; x++ ){
@@ -507,21 +513,22 @@ generateSimpleCart = function(space){
 					simpleCart.$create( TH ).addClass( klass ).html( label )
 				);
 			}
-			cart_container.append( header_container );
 			
 			// cycle through the items
 			simpleCart.each( function( item, y ){
-				cart_container.append( simpleCart.createCartRow( item , y , TR , TD ) );
+				simpleCart.createCartRow( item , y , TR , TD , cart_container );
 			});
 			
 			return cart_container;
 		},
 		
 		// generate a cart row from an item
-		createCartRow: function( item , y , TR , TD ){
+		createCartRow: function( item , y , TR , TD , container ){
 			var row = simpleCart.$create( TR )
 								.addClass( 'itemRow row-' + y + " " + ( y%2 ? "even" : "odd" )  )
 								.attr('id' , "cartItem_" + item.id() );
+								
+			container.append( row );
 				
 			// cycle through the columns to create each cell for the item
 			for( var j=0,jlen=settings.cartColumns.length; j<jlen; j++ ){
@@ -1122,10 +1129,10 @@ generateSimpleCart = function(space){
 
 		// set function return to outlet
 		setOutlet: function( selector , func ){
-			var val = func.call( simpleCart );
-			if( val.el ){
+			var val = func.call( simpleCart , selector );
+			if( isObject( val ) && val.el ){
 				simpleCart.$( selector ).html( ' ' ).append( val );
-			} else {
+			} else if( val ){
 				simpleCart.$( selector ).text( val );
 			}
 		},
@@ -1155,8 +1162,8 @@ generateSimpleCart = function(space){
 			} 
 		}
 		, {   selector: 'items'
-		 	, callback: function(){
-				return simpleCart.writeCart();
+		 	, callback: function( selector ){
+				simpleCart.writeCart( selector );
 			} 
 		}
 		, {   selector: 'tax'
@@ -1283,8 +1290,9 @@ generateSimpleCart = function(space){
 
 	
 	// class for wrapping DOM selector shit
-	var ELEMENT = simpleCart.ELEMENT = function( el , selector ){
-		this.el = el;
+	var ELEMENT = simpleCart.ELEMENT = function( selector ){
+		
+		this.create( selector );
 		this.selector = selector || null; // "#" + this.attr('id'); TODO: test length?
 	},
 	
@@ -1325,6 +1333,10 @@ generateSimpleCart = function(space){
 				this.el.removeClass( klass );
 				return this;
 			} ,
+			append: function( item ){
+				this.el.grab( item.el || item );
+				return this;
+			} ,
 			each: function (callback){
 				if( isFunction(callback) ){
 					simpleCart.each( this.el , callback );
@@ -1347,7 +1359,7 @@ generateSimpleCart = function(space){
 			live: function(	event,callback ){
 				var selector = this.selector;
 				if( isFunction( callback) ){
-					simpleCart.$(document).addEvent( event , function(e){
+					simpleCart.$(document).el.addEvent( event , function(e){
 						var target = simpleCart.$(e.target);
 						if( target.match(selector) ){
 							callback.call( target , e );
@@ -1372,6 +1384,11 @@ generateSimpleCart = function(space){
 			} ,
 			tag: function(){
 				return this.el[0].tagName;
+			} ,
+			
+			
+			create: function( selector ){
+				
 			}
 			
 			
@@ -1403,6 +1420,18 @@ generateSimpleCart = function(space){
 					});
 					return this;
 				}
+			} ,
+			append: function( item ){
+				this.each(function(e,x){
+					if( item.el ){
+						item.each(function(e2,x2){
+							e.appendChild( e2 );
+						});
+					} else if( isElement( item ) ){
+						e.appendChild(item);
+					}
+				});
+				return this;
 			} ,
 			remove: function(){
 				this.each(function(e,x){
@@ -1466,6 +1495,15 @@ generateSimpleCart = function(space){
 			} ,
 			tag: function( ){
 				return this.el.tagName;
+			} ,
+			
+			
+			create: function(selector){
+				if( isString( selector ) ){
+					this.el = simpleCart.$engine(selector);
+				} else if( isElement( selector) ){
+					this.el = [selector];
+				}
 			}
 			
 			
@@ -1539,6 +1577,11 @@ generateSimpleCart = function(space){
 			} ,
 			descendants: function(){
 				return simpleCart.$(this.el.find("*") );
+			} ,
+			
+			
+			create: function(selector){
+				this.el = simpleCart.$engine( selector );
 			}
 			
 			
