@@ -47,7 +47,7 @@
 	</style>
 
 
-</head>
+</head>  
 <body>  
 	
 	<h1 id="qunit-header">QUnit Test Suite</h1>  
@@ -98,7 +98,13 @@
 		<li>
 			<h2>Baby Lion</h2>
 			<div>$34.95</div>
-			<a href="javascript:;" onclick="simpleCart.add('name=baby lion', 'price=34.95','size=tiny','quantity=1','thumb=e.png');" >add to cart</a>
+			<a href="javascript:;" onclick="simpleCart.add({name:'baby lion', price: 34.95,size:'tiny',thumb:'e.png'});" >add to cart</a>
+		</li>
+		
+		<li>
+			<h2>sc Demo Baby Lion</h2>
+			<div>$34.95</div>
+			<a href="javascript:;" onclick="sc_demo.add({name:'baby lion', price: 34.95,size:'tiny',thumb:'e.png'});" >add to cart</a>
 		</li>
 
 	</ul>
@@ -107,12 +113,16 @@
 	</div>
 
 
+	<div class="sc_demo_items" >
+	</div>
+
 	<br />
 	SubTotal: <span class="simpleCart_total"></span> <br />
-	Tax: <span class="simpleCart_taxCost"></span> <br />
-	Shipping: <span class="simpleCart_shippingCost"></span> <br />
+	Tax Rate: <span class="simpleCart_taxRate"></span> <br />
+	Tax: <span class="simpleCart_tax"></span> <br />
+	Shipping: <span class="simpleCart_shipping"></span> <br />
 	-----------------------------<br />
-	Final Total: <span class="simpleCart_finalTotal"></span> <br />
+	Final Total: <span class="simpleCart_grandTotal"></span> <br />
 
 	<a href="javascript:;" class="simpleCart_checkout">checkout</a>	
 	
