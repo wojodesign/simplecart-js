@@ -242,6 +242,36 @@ test("editing items", function(){
 		simpleCart.empty()
 		
 	});
+	
+	
+	module('simpleCart.find');
+	test("simpleCart.find() function works", function(){
+			
+		simpleCart.empty();
+		var bob = simpleCart.add({name: "bob" , price: 2 , color:'blue' , size: 6 }),
+			joe = simpleCart.add({name: "joe" , price: 3 , color:'orange' , size: 3 }),
+			jeff = simpleCart.add({name: "jeff" , price: 4 , color:'blue' , size: 4 }),
+			bill = simpleCart.add({name: "bill" , price: 5 , color:'red' , size: 5 }),
+		
+		 	orange_items = simpleCart.find({ color: 'orange' }),
+			expensive = simpleCart.find({ price: '>=4' }),
+			small = simpleCart.find({ size: '<5' }),
+			bob_search = simpleCart.find({ name: "bob" }),
+			blue_and_big = simpleCart.find({ color: 'blue', size: '>4' });
+			
+			
+		
+			
+		
+		same( simpleCart.find(bob.id()).id() , bob.id() , "Searching with id works");
+		same( orange_items[0].id() , joe.id() , "Searching with string = val works");
+		same( expensive[0].id() , jeff.id(), "Searching >= works");
+		same( small[0].id() , joe.id(), "Searching < works");
+		same( bob_search[0].id() , bob.id(), "Searching by name works");
+		same( blue_and_big[0].id() , bob.id(), "Searching on multiple indices works");
+				
+	});
+	
 /*	
 	module('update view');
 	test("cart row input event property" , function(){

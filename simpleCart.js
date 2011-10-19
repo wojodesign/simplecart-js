@@ -207,8 +207,68 @@ generateSimpleCart = function(space){
 		},
 		
 		find: function( id ){
-			// TODO: bad ass finder
-			return sc_items[id];
+			
+			// return object for id if it exists
+			if( isObject(sc_items[id] ) ){
+				return sc_items[id];
+				
+			// search through items with the given criteria
+			} else if( isObject(id) ){
+				var items = [];
+				simpleCart.each(function(item){
+					var match = true;
+					simpleCart.each( id, function(val,x,attr){
+						
+						
+						if( isString(val) ){
+							// less than or equal to
+							if( val.match(/<=.*/) ){
+								val = parseFloat( val.replace('<=','') );
+								if( !(item.get(attr) && parseFloat(item.get(attr)) <= val ) ){
+									match = false;
+								}
+							
+							// less than
+							} else if( val.match(/</)){
+								val = parseFloat( val.replace('<','') );
+								if( !(item.get(attr) && parseFloat(item.get(attr)) < val ) ){
+									match = false;
+								}
+						
+							// greater than or equal to
+							} else if( val.match(/>=/)){
+								val = parseFloat( val.replace('>=','') );
+								if( !(item.get(attr) && parseFloat(item.get(attr)) >= val ) ){
+									match = false;
+								}
+						
+							// greater than
+							} else if( val.match(/>/)){
+								val = parseFloat( val.replace('>','') );
+								if( !(item.get(attr) && parseFloat(item.get(attr)) > val ) ){
+									match = false;
+								}
+								
+							// equal to
+							} else if( !(item.get(attr) && item.get(attr) == val ) ){
+								match = false;
+							}
+							
+						// equal to non string
+						} else if( !(item.get(attr) && item.get(attr) == val ) ){
+							match = false;
+						}
+						
+						return match;
+					});
+					
+					// add the item if it matches
+					if( match ){
+						items.push( item );
+					}
+				});
+				return items;
+			}
 		},
 		
 		// check to see if item is in the cart already
