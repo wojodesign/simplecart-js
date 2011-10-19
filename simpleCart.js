@@ -438,7 +438,14 @@ generateSimpleCart = function(space){
 		},
 		
 		error: function(message){
-			try{ console.log("simpleCart(js) Error: " + message ); } catch(e){}
+			var msg = "";
+			if( isString(message) ){
+				msg = message;
+			} else if( isObject(message) && isString( message.message ) ){
+				msg = message.message;
+			}
+			try{ console.log("simpleCart(js) Error: " + msg ); } catch(e){}
+			simpleCart.trigger('error' , message );
 		}
 	});
 	
@@ -816,6 +823,8 @@ generateSimpleCart = function(space){
 				data["option_index_"+ x ] = Math.min( 10 , optionCount );
 			});
 			
+			simpleCart.trigger('beforeCheckout', [ data ] );
+			
 			generateAndSendForm({
 				  action	: action
 				, method	: method
@@ -872,6 +881,8 @@ generateSimpleCart = function(space){
 				// add the options to the description
 				data['item_description_' + counter ] = options_list.join(", ");
 			});
+			
+			simpleCart.trigger('beforeCheckout', [ data ] );
 			
 			generateAndSendForm({
 				  action	: action
@@ -940,6 +951,8 @@ generateSimpleCart = function(space){
 				data['item_description_' + counter ] = options_list.join(", ");
 			});
 			
+			simpleCart.trigger('beforeCheckout', [ data ] );
+			
 			generateAndSendForm({
 				  action	: action
 				, method	: method
@@ -1004,6 +1017,8 @@ generateSimpleCart = function(space){
 			if( opts.extra_data ){
 				data = simpleCart.extend(data,opts.extra_data);
 			}
+			
+			simpleCart.trigger('beforeCheckout', [ data ] );
 			
 			generateAndSendForm({
 				  action	: action
@@ -1192,9 +1207,9 @@ generateSimpleCart = function(space){
 	var outletAndInputFunctions = {
 		// bind outlets to function
 		bindOutlets: function( outlets ){
-			simpleCart.each( outlets , function( info , x ){
+			simpleCart.each( outlets , function( callback , x , selector ){
 				simpleCart.bind( 'update' , function(){
-					simpleCart.setOutlet( "." + namespace + "_" + info.selector , info.callback );
+					simpleCart.setOutlet( "." + namespace + "_" + selector , callback );
 				});
 			});
 		},
@@ -1222,43 +1237,29 @@ generateSimpleCart = function(space){
 		}
 	} ,
 	
-	outlets = [
-		{ 	  selector: 'total' 
-		  	, callback: function(){
-				return simpleCart.toCurrency( simpleCart.total() );
-		    } 
+	outlets = {
+		total: function(){
+			return simpleCart.toCurrency( simpleCart.total() );
+		} 
+		, quantity: function(){
+			return simpleCart.quantity();
 		}
-		, {   selector: 'quantity'
-		  	, callback: function(){
-				return simpleCart.quantity();
-			} 
+		, items: function( selector ){
+			simpleCart.writeCart( selector );
 		}
-		, {   selector: 'items'
-		 	, callback: function( selector ){
-				simpleCart.writeCart( selector );
-			} 
+		, tax: function(){
+			return simpleCart.toCurrency( simpleCart.tax() );
 		}
-		, {   selector: 'tax'
-		 	, callback: function(){
-				return simpleCart.toCurrency( simpleCart.tax() );
-			} 
+		, taxRate: function(){
+			return simpleCart.taxRate().toFixed();
 		}
-		, {   selector: 'taxRate'
-		 	, callback: function(){
-				return simpleCart.taxRate().toFixed();
-			} 
+		, shipping: function(){
+			return simpleCart.toCurrency( simpleCart.shipping() );
 		}
-		, {   selector: 'shipping'
-		 	, callback: function(){
-				return simpleCart.toCurrency( simpleCart.shipping() );
-			} 
+		, grandTotal: function(){
+			return simpleCart.toCurrency( simpleCart.grandTotal() );
 		}
-		, {   selector: 'grandTotal'
-		 	, callback: function(){
-				return simpleCart.toCurrency( simpleCart.grandTotal() );
-			} 
-		}
-	],
+	},
 	
 	inputs = [
 		{ 	  selector: 'checkout' 
