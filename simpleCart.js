@@ -1000,6 +1000,9 @@ generateSimpleCart = function(space){
 				data['cancel_return'] = opts.cancel;
 			}
 
+			if( opts.extra_data ){
+				data = simpleCart.extend(data,opts.extra_data);
+			}
 			
 			generateAndSendForm({
 				  action	: action
