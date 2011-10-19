@@ -882,6 +882,74 @@ generateSimpleCart = function(space){
 		} ,
 		
 		
+		AmazonPayments: function(opts){
+			// required options 
+			if( !opts.merchant_signature ){
+				return simpleCart.error("No merchant signature provided for Amazong Payments");
+			}
+			if( !opts.merchant_id ){
+				return simpleCart.error("No merchant id provided for Amazong Payments");
+			}
+			if( !opts.aws_access_key_id ){
+				return simpleCart.error("No AWS access key id provided for Amazong Payments");
+			}
+			
+			
+			// build basic form options
+			var data = {
+					  aws_access_key_id: 	opts.aws_access_key_id
+					, merchant_signature: 	opts.merchant_signature
+					, currency_code: 		simpleCart.currency().code
+					, tax_rate: 			simpleCart.taxRate()
+					, weight_unit: 			opts.weight_unit || 'lb'
+				},
+				action = "https://payments" + (opts.sandbox ? "-sandbox" : "" ) + ".amazon.com/checkout/" + opts.merchant_id,
+				method = opts.method === "GET" ? "GET" : "POST";
+	
+			
+			// add items to data
+			simpleCart.each(function(item,x){
+				var counter = x+1,
+					options_list = [];
+				data['item_title_' + counter ] 			= item.get('name');
+				data['item_quantity_' + counter ] 		= item.quantity();
+				data['item_price_' + counter ] 			= item.price();
+				data['item_sku_ ' + counter ] 			= item.get('sku') || item.id();
+				data['item_merchant_id_' + counter ]	= opts.merchant_id;
+				if( item.get('weight') ){
+					data['item_weight_' + counter ] 	= item.get('weight');
+				}
+				if( settings.shippingQuantityRate ){
+					data['shipping_method_price_per_unit_rate_' + counter ]	= settings.shippingQuantityRate;
+				}
+				
+				
+				// create array of extra options
+				simpleCart.each( item.options() , function(val,x,attr){
+					// check to see if we need to exclude this from checkout
+					var send = true
+					simpleCart.each( settings.excludeFromCheckout , function(field_name){
+						if( field_name == attr ){ send = false; }
+					});
+					if( send && attr != 'weight' && attr != 'tax' ){
+						options_list.push( attr + ": " + val );
+					}
+				});
+				
+				// add the options to the description
+				data['item_description_' + counter ] = options_list.join(", ");
+			});
+			
+			generateAndSendForm({
+				  action	: action
+				, method	: method
+				, data		: data
+			});
+		
+			
+		} ,
+		
+		
 		SendForm: function(opts){
 			// url required
 			if( !opts.url ){
