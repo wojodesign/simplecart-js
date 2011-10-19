@@ -99,7 +99,7 @@ generateSimpleCart = function(space){
 		, shippingTotalRate		: 0
 		, shippingCustom		: null
 		
-		, taxRate				: [ 0.06 ]
+		, taxRate				: 0
 		
 		, cartInfo				: {}
 		
@@ -385,10 +385,22 @@ generateSimpleCart = function(space){
 		
 		// TODO: tax and shipping
 		tax: function(){
-			return 0;
+			return simpleCart.taxRate()*simpleCart.total();
 		} ,
+		taxRate: function(){
+			return settings.taxRate || 0;
+		} , 
+		
 		shipping: function(){
-			return 0;
+			var cost = 0 + 	settings.shippingFlatRate +
+							settings.shippingQuantityRate*simpleCart.quantity() +
+							settings.shippingTotalRate*simpleCart.total() + 
+							isFunction( settings.shippingCustom ) ? settings.shippingCustom.call( simpleCart ) : 0 ;
+			
+			simpleCart.each(function(item){
+				cost += parseFloat( item.get('tax') || ( item.get('taxRate') ? item.get('taxRate')*item.total() : 0 ) );
+			});
+			return parseFloat( cost );
 		}
 		
 	});
