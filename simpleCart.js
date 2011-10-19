@@ -1334,7 +1334,7 @@ generateSimpleCart = function(space){
 				return this;
 			} ,
 			append: function( item ){
-				this.el.grab( item.el || item );
+				this.el.adopt(item.el);
 				return this;
 			} ,
 			each: function (callback){
@@ -1388,7 +1388,7 @@ generateSimpleCart = function(space){
 			
 			
 			create: function( selector ){
-				
+				this.el = simpleCart.$engine( selector );
 			}
 			
 			
