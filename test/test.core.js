@@ -157,6 +157,91 @@ test("editing items", function(){
 	});
 	
 	
+	
+	
+	module('tax and shipping');
+	test("simpleCart.copy() function works", function(){
+			
+		simpleCart.empty();
+		simpleCart({
+			taxRate: 0.06 ,
+			shippingFlatRate: 20
+		});
+		
+		simpleCart.add({name: "bob" , price: 2 });
+		
+		same( simpleCart.taxRate() , 0.06 , "Tax Rate saved properly");
+		same( simpleCart.tax() , 0.06*2 , "Tax Cost Calculated properly");
+		same( simpleCart.shipping() , 20 , "Flat Rate shipping works");
+		
+		
+		simpleCart({
+			shippingQuantityRate: 3
+		});
+		
+		same( simpleCart.shipping() , 20 + 1*3 , "Shipping Quantity Rate works");
+		
+		simpleCart({
+			shippingTotalRate: 0.1
+		});
+		
+		
+		same( simpleCart.shipping() , 20 + 1*3 + 0.1*2 , "Shipping Quantity Rate works");
+		
+		
+		simpleCart({
+			shippingFlatRate: 0 ,
+			shippingQuantityRate: 0 ,
+			shippingTotalRate: 0 ,
+			taxRate: 0 ,
+			shippingCustom: function(){
+				return 45;
+			}
+		});
+		
+		simpleCart.empty();
+		same( simpleCart.shipping() ,  45 , "Custom Shipping works");
+		
+		simpleCart.add({name:"cool",price:1,shipping:45});
+		same( simpleCart.shipping() ,  90 , "item shipping field works");
+		
+		simpleCart.Item._.shipping = function(){
+			if( this.get('name') === 'cool'){
+				return 5;
+			} else {
+				return 1;
+			}
+		};
+		
+		simpleCart.empty();
+		simpleCart.add({name:'cool',price:2});
+		simpleCart.add({name:'bob',price:3});
+		simpleCart.add({name:'weird',price:3});
+		simpleCart({
+			shippingCustom: null
+		});
+		same( simpleCart.shipping() ,  7 , "Item shipping prototype function works");
+		
+		
+		
+		simpleCart.empty();
+		simpleCart.add({name:"cool",price:2,taxRate:0.05});
+		same( simpleCart.tax() ,  2*0.05 , "Individual item tax rate works");
+		
+		
+		simpleCart.empty();
+		simpleCart.add({name:"cool",price:2,tax:1});
+		same( simpleCart.tax() ,  1 , "Individual item tax cost works");
+		
+		simpleCart.empty();
+		simpleCart.add({name:"cool",price:2,tax:function(){
+			return this.price()*0.1;
+		}});
+		same( simpleCart.tax() , 0.2, "individual tax cost function works");
+		
+		simpleCart.empty()
+		
+	});
 /*	
 	module('update view');
 	test("cart row input event property" , function(){

@@ -385,7 +385,15 @@ generateSimpleCart = function(space){
 		
 		// TODO: tax and shipping
 		tax: function(){
-			return simpleCart.taxRate()*simpleCart.total();
+			var cost = simpleCart.taxRate()*simpleCart.total();
+			simpleCart.each(function(item){
+				if( item.get('tax') ){
+					cost+= item.get('tax');
+				} else if (item.get('taxRate') ){
+					cost += item.get('taxRate')*item.total();
+				}
+			});
+			return parseFloat( cost );
 		} ,
 		taxRate: function(){
 			return settings.taxRate || 0;
@@ -394,11 +402,14 @@ generateSimpleCart = function(space){
 		shipping: function(){
 			var cost = 0 + 	settings.shippingFlatRate +
 							settings.shippingQuantityRate*simpleCart.quantity() +
-							settings.shippingTotalRate*simpleCart.total() + 
-							isFunction( settings.shippingCustom ) ? settings.shippingCustom.call( simpleCart ) : 0 ;
+							settings.shippingTotalRate*simpleCart.total();
+							
+			if( isFunction( settings.shippingCustom ) ){
+				cost += settings.shippingCustom.call( simpleCart );
+			}
 			
 			simpleCart.each(function(item){
-				cost += parseFloat( item.get('tax') || ( item.get('taxRate') ? item.get('taxRate')*item.total() : 0 ) );
+				cost += parseFloat( item.get('shipping') || 0  );
 			});
 			return parseFloat( cost );
 		}
@@ -857,10 +868,10 @@ generateSimpleCart = function(space){
 				, data		: data
 			});
 			
-		} ,
+		} 
 		
 		
-	} , 
+	} ,
 	
 	generateAndSendForm = function(opts){
 		var form = simpleCart.$create("form");
