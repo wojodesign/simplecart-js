@@ -54,15 +54,6 @@ test("editing items", function(){
 });
 
 
-module('DOM functions');
-test("editing items", function(){	
-
-	
-
-
-});
-
-	module('simpleCart core functions');
 	test("simpleCart.chunk() function works", function(){
 		
 		var str = "11111" + "11111" + "11111" + "11111" + "11111",
@@ -148,7 +139,6 @@ test("editing items", function(){
 	
 	
 
-	module('simpleCart copy function');
 	test("simpleCart.copy() function works", function(){
 			
 		var sc_demo = simpleCart.copy('sc_demo');
@@ -160,7 +150,7 @@ test("editing items", function(){
 	
 	
 	module('tax and shipping');
-	test("simpleCart.copy() function works", function(){
+	test("shipping works", function(){
 			
 		simpleCart.empty();
 		simpleCart({
@@ -222,8 +212,23 @@ test("editing items", function(){
 		});
 		same( simpleCart.shipping() ,  7 , "Item shipping prototype function works");
 		
+	});
+	test("tax works", function(){
+		
+		simpleCart.empty();
+		simpleCart({
+			taxRate: 0.06 
+		});
+
+		simpleCart.add({name: "bob" , price: 2 });
+
+		same( simpleCart.taxRate() , 0.06 , "Tax Rate saved properly");
+		same( simpleCart.tax() , 0.06*2 , "Tax Cost Calculated properly");
 		
 		
+		simpleCart({
+			taxRate: 0 
+		});
 		simpleCart.empty();
 		simpleCart.add({name:"cool",price:2,taxRate:0.05});
 		same( simpleCart.tax() ,  2*0.05 , "Individual item tax rate works");
@@ -272,131 +277,3 @@ test("editing items", function(){
 				
 	});
 	
-/*	
-	module('update view');
-	test("cart row input event property" , function(){
-		var info = ['size' , 'input'],
-			item = {
-				  id: 'c9'
-				, size: 'small'
-			},
-			output = simpleCart.createCartRow( info , item , null );
-			
-		same( output , "<input type=\"text\" value=\"small\" onchange=\"simpleCart.items['c9'].set('size' , this.value);\" />", 'onchange event has expected format' );
-	});
-	
-	
-	
-	
-	
-	module('price handling');
-	test('non number prices interpretted as 0', function(){
-		same( simpleCart.valueToCurrencyString( 'wers' ) , simpleCart.valueToCurrencyString( '0' ) , 'NaN converted to 0 for output');
-		
-	});
-	
-	
-	module("saving/removing items");
-	test('items not overwritten because of duplicate id', function(){
-		//simpleCart.empty();
-		simpleCart.nextId=99;
-		simpleCart.add("name=Bob","price=13.00");
-		simpleCart.nextId=99;
-		simpleCart.add("name=Joe","price=13.00");
-		same( simpleCart.items['c99'].name , "Bob" , "Item not overwritten" );
-	});
-	
-	
-	test('return item after adding to cart', function(){
-		
-		var item = simpleCart.add("name=Jeff","price=14.00");
-		same( item.name , "Jeff" , "Name is the same" );
-		same( simpleCart.items[ item.id ] , item , "Item accessible by id in simpleCart.items" );
-		item.remove();
-		same( simpleCart.items[ item.id ] , undefined , "Item removed properly with pointer");
-		
-	});
-	
-	test('special characters removed from new item', function(){
-		
-		var item = simpleCart.add("name=Bill~","price=1422.00");
-		same( item.name , "Bill" , "~ removed from new item" );
-		item.set( 'name' , "Nick=");
-		same( item.name , "Nick" , "= removed from item update" );
-		item.set( 'name' , "John~");
-		same( item.name , "John" , "~ removed from item update" );
-		
-	});
-	
-	
-	test('duplicate items increase quantity', function(){
-		
-		
-		var before = 0,
-			before_q,
-			before_iq,
-			after = 0,
-		 	item;
-		
-		item = simpleCart.add("name=Jorge","price=1.00");
-		
-		simpleCart.each(function(item,x){
-			before++;
-		});
-		before_iq = item.quantity;
-		before_q = simpleCart.quantity;
-		
-		item = simpleCart.add("name=Jorge","price=1.00");
-		
-		simpleCart.each(function(item,x){
-			after++;
-		});
-		
-		same( before , after , "individual item count remains the same" );
-		same( simpleCart.quantity , before_q+1, "cart quantity increased" );
-		same( item.quantity , before_iq+1, "item quantity increased" );
-	});
-	
-	
-	module("updating items");
-	test('updates to quantity using item.set() with number value work', function(){
-		//simpleCart.empty();
-		var item = simpleCart.add("name=Cool Tshirt","price=132.00");
-		item.set( 'quantity' , 30 );
-		same( item.quantity , 30 , "Quantity with number properly updated" );
-	});
-	
-	test('updates to quantity using item.set() with string value work', function(){
-		//simpleCart.empty();
-		var item = simpleCart.add("name=Cool Tshirt","price=132.00");
-		item.set( 'quantity' , "30" );
-		same( item.quantity , 30 , "Quantity with string properly updated" );
-	});
-	
-	
-
-	
-	module("language");
-	test("change language", function(){
-		simpleCart.ln.fake = {
-			  quantity: "Bleh"
-			, price: "Boom"
-			, total: "Pow"
-			, decrement: "Crack"
-			, increment: "Click"
-			, remove: "Snap"
-			, tax: "Crash"
-			, shipping: "Zoom"
-			, image: "Zap"
-		};
-		
-		simpleCart.language = "fake";
-		simpleCart.update();
-		
-		same( simpleCart.print("Price") , "Boom" , "Humanized name translated");
-		same( simpleCart.print("price") , "Boom" , "Lower case name translated");
-		same( simpleCart.print("Boom")  , "Boom" , "No translation returns input");
-		
-		
-	});
-*/

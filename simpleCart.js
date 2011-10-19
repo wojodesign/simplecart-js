@@ -311,6 +311,10 @@ generateSimpleCart = function(space){
 			return total;
 		},
 		
+		grandTotal: function(){
+			return simpleCart.total()+simpleCart.tax()+simpleCart.shipping();
+		},	
+		
 		
 		// updating functions
 		update: function(){
@@ -1142,7 +1146,7 @@ generateSimpleCart = function(space){
 	outlets = [
 		{ 	  selector: 'total' 
 		  	, callback: function(){
-				return simpleCart.toCurrency( this.total() );
+				return simpleCart.toCurrency( simpleCart.total() );
 		    } 
 		}
 		, {   selector: 'quantity'
@@ -1153,6 +1157,26 @@ generateSimpleCart = function(space){
 		, {   selector: 'items'
 		 	, callback: function(){
 				return simpleCart.writeCart();
+			} 
+		}
+		, {   selector: 'tax'
+		 	, callback: function(){
+				return simpleCart.toCurrency( simpleCart.tax() );
+			} 
+		}
+		, {   selector: 'taxRate'
+		 	, callback: function(){
+				return simpleCart.taxRate().toFixed();
+			} 
+		}
+		, {   selector: 'shipping'
+		 	, callback: function(){
+				return simpleCart.toCurrency( simpleCart.shipping() );
+			} 
+		}
+		, {   selector: 'grandTotal'
+		 	, callback: function(){
+				return simpleCart.toCurrency( simpleCart.grandTotal() );
 			} 
 		}
 	],
