@@ -76,7 +76,7 @@ generateSimpleCart = function(space){
 	
 	// default options
 	settings = {
-		  checkout				: { type: "PayPal" , email: "brett@wojodesign.com" } 
+		  checkout				: { type: "PayPal" , email: "you@yours.com" } 
 		, currency				: "USD"
 		, language				: "english-us"
 		, cookieDuration		: 30 
@@ -961,6 +961,8 @@ generateSimpleCart = function(space){
 					  currency	: simpleCart.shipping()
 					, shipping	: simpleCart.currency().code
 					, tax		: simpleCart.tax()
+					, taxRate	: simpleCart.taxRate()
+					, itemCount	: simpleCart.find({}).length
 				},
 				action = opts.url
 				method = opts.method === "GET" ? "GET" : "POST";
@@ -989,7 +991,6 @@ generateSimpleCart = function(space){
 				// add the options to the description
 				data['item_options_' + counter ] = options_list.join(", ");
 			});
-			
 			
 		
 			// check for return and success URLs in the options
