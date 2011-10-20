@@ -1240,22 +1240,22 @@ generateSimpleCart = function(space){
 	outlets = {
 		total: { callback: function(){
 			return simpleCart.toCurrency( simpleCart.total() );
-		} }, 
+		} }
 		, quantity: { callback: function(){
 			return simpleCart.quantity();
-		} }, 
+		} } 
 		, items: { callback: function( selector ){
 			simpleCart.writeCart( selector );
-		} }, 
+		} } 
 		, tax: { callback: function(){
 			return simpleCart.toCurrency( simpleCart.tax() );
-		} },
+		} }
 		, taxRate: { callback: function(){
 			return simpleCart.taxRate().toFixed();
-		} },
+		} }
 		, shipping: { callback: function(){
 			return simpleCart.toCurrency( simpleCart.shipping() );
-		} },
+		} }
 		, grandTotal: { callback: function(){
 			return simpleCart.toCurrency( simpleCart.grandTotal() );
 		} }
