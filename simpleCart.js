@@ -1207,9 +1207,9 @@ generateSimpleCart = function(space){
 	var outletAndInputFunctions = {
 		// bind outlets to function
 		bindOutlets: function( outlets ){
-			simpleCart.each( outlets , function( callback , x , selector ){
+			simpleCart.each( outlets , function( info , x , selector ){
 				simpleCart.bind( 'update' , function(){
-					simpleCart.setOutlet( "." + namespace + "_" + selector , callback );
+					simpleCart.setOutlet( "." + namespace + "_" + selector , info.callback );
 				});
 			});
 		},
@@ -1238,27 +1238,27 @@ generateSimpleCart = function(space){
 	} ,
 	
 	outlets = {
-		total: function(){
+		total: { callback: function(){
 			return simpleCart.toCurrency( simpleCart.total() );
-		} 
-		, quantity: function(){
+		} }, 
+		, quantity: { callback: function(){
 			return simpleCart.quantity();
-		}
-		, items: function( selector ){
+		} }, 
+		, items: { callback: function( selector ){
 			simpleCart.writeCart( selector );
-		}
-		, tax: function(){
+		} }, 
+		, tax: { callback: function(){
 			return simpleCart.toCurrency( simpleCart.tax() );
-		}
-		, taxRate: function(){
+		} },
+		, taxRate: { callback: function(){
 			return simpleCart.taxRate().toFixed();
-		}
-		, shipping: function(){
+		} },
+		, shipping: { callback: function(){
 			return simpleCart.toCurrency( simpleCart.shipping() );
-		}
-		, grandTotal: function(){
+		} },
+		, grandTotal: { callback: function(){
 			return simpleCart.toCurrency( simpleCart.grandTotal() );
-		}
+		} }
 	},
 	
 	inputs = [
