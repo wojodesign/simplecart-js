@@ -503,8 +503,8 @@ generateSimpleCart = function(space){
 				cart_container = simpleCart.$create( TABLE ),
 				header_container = simpleCart.$create( TR ).addClass('headerRow'),
 				container = simpleCart.$( selector );
-				
-			container.append( cart_container );
+								
+			container.html('').append( cart_container );
 			
 			cart_container.append( header_container );
 				
