@@ -1219,7 +1219,7 @@ generateSimpleCart = function(space){
 			var val = func.call( simpleCart , selector );
 			if( isObject( val ) && val.el ){
 				simpleCart.$( selector ).html( ' ' ).append( val );
-			} else if( val ){
+			} else if( isUndefined( val ) ){
 				simpleCart.$( selector ).text( val );
 			}
 		},
