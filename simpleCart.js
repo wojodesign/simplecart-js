@@ -387,6 +387,9 @@ generateSimpleCart = function(space){
 		
 		load: function(){
 			
+			// empty without the update
+			sc_items = {};
+			
 			var items = localStorage.getItem( namespace + "_items" );
 			
 			if( !items ){
