@@ -382,11 +382,11 @@ generateSimpleCart = function(space){
 				
 				// set the base data and storage key
 				var storage_key = namespace + "_" + item.id(),
-					data = simpleCart.extend( item.fields() , JSON.stringify( item.options() ) );
+					data = simpleCart.extend( item.fields() , item.options() );
 					
 					
 				// todo: json!
-				localStorage.setItem( storage_key , data );
+				localStorage.setItem( storage_key , JSON.stringify( data ) );
 
 			});
 			
