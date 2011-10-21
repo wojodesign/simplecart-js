@@ -777,10 +777,11 @@ generateSimpleCart = function(space){
 		
 		// return values for all reserved fields if they exist
 		fields: function(){
-			var data = {};
+			var data = {},
+				me = this;
 			simpleCart.each(function(field){
-				if( this.get(field) ){
-					data[field] = this.get(field);
+				if( me.get(field) ){
+					data[field] = me.get(field);
 				}
 			});
 			return data;
