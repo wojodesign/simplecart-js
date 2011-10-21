@@ -1343,6 +1343,9 @@ generateSimpleCart = function(space){
 									case "select":
 										val = $item.val();
 										break;
+									case "img":
+										val = $item.attr('src');
+										break;
 									default:
 										val = $item.text();
 										break;
