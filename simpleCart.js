@@ -779,7 +779,7 @@ generateSimpleCart = function(space){
 		fields: function(){
 			var data = {},
 				me = this;
-			simpleCart.each(function(field){
+			simpleCart.each(me.reservedFields(), function(field){
 				if( me.get(field) ){
 					data[field] = me.get(field);
 				}
