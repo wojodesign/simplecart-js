@@ -117,7 +117,6 @@ generateSimpleCart = function(space){
 		// set options
 		else if( isObject( options ) ){
 			return simpleCart.extend( settings , options );
-			simpleCart.update();
 		}
 	};
 	
