@@ -605,19 +605,19 @@ generateSimpleCart = function(space){
 				return "<a href='" + item.get( column.attr ) + "'>" + column.text + "</a>";
 			} 
 			, decrement: function( item , column ){
-				return "<a href='javascript:;' class='simpleCart_decrement'>" + ( column.text || "-" ) + "</a>";
+				return "<a href='javascript:;' class='" + namespace + "_decrement'>" + ( column.text || "-" ) + "</a>";
 			}
 			, increment: function( item , column ){
-				return "<a href='javascript:;' class='simpleCart_increment'>" + ( column.text || "+" ) + "</a>";
+				return "<a href='javascript:;' class='" + namespace + "_increment'>" + ( column.text || "+" ) + "</a>";
 			}
 			, image: function( item , column ){
 				return "<img src='" + item.get( column.attr ) + "'/>"
 			}
 			, input: function( item , column ){
-				return "<input type='text' value='" + item.get( column.attr ) + "' class='simpleCart_input'/>";
+				return "<input type='text' value='" + item.get( column.attr ) + "' class='" + namespace + "_input'/>";
 			} 
 			, remove: function( item , column ){
-				return "<a href='javascript:;' class='simpleCart_remove'>" + ( column.text || "X" ) + "</a>";
+				return "<a href='javascript:;' class='" + namespace + "_remove'>" + ( column.text || "X" ) + "</a>";
 			}
 		} ,
 		
@@ -1325,14 +1325,14 @@ generateSimpleCart = function(space){
 		, {   selector: 'increment'
 			, event: 'click'
 		  	, callback: function(e){
-				simpleCart.find( simpleCart.$(this).parent().parent().attr('id').split("_")[1] ).increment();
+				simpleCart.find( simpleCart.$(this).closest('itemRow').attr('id').split("_")[1] ).increment();
 				simpleCart.update();
 			}
 		}
 		, {   selector: 'decrement'
 			, event: 'click'
 		  	, callback: function(e){
-				simpleCart.find( simpleCart.$(this).parent().parent().attr('id').split("_")[1] ).decrement();
+				simpleCart.find( simpleCart.$(this).closest('itemRow').attr('id').split("_")[1] ).decrement();
 				simpleCart.update();
 			}
 		}
@@ -1340,7 +1340,7 @@ generateSimpleCart = function(space){
 		, {   selector: 'remove'
 			, event: 'click'
 		  	, callback: function(e){
-				simpleCart.find( simpleCart.$(this).parent().parent().attr('id').split("_")[1] ).remove();
+				simpleCart.find( simpleCart.$(this).closest('itemRow').attr('id').split("_")[1] ).remove();
 			}
 		}
 		
@@ -1354,7 +1354,7 @@ generateSimpleCart = function(space){
 				simpleCart.each( classList , function(klass,x){
 					if( klass.match(/item-.+/i) ){
 						var field = klass.split("-")[1];
-						simpleCart.find( $parent.parent().attr('id').split("_")[1] ).set(field,$input.val() );
+						simpleCart.find( $parent.closest('itemRow').attr('id').split("_")[1] ).set(field,$input.val() );
 						simpleCart.update();
 						return;
 					}
