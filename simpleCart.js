@@ -784,7 +784,7 @@ generateSimpleCart = function(space){
 				}
 			});
 			return data;
-		}
+		},
 		
 		
 		// shortcuts for getter/setters. can
