@@ -372,40 +372,29 @@ generateSimpleCart = function(space){
 		save: function(){
 			simpleCart.trigger('beforeSave');
 			
-			var ids = simpleCart.ids();
-			
-			// save all the ids
-			localStorage.setItem( namespace + "_ids" , ids.join(",") );
+			var items = {};
 			
 			// save all the items
 			simpleCart.each(function(item){
 				
-				// set the base data and storage key
-				var storage_key = namespace + "_" + item.id(),
-					data = simpleCart.extend( item.fields() , item.options() );
-					
-					
-				// todo: json!
-				localStorage.setItem( storage_key , JSON.stringify( data ) );
-
+				items[item.id()] = simpleCart.extend( item.fields() , item.options() );
 			});
+			
+			localStorage.setItem( namespace + "_items" , JSON.stringify( items ) );
 			
 			simpleCart.trigger('afterSave');
 		}, 
 		
 		load: function(){
 			
-			var ids = localStorage.getItem( namespace + "_ids" );
-			if( !ids ){
-				return;
-			} 
+			var items = localStorage.getItem( namespace + "_items" );
 			
-			ids = ids.split(',');
-			simpleCart.each(ids,function(id){
-				var item = localStorage.getItem( namespace + "_" + id );
-				if( JSON.parse( item ) ){
-					simpleCart.add(item);
-				}
+			if( !items ){
+				return;
+			}
+			
+			simpleCart.each( JSON.parse( items ) ,function( item , x , id ){
+				simpleCart.add( item );
 			});
 			
 			simpleCart.trigger('load');
