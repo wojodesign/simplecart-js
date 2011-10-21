@@ -1325,14 +1325,14 @@ generateSimpleCart = function(space){
 		, {   selector: 'increment'
 			, event: 'click'
 		  	, callback: function(e){
-				simpleCart.find( simpleCart.$(this).closest('itemRow').attr('id').split("_")[1] ).increment();
+				simpleCart.find( simpleCart.$(this).closest('.itemRow').attr('id').split("_")[1] ).increment();
 				simpleCart.update();
 			}
 		}
 		, {   selector: 'decrement'
 			, event: 'click'
 		  	, callback: function(e){
-				simpleCart.find( simpleCart.$(this).closest('itemRow').attr('id').split("_")[1] ).decrement();
+				simpleCart.find( simpleCart.$(this).closest('.itemRow').attr('id').split("_")[1] ).decrement();
 				simpleCart.update();
 			}
 		}
@@ -1340,7 +1340,7 @@ generateSimpleCart = function(space){
 		, {   selector: 'remove'
 			, event: 'click'
 		  	, callback: function(e){
-				simpleCart.find( simpleCart.$(this).closest('itemRow').attr('id').split("_")[1] ).remove();
+				simpleCart.find( simpleCart.$(this).closest('.itemRow').attr('id').split("_")[1] ).remove();
 			}
 		}
 		
