@@ -521,7 +521,7 @@ generateSimpleCart = function(space){
 		
 		// write out cart
 		writeCart: function( selector ){
-			var TABLE = settings.cartStyle,
+			var TABLE = settings.cartStyle.toLowerCase(),
 				isTable = TABLE === 'table',
 				TR = isTable ? "tr" : "div",
 				TH = isTable ? 'th' : 'div',
