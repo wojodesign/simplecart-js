@@ -81,7 +81,7 @@ generateSimpleCart = function(space){
 		, language				: "english-us"
 		, cookieDuration		: 30 
 				
-		, cartStyle				: "table"
+		, cartStyle				: "div"
 		, cartColumns			: [
 			  { attr: "name" , label: "Name" }
 			, { attr: "price" , label: "Price", view: 'currency' }
@@ -569,7 +569,7 @@ generateSimpleCart = function(space){
 			// cycle through the columns to create each cell for the item
 			for( var j=0,jlen=settings.cartColumns.length; j<jlen; j++ ){
 				var column 	= cartColumn( settings.cartColumns[ j ] ),
-					klass 	= "item-" + (column.attr || column.view || column.label || column.text || "cell" ) + " " + column.className,
+					klass 	= "item-" + (column.attr || ( isString(column.view) ? column.view : || column.label || column.text || "cell" ) ) + " " + column.className,
 					content = cartCellView( item , column ),
 					cell 	= simpleCart.$create( TD ).addClass( klass ).html( content );
 				
