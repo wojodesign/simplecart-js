@@ -1,21 +1,21 @@
 ***************************************************************************************
 *									simpleCart(js)									  
 * ----------------------------------------------------------------------------------- 
-*	The Wojo Group																	  
-*	thewojogroup.com 																  
+*	Wojo Design
+* 	Brett Wejrowski																	  
+*	wojodesign.com 																  
 *	simplecartjs.com														  		  
-*	http://github.com/thewojogroup/simplecart-js/tree/master						  
-*	Released under MIT License														  
+*	http://github.com/wojodesign/simplecart-js/tree/master						  
+*	Dual licensed under the MIT or GPL licenses.													  
 ***************************************************************************************								
 		
 	No databases, no programming, no headaches. A simple javascript shopping 
-	cart in under 17kb that you can setup in minutes. It's lightweight, fast, 
+	cart in under 8kb that you can setup in minutes. It's lightweight, fast, 
 	simple to use, and completely customizable. All you need to know is basic HTML.
 	
 ***************************************************************************************
 
 	Copyright (c) 2011 Brett Wejrowski
-
 	Dual licensed under the MIT or GPL licenses.
 		 
 	Version 3 Documentation - A work in progress..... I'm putting it here until we
