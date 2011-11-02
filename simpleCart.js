@@ -83,7 +83,7 @@ generateSimpleCart = function(space){
 		, taxRate				: 0
 		
 		, data					: {}
-		
+	
 		
 	}, 
 	
@@ -492,7 +492,16 @@ generateSimpleCart = function(space){
 			return settings.taxRate || 0;
 		} , 
 		
-		shipping: function(){
+		shipping: function( opt_custom_function ){
+			
+			// shortcut to extend options with custom shipping
+			if( isFunction(opt_custom_function) ){
+				simpleCart({
+					shippingCustom: opt_custom_function
+				});
+				return;
+			}
+			
 			var cost = 0 + 	settings.shippingFlatRate +
 							settings.shippingQuantityRate*simpleCart.quantity() +
 							settings.shippingTotalRate*simpleCart.total();
@@ -1155,19 +1164,19 @@ generateSimpleCart = function(space){
 	simpleCart.extend( simpleCart.Item._ , eventFunctions );
 	
 	
-	// basic simpleCart events
-	var emptyFunc = function(){} , 
-		events = 	{ 'beforeAdd' 			: emptyFunc
-					, 'afterAdd' 			: emptyFunc
-					, 'load' 				: emptyFunc
-					, 'beforeSave' 			: emptyFunc
-					, 'afterSave' 			: emptyFunc
-					, 'update' 				: emptyFunc
-					, 'ready' 				: emptyFunc
-					, 'checkoutSuccess' 	: emptyFunc
-					, 'checkoutFail' 		: emptyFunc
-					, 'beforeCheckout'		: emptyFunc
-				};
+	// base simpleCart events
+	var events = { 	
+		  beforeAdd				: null
+		, afterAdd				: null
+		, load					: null
+		, beforeSave			: null
+		, afterSave				: null
+		, update				: null
+		, ready					: null
+		, checkoutSuccess		: null
+		, checkoutFail			: null
+		, beforeCheckout		: null
+	};
 			
 	// extend events in options
 	simpleCart( events );

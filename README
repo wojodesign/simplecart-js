@@ -26,7 +26,7 @@
 	---------------------------------------------------
 	
 	simpleCart(js) requires using jQuery, Prototype, or Mootools. No extra configuration 
-	is need as long as one of those libaries is included on the page
+	is needed as long as one of those libaries is included on the page
 	
 	You can set/change simpleCart options at any time:
 	[javascript]
@@ -93,7 +93,19 @@
 			taxRate: 0,
 			
 			// true if tax should be applied to shipping
-			taxShipping: false
+			taxShipping: false,
+			
+			// event callbacks 
+			beforeAdd				: null,
+			afterAdd				: null,
+			load					: null,
+			beforeSave				: null,
+			afterSave				: null,
+			update					: null,
+			ready					: null,
+			checkoutSuccess			: null,
+			checkoutFail			: null,
+			beforeCheckout			: null
 		});
 	[/javascript]
 	
@@ -124,60 +136,25 @@
 	
 	8. Function Reference
 	---------------------------------------------------
-	simpleCart.extend( [target ,] options )
-	simpleCart.copy( namespace )
-	simpleCart.isReady
-	simpleCart.add( values )
-	simpleCart.each( [array ,] callback )
-	simpleCart.find( criteria )
-	simpleCart.has( item )
-	simpleCart.empty()
-	simpleCart.quantity()
-	simpleCart.total()
-	simpleCart.grandTotal()
-	simpleCart.update()
-	simpleCart.init()
+
 	simpleCart.$( selector )
 	simpleCart.$create( tag )
 	simpleCart.$engine()
-	simpleCart.setupViewTool()
-	simpleCart.ids()
-	simpleCart.save()
-	simpleCart.load()
-	simpleCart.ready( [function] )
+	simpleCart.add( values )
+	simpleCart.bind( eventname , callback )
+	simpleCart.bindInputs( inputs )
+	simpleCart.bindOutlets( outlets )
 	simpleCart.bindReady()
-	simpleCart.error( message )
-	simpleCart.tax()
-	simpleCart.taxRate()
-	simpleCart.shipping( [custom_function] )
-	simpleCart.writeCart()
-	simpleCart.createCartRow()
-	simpleCart.Item
-	simpleCart.Item._
-	simpleCart.Item.increment( [amount] )
-	simpleCart.Item.decrement( [amount] )
-	simpleCart.Item.remove()
-	simpleCart.Item.reservedFields()
-	simpleCart.Item.fields()
-	simpleCart.Item.quantity( [value] )
-	simpleCart.Item.price( [value] )
-	simpleCart.Item.id()
-	simpleCart.Item.total()
 	simpleCart.checkout()
 	simpleCart.checkout.AmazonPayments( options )
 	simpleCart.checkout.GoogleCheckout( options )
 	simpleCart.checkout.PayPal( options )
 	simpleCart.checkout.SendForm( options )
-	simpleCart.extendCheckout( methods )
-	simpleCart.bind( eventname , callback )
-	simpleCart.trigger( eventname)
-	simpleCart.toCurrency( number [, options] )
 	simpleCart.chunk( string , chunk_size )
+	simpleCart.createCartRow()
+	simpleCart.copy( namespace )
 	simpleCart.currency( [currency_object] )
-	simpleCart.bindOutlets( outlets )
-	simpleCart.setOutlet( selector , function )
-	simpleCart.bindInputs( inputs )
-	simpleCart.setInput( selector , event , func )
+	simpleCart.each( [array ,] callback )
 	simpleCart.ELEMENT
 	simpleCart.ELEMENT._
 	simpleCart.ELEMENT.text( [text] )
@@ -198,7 +175,42 @@
 	simpleCart.ELEMENT.descendants()
 	simpleCart.ELEMENT.tag()
 	simpleCart.ELEMENT.create( selector )
-	
+	simpleCart.empty()
+	simpleCart.error( message )
+	simpleCart.extend( [target ,] options )
+	simpleCart.extendCheckout( methods )
+	simpleCart.find( criteria )
+	simpleCart.grandTotal()
+	simpleCart.has( item )
+	simpleCart.ids()
+	simpleCart.init()
+	simpleCart.isReady	
+	simpleCart.Item
+	simpleCart.Item._
+	simpleCart.Item.increment( [amount] )
+	simpleCart.Item.decrement( [amount] )
+	simpleCart.Item.remove()
+	simpleCart.Item.reservedFields()
+	simpleCart.Item.fields()
+	simpleCart.Item.quantity( [value] )
+	simpleCart.Item.price( [value] )
+	simpleCart.Item.id()
+	simpleCart.Item.total()
+	simpleCart.load()
+	simpleCart.quantity()
+	simpleCart.ready( [function] )
+	simpleCart.save()
+	simpleCart.setInput( selector , event , func )
+	simpleCart.setOutlet( selector , function )
+	simpleCart.setupViewTool()
+	simpleCart.shipping( [custom_function] )
+	simpleCart.tax()
+	simpleCart.taxRate()
+	simpleCart.toCurrency( number [, options] )
+	simpleCart.total()
+	simpleCart.trigger( eventname)
+	simpleCart.update()
+	simpleCart.writeCart()	
 	
 	
 	
