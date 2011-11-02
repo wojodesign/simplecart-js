@@ -18,8 +18,193 @@
 
 	Dual licensed under the MIT or GPL licenses.
 		 
-	Version 3 Documentation Coming Soon
+	Version 3 Documentation - A work in progress..... I'm putting it here until we
+	have the new site up so I can put it...well.. there. 
+	
+	
+	1. simpleCart(js) Setup/Initialization
+	---------------------------------------------------
+	
+	simpleCart(js) requires using jQuery, Prototype, or Mootools. No extra configuration 
+	is need as long as one of those libaries is included on the page
+	
+	You can set/change simpleCart options at any time:
+	[javascript]
+	
+		simpleCart({
+			option1: "value" ,
+			option2: "value2" 
+		});
 		
+	[/javascript]
+	
+	Here are the possible options and their default values: 
+	[javascript]
+	
+		simpleCart({
+			
+			// array representing the format and columns of the cart, see 
+			// the cart columns documentation
+			cartColumns: [
+				{ attr: "name" , label: "Name" },
+				{ attr: "price" , label: "Price", view: 'currency' },
+				{ view: "decrement" , label: false },
+				{ attr: "quantity" , label: "Qty" },
+				{ view: "increment" , label: false },
+				{ attr: "total" , label: "SubTotal", view: 'currency' },
+				{ view: "remove" , text: "Remove" , label: false }
+			],
+			
+			// "div" or "table" - builds the cart as a table or collection of divs
+			cartStyle: "div", 
+			
+			// how simpleCart should checkout, see the checkout reference for more info 
+			checkout: { 
+				type: "PayPal" , 
+				email: "you@yours.com" 
+			},
+			
+			// set the currency, see the currency reference for more info
+			currency: "USD",
+			
+			// collection of arbitrary data you may want to store with the cart, 
+			// such as customer info
+			data: {},
+			
+			// set the cart langauge (may be used for checkout)
+			language: "english-us",
+			
+			// array of item fields that will not be sent to checkout
+			excludeFromCheckout: [],
+			
+			// custom function to add shipping cost
+			shippingCustom: null,
+			
+			// flat rate shipping option
+			shippingFlatRate: 0,
+			
+			// added shipping based on this value multiplied by the cart quantity
+			shippingQuantityRate: 0,
+			
+			// added shipping based on this value multiplied by the cart subtotal
+			shippingTotalRate: 0,
+			
+			// tax rate applied to cart subtotal
+			taxRate: 0,
+			
+			// true if tax should be applied to shipping
+			taxShipping: false
+		});
+	[/javascript]
+	
+	
+	
+	2. The Shelf
+	---------------------------------------------------
+	
+	3. Cart Columns
+	---------------------------------------------------
+	
+	4. Checkout Methods
+	---------------------------------------------------
+	* Paypal 
+	* Google Checkout
+	* Amazon Payments
+	* Send Form
+	* Custom
+	
+	5. Events
+	---------------------------------------------------
+	
+	6. Currency
+	---------------------------------------------------
+
+	7. Shipping
+	---------------------------------------------------
+	
+	8. Function Reference
+	---------------------------------------------------
+	simpleCart.extend( [target ,] options )
+	simpleCart.copy( namespace )
+	simpleCart.isReady
+	simpleCart.add( values )
+	simpleCart.each( [array ,] callback )
+	simpleCart.find( criteria )
+	simpleCart.has( item )
+	simpleCart.empty()
+	simpleCart.quantity()
+	simpleCart.total()
+	simpleCart.grandTotal()
+	simpleCart.update()
+	simpleCart.init()
+	simpleCart.$( selector )
+	simpleCart.$create( tag )
+	simpleCart.$engine()
+	simpleCart.setupViewTool()
+	simpleCart.ids()
+	simpleCart.save()
+	simpleCart.load()
+	simpleCart.ready( [function] )
+	simpleCart.bindReady()
+	simpleCart.error( message )
+	simpleCart.tax()
+	simpleCart.taxRate()
+	simpleCart.shipping( [custom_function] )
+	simpleCart.writeCart()
+	simpleCart.createCartRow()
+	simpleCart.Item
+	simpleCart.Item._
+	simpleCart.Item.increment( [amount] )
+	simpleCart.Item.decrement( [amount] )
+	simpleCart.Item.remove()
+	simpleCart.Item.reservedFields()
+	simpleCart.Item.fields()
+	simpleCart.Item.quantity( [value] )
+	simpleCart.Item.price( [value] )
+	simpleCart.Item.id()
+	simpleCart.Item.total()
+	simpleCart.checkout()
+	simpleCart.checkout.AmazonPayments( options )
+	simpleCart.checkout.GoogleCheckout( options )
+	simpleCart.checkout.PayPal( options )
+	simpleCart.checkout.SendForm( options )
+	simpleCart.extendCheckout( methods )
+	simpleCart.bind( eventname , callback )
+	simpleCart.trigger( eventname)
+	simpleCart.toCurrency( number [, options] )
+	simpleCart.chunk( string , chunk_size )
+	simpleCart.currency( [currency_object] )
+	simpleCart.bindOutlets( outlets )
+	simpleCart.setOutlet( selector , function )
+	simpleCart.bindInputs( inputs )
+	simpleCart.setInput( selector , event , func )
+	simpleCart.ELEMENT
+	simpleCart.ELEMENT._
+	simpleCart.ELEMENT.text( [text] )
+	simpleCart.ELEMENT.html( [html] )
+	simpleCart.ELEMENT.val( [value] )
+	simpleCart.ELEMENT.attr( attr [, value] )
+	simpleCart.ELEMENT.remove()
+	simpleCart.ELEMENT.addClass( class )
+	simpleCart.ELEMENT.removeClass( class )
+	simpleCart.ELEMENT.append( item )
+	simpleCart.ELEMENT.each( callback )
+	simpleCart.ELEMENT.click( [callback] )
+	simpleCart.ELEMENT.live( event, callback )
+	simpleCart.ELEMENT.match( selector )
+	simpleCart.ELEMENT.parent()
+	simpleCart.ELEMENT.find( selector )
+	simpleCart.ELEMENT.closest( selector )
+	simpleCart.ELEMENT.descendants()
+	simpleCart.ELEMENT.tag()
+	simpleCart.ELEMENT.create( selector )
+	
+	
+	
+	
+	9. Plugins
+	---------------------------------------------------
+	
 		
 ***************************************************************************************
 *	For more information, please go to simplecartjs.com								  

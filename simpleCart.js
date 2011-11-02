@@ -61,7 +61,6 @@ generateSimpleCart = function(space){
 		  checkout				: { type: "PayPal" , email: "you@yours.com" } 
 		, currency				: "USD"
 		, language				: "english-us"
-		, cookieDuration		: 30 
 				
 		, cartStyle				: "div"
 		, cartColumns			: [
@@ -83,7 +82,7 @@ generateSimpleCart = function(space){
 		
 		, taxRate				: 0
 		
-		, cartInfo				: {}
+		, data					: {}
 		
 		
 	}, 
@@ -867,7 +866,7 @@ generateSimpleCart = function(space){
 			
 			simpleCart.trigger('beforeCheckout', [ data ] );
 			
-			generateAndSendForm({
+			simpleCart.generateAndSendForm({
 				  action	: action
 				, method	: method
 				, data		: data
@@ -926,7 +925,7 @@ generateSimpleCart = function(space){
 			
 			simpleCart.trigger('beforeCheckout', [ data ] );
 			
-			generateAndSendForm({
+			simpleCart.generateAndSendForm({
 				  action	: action
 				, method	: method
 				, data		: data
@@ -995,7 +994,7 @@ generateSimpleCart = function(space){
 			
 			simpleCart.trigger('beforeCheckout', [ data ] );
 			
-			generateAndSendForm({
+			simpleCart.generateAndSendForm({
 				  action	: action
 				, method	: method
 				, data		: data
@@ -1062,7 +1061,7 @@ generateSimpleCart = function(space){
 			
 			simpleCart.trigger('beforeCheckout', [ data ] );
 			
-			generateAndSendForm({
+			simpleCart.generateAndSendForm({
 				  action	: action
 				, method	: method
 				, data		: data
@@ -1071,22 +1070,9 @@ generateSimpleCart = function(space){
 		} 
 		
 		
-	} ,
-	
-	generateAndSendForm = function(opts){
-		var form = simpleCart.$create("form");
-		form.attr('style' , 'display:none;' );
-		form.attr('action', opts.action );
-		form.attr('method', opts.method );
-		simpleCart.each(opts.data, function(val , x , name ){
-			form.append( 
-				simpleCart.$create("input").attr("type","hidden").attr("name",name).val(val)
-			);
-		});
-		simpleCart.$("body").append(form);
-		form.el.submit();
-		form.remove();
 	};
+	
+
 	
 	
 	simpleCart.extend({
@@ -1101,11 +1087,24 @@ generateSimpleCart = function(space){
 		} ,
 		extendCheckout: function( methods ){
 			return simpleCart.extend( simpleCart.checkout, checkoutMethods );
+		} ,
+		generateAndSendForm: function(opts){
+			var form = simpleCart.$create("form");
+			form.attr('style' , 'display:none;' );
+			form.attr('action', opts.action );
+			form.attr('method', opts.method );
+			simpleCart.each(opts.data, function(val , x , name ){
+				form.append( 
+					simpleCart.$create("input").attr("type","hidden").attr("name",name).val(val)
+				);
+			});
+			simpleCart.$("body").append(form);
+			form.el.submit();
+			form.remove();
 		}
 	});
 	
 	simpleCart.extendCheckout( checkoutMethods );
-	
 	
 	
 	/*******************************************************************
