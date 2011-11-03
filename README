@@ -103,9 +103,9 @@
 			afterSave				: null,
 			update					: null,
 			ready					: null,
-			checkoutSuccess			: null,
-			checkoutFail			: null,
-			beforeCheckout			: null
+			checkoutSuccess				: null,
+			checkoutFail				: null,
+			beforeCheckout				: null
 		});
 	[/javascript]
 	
@@ -138,23 +138,226 @@
 	---------------------------------------------------
 
 	simpleCart.$( selector )
+		arguments: 
+		- selector: string of a css selector
+		
+		returns:
+		- simpleCart.ELEMENT object containing one or more dom elements if the 
+		  selector matches anything on the page
+
+		Before:
+		[html]
+			<ul>
+				<li class="item">Item 1</li>
+				<li class="item">Item 2</li>
+				<li class="item">Item 3</li>
+			</ul>
+		[/html]
+
+		[javascript]
+			
+			var items = simpleCart.$('li.item');
+			items.addClass('cool');
+
+		[/javascript]
+
+		After:
+		[html]
+			<ul>
+				<li class="item cool">Item 1</li>
+				<li class="item cool">Item 2</li>
+				<li class="item cool">Item 3</li>
+			</ul>
+		[/html]
+
+
+
 	simpleCart.$create( tag )
-	simpleCart.$engine()
+		arguments:
+		- tag: string of tagName of DOM element to create (ie 'span','div', etc)
+
+		returns:
+		- simpleCart.ELEMENT object of new DOM element
+
+		[html]
+			<div id="container">
+			</div>
+		[/html]
+
+
+		[javascript]
+			var myDiv = simpleCart.$create('div');
+			myDiv.text("hello");
+			simpleCart.$("#container").append(myDiv);
+		[/javascript]
+
+		[html] 
+			<div id="container">
+				<div>hello</div>
+			<div id="container">
+		[/html]
+
+
+	simpleCart.$engine
+
+		object representing selector engine being used, depending on javascript
+		library loaded
+
 	simpleCart.add( values )
+		arguments:
+		- values: name/value map of an item to be added to the cart
+
+		returns: 
+		- simpleCart.Item object if successfully added
+
+		[javascript]
+			simpleCart.add({ 
+				name: "Cool T-Shirt" ,
+				price: 45.99 ,
+				size: "Small" ,
+				quantity: 3
+			});
+		[/javascript]
+
+		If a price is not supplied, it is set to 0.
+
+		If a quantity is not supplied, it is set to 1.
+
+		If all of the fields match an item currently in the cart, simpleCart
+		will increment that items quantity by the quantity supplied
+
 	simpleCart.bind( eventname , callback )
+		arguments:
+		- eventname: string representing the name of an event
+		- callback: function that will be called when the event is fired
+
+		returns: 
+		- simpleCart
+
+		[javascript]
+			simpleCart.bind( 'error' , function(message){
+				alert( message );
+			});
+
+		[/javascript]
+
+		When an error event is triggered, the function will be called and the 
+		error message will be alerted.
+
+		Please view the Event reference for existing event names and arguments supplied.
+
+
+
 	simpleCart.bindInputs( inputs )
+
+
+
 	simpleCart.bindOutlets( outlets )
+
+
 	simpleCart.bindReady()
+
+		used internally to bind the simpleCart init to DOM ready
+
 	simpleCart.checkout()
+
+		Send simpleCart to checkout
+
 	simpleCart.checkout.AmazonPayments( options )
+
+		arguments: 
+		- options: object of option values
+
+		Checkout to AmazonPayments, called from simpleCart.checkout() if 
+		AmazonPayments is set up as the checkout gateway
+
+
 	simpleCart.checkout.GoogleCheckout( options )
+
+		arguments: 
+		- options: object of option values
+
+		Checkout to GoogleCheckout, called from simpleCart.checkout() if 
+		GoogleCheckout is set up as the checkout gateway
+
 	simpleCart.checkout.PayPal( options )
+
+		arguments: 
+		- options: object of option values
+
+		Checkout to PayPal, called from simpleCart.checkout() if 
+		AmazongPayments is set up as the checkout gateway
+
 	simpleCart.checkout.SendForm( options )
-	simpleCart.chunk( string , chunk_size )
+
+		arguments: 
+		- options: object of option values
+
+		Checkout to a Url by submitting a form, called from simpleCart.checkout() if 
+		SendForm checkout method is set up as the checkout gateway
+
+
+	simpleCart.chunk( str , chunk_size )
+		arguments:
+		- string: string to be broken up
+		- chunk_size: max size of chunk 
+
+		returns: 
+		- array of strings, each which a max length of chunk_size
+
+
 	simpleCart.createCartRow()
+
+		used internally by simpleCart to generate a row in the cart html		
+
+
 	simpleCart.copy( namespace )
+		arguments:
+		- namespace
+
+		returns:
+		- new simpleCart object with the given namespace 
+
+		this function creates and returns a new instance of simpleCart, using
+		the given namespace for storage and classes.  This makes it possible 
+		to have multiple carts on one page
+
+
 	simpleCart.currency( [currency_object] )
+		arguments:
+		- currency_object (optional):
+			string: sets the currency using the code provided
+			object: sets the currency using the currency object (see currency section for reference)
+
+		returns:
+		- if no argument is provided, it returns the current currency being used
+
+
+
+
 	simpleCart.each( [array ,] callback )
+		arguments:
+		- array (optional): array or object to iterate through.  If it is not 
+		  provided, simpleCart will iterate through the objects in the cart
+		- callback: function to call with each iteration
+
+		Iterating through the simpleCart objects:
+		[javascript]
+
+			simpleCart.add({name: "Sticker",price: 1});
+			simpleCArt.add({name: "Button",price: 1});
+
+			var items = [];
+
+			simpleCart.each(function( item , x ){
+				items.push( item.name );
+			});
+
+			console.log( items );   // [ "Sticker" , "Button" ]
+	
+		[/javascript]
+
+
 	simpleCart.ELEMENT
 	simpleCart.ELEMENT._
 	simpleCart.ELEMENT.text( [text] )
