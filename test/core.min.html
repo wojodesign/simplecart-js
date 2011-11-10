@@ -1,0 +1,146 @@
+<!DOCTYPE html>  
+<html>  
+<head>  
+    <title>simpleCart(js) QUnit Test Suite</title>  
+    <link rel="stylesheet" href="css/qunit.css" type="text/css" media="screen">  
+    <script type="text/javascript" src="https://raw.github.com/jquery/qunit/master/qunit/qunit.js"></script>  
+    <!-- Your project file goes here -->  
+    <script type="text/javascript" src="../simpleCart.min.js"></script>  
+    <!-- Your tests file goes here -->  
+
+	<script type="text/javascript">
+		simpleCart.email = "brett@wojodesign.com";
+		simpleCart.checkoutTo = PayPal;
+	//	simpleCart.merchantId = "118575326044237";
+	//	simpleCart.checkoutTo = GoogleCheckout;
+		simpleCart.currency = USD;
+	//	simpleCart.currency = GBP;
+	//  simpleCart.currency = EUR;
+		simpleCart.taxRate  = 0.08;
+	//	simpleCart.shippingFlatRate = 5.25;
+		simpleCart.shippingQuantityRate = 1.00;
+	/*	CartItem.prototype.shipping = function(){
+			if( this.size ){
+				switch( this.size.toLowerCase() ){
+					case 'small':
+						return this.quantity * 10.00;
+					case 'medium':
+						return this.quantity * 12.00;
+					case 'large':
+						return this.quantity * 15.00;
+					case 'bull':
+						return 45.00;
+					default:
+						return this.quantity * 5.00;
+				}
+			}
+		};
+	*/
+
+		simpleCart.cartHeaders = ["Thumb_image_noHeader", "Name" , "Size_input_div_div", "Price" , "decrement_noHeader" , "Quantity", "increment_noHeader", "remove_noHeader", "Total" ];
+	</script>
+	
+	<style >
+
+	 	.itemContainer{
+			width:100%;
+			float:left;
+		}
+
+		.itemContainer div{
+			float:left;
+			margin: 5px 20px 5px 20px ;
+		}
+
+		.itemContainer a{
+			text-decoration:none;
+		}
+
+		.cartHeaders{
+			width:100%;
+			float:left;
+		}
+
+		.cartHeaders div{
+			float:left;
+			margin: 5px 20px 5px 20px ;
+		}
+
+
+	</style>
+
+
+</head>  
+<body>  
+	
+	<h1 id="qunit-header">QUnit Test Suite</h1>  
+    <h2 id="qunit-banner"></h2>  
+    <div id="qunit-testrunner-toolbar"></div>  
+    <h2 id="qunit-userAgent"></h2>  
+    <ol id="qunit-tests"></ol>
+	
+	<p>
+	Cart: <span class="simpleCart_total"></span> (<span class="simpleCart_quantity"></span> items)
+	<br />
+	<a href="javascript:;" class="simpleCart_empty">empty cart</a>
+	<br />
+	</p>
+
+
+	<ul>
+		<li class="simpleCart_shelfItem">
+			<h2 class="item_name">Zebra</h2>
+			<img class="item_thumb" src="e.png" />
+			<span class="item_price">$dfdsa</span>
+			<select class="item_Size">
+				<option value="Small">Small</option>
+				<option value="Medium">Medium</option>
+				<option value="Large">Large</option>	
+			</select>	
+			<input type="hidden" class="item_shipping" value="20" />	
+			<input type="text" class="item_quantity" value="1" />
+			<input type="button" class="item_add" value="add to cart" />
+		</li>
+
+
+		<li class="simpleCart_shelfItem">
+			<h2 class="item_name">Cow</h2>
+			<img class="item_thumb" src="e.png" />
+			<span class="item_price">$18.00</span>
+			<select class="item_Size">
+				<option value="Tiny">Tiny</option>
+				<option value="Medium">Medium</option>
+				<option value="Bull">Bull</option>	
+			</select>		
+			<input type="text" class="item_quantity" value="1" />
+			<input type="button" class="item_add" value="add to cart" />
+		</li>
+
+
+
+		<li>
+			<h2>Baby Lion</h2>
+			<div>$34.95</div>
+			<a href="javascript:;" onclick="simpleCart.add('name=baby lion', 'price=34.95','size=tiny','quantity=1','thumb=e.png');" >add to cart</a>
+		</li>
+
+	</ul>
+
+	<div class="simpleCart_items" >
+	</div>
+
+
+	<br />
+	SubTotal: <span class="simpleCart_total"></span> <br />
+	Tax: <span class="simpleCart_taxCost"></span> <br />
+	Shipping: <span class="simpleCart_shippingCost"></span> <br />
+	-----------------------------<br />
+	Final Total: <span class="simpleCart_finalTotal"></span> <br />
+
+	<a href="javascript:;" class="simpleCart_checkout">checkout</a>	
+	
+    
+
+    <script type="text/javascript" src="test.core.js"></script>  
+</body>  
+</html>
