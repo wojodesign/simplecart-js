@@ -1526,7 +1526,7 @@ generateSimpleCart = function(space){
 					return this.el[0].innerHTML; 
 				} else {
 					this.each(function(e,x){
-						$engine(e).update( text );	
+						if(e) $engine(e).update( text );	
 					});
 					return this;
 				} 
@@ -1542,7 +1542,7 @@ generateSimpleCart = function(space){
 					return this.el[0].readAttribute( attr );
 				} else {
 					this.each(function(e,x){
-						$engine(e).writeAttribute( attr , val );
+						if(e) $engine(e).writeAttribute( attr , val );
 					});
 					return this;
 				}
@@ -1551,29 +1551,29 @@ generateSimpleCart = function(space){
 				this.each(function(e,x){
 					if( item.el ){
 						item.each(function(e2,x2){
-							$engine(e).appendChild( e2 );
+							if(e) $engine(e).appendChild( e2 );
 						});
 					} else if( isElement( item ) ){
-						$engine(e).appendChild(item);
+						if(e) $engine(e).appendChild(item);
 					}
 				});
 				return this;
 			} ,
 			remove: function(){
 				this.each(function(e,x){
-					$engine(e).remove();
+					if(e) $engine(e).remove();
 				});
 				return this;
 			} ,
 			addClass: function( klass ){
 				this.each(function(e,x){
-					$engine(e).addClassName( klass );
+					if(e) $engine(e).addClassName( klass );
 				});
 				return this;
 			} , 
 			removeClass: function( klass ){
 				this.each(function(e,x){
-					$engine(e).removeClassName( klass );
+					if(e) $engine(e).removeClassName( klass );
 				});
 				return this;
 			} ,
@@ -1586,13 +1586,13 @@ generateSimpleCart = function(space){
 			click: function(callback){
 				if( isFunction(callback) ){
 					this.each(function(e,x){
-						$engine(e).observe( _CLICK_ , function(ev){
+						if(e) $engine(e).observe( _CLICK_ , function(ev){
 							callback.call(e,ev);
 						});
 					});
 				} else if( isUndefined(callback) ) {
 					this.each(function(e,x){
-						$engine(e).fire(_CLICK_);
+						if(e) $engine(e).fire(_CLICK_);
 					});
 				}
 				return this;
