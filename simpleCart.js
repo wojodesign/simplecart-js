@@ -101,6 +101,8 @@ generateSimpleCart = function(space){
 		}
 	};
 	
+	// selector engine
+	var $engine;
 
 	// function for extending objects
 	simpleCart.extend = function( target , opts ){
@@ -329,9 +331,7 @@ generateSimpleCart = function(space){
 		$create: function( tag ){
 			return simpleCart.$( document.createElement(tag) );
 		},
-		
-		$engine: {},
-		
+				
 		setupViewTool: function(){
 			// Determine the "best fit" selector engine
 			for (var engine in selectorEngines) {
@@ -342,7 +342,7 @@ generateSimpleCart = function(space){
 					if (typeof context == "function") {
 						// set the selector engine and extend the prototype of our 
 						// element wrapper class
-						simpleCart.$engine = context;
+						$engine = context;
 						simpleCart.extend( simpleCart.ELEMENT._ , selectorFunctions[ engine ] );
 						return;
 					}
@@ -1514,7 +1514,7 @@ generateSimpleCart = function(space){
 			
 			
 			create: function( selector ){
-				this.el = simpleCart.$engine( selector );
+				this.el = $engine( selector );
 			}
 			
 			
@@ -1626,7 +1626,7 @@ generateSimpleCart = function(space){
 			
 			create: function(selector){
 				if( isString( selector ) ){
-					this.el = simpleCart.$engine(selector);
+					this.el = $engine(selector);
 				} else if( isElement( selector) ){
 					this.el = [selector];
 				}
@@ -1707,7 +1707,7 @@ generateSimpleCart = function(space){
 			
 			
 			create: function(selector){
-				this.el = simpleCart.$engine( selector );
+				this.el = $engine( selector );
 			}
 			
 			
