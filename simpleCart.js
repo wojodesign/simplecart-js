@@ -1526,7 +1526,7 @@ generateSimpleCart = function(space){
 					return this.el[0].innerHTML; 
 				} else {
 					this.each(function(e,x){
-						if(e) $engine(e).update( text );	
+						$(e).update( text );	
 					});
 					return this;
 				} 
@@ -1542,7 +1542,7 @@ generateSimpleCart = function(space){
 					return this.el[0].readAttribute( attr );
 				} else {
 					this.each(function(e,x){
-						if(e) $engine(e).writeAttribute( attr , val );
+						$(e).writeAttribute( attr , val );
 					});
 					return this;
 				}
@@ -1551,29 +1551,29 @@ generateSimpleCart = function(space){
 				this.each(function(e,x){
 					if( item.el ){
 						item.each(function(e2,x2){
-							if(e) $engine(e).appendChild( e2 );
+							$(e).appendChild( e2 );
 						});
 					} else if( isElement( item ) ){
-						if(e) $engine(e).appendChild(item);
+						$(e).appendChild(item);
 					}
 				});
 				return this;
 			} ,
 			remove: function(){
 				this.each(function(e,x){
-					if(e) $engine(e).remove();
+					$(e).remove();
 				});
 				return this;
 			} ,
 			addClass: function( klass ){
 				this.each(function(e,x){
-					if(e) $engine(e).addClassName( klass );
+					$(e).addClassName( klass );
 				});
 				return this;
 			} , 
 			removeClass: function( klass ){
 				this.each(function(e,x){
-					if(e) $engine(e).removeClassName( klass );
+					$(e).removeClassName( klass );
 				});
 				return this;
 			} ,
@@ -1586,13 +1586,13 @@ generateSimpleCart = function(space){
 			click: function(callback){
 				if( isFunction(callback) ){
 					this.each(function(e,x){
-						if(e) $engine(e).observe( _CLICK_ , function(ev){
+						$(e).observe( _CLICK_ , function(ev){
 							callback.call(e,ev);
 						});
 					});
 				} else if( isUndefined(callback) ) {
 					this.each(function(e,x){
-						if(e) $engine(e).fire(_CLICK_);
+						$(e).fire(_CLICK_);
 					});
 				}
 				return this;
@@ -1628,7 +1628,7 @@ generateSimpleCart = function(space){
 				if( isString( selector ) ){
 					this.el = $engine(selector);
 				} else if( isElement( selector) ){
-					this.el = [$engine(selector)];
+					this.el = [$(selector)];
 				}
 			}
 			
