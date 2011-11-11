@@ -8,7 +8,7 @@ test("adding and removing items", function(){
 	
 	var item = simpleCart.add({
 		name: "Cool T-shirt",
-		price: 25,
+		price: 25
 	});
 	
 	same( simpleCart.quantity() , 1 , "Quantity correct after one item added" );
@@ -23,7 +23,7 @@ test("editing items", function(){
 	
 	var item = simpleCart.add({
 		name: "Cool T-shirt",
-		price: 25,
+		price: 25
 	});
 	
 	item.set( "name" , "Really Cool Shorts" );
@@ -282,7 +282,7 @@ test("editing items", function(){
 	
 		var item = simpleCart.add({
 			name: "Cool T-shirt",
-			price: 25,
+			price: 25
 		});
 
 		same( document.getElementById('simpleCart_quantity').innerHTML , "" + simpleCart.quantity() , "quantity outlet works" );
