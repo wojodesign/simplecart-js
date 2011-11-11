@@ -1628,7 +1628,7 @@ generateSimpleCart = function(space){
 				if( isString( selector ) ){
 					this.el = $engine(selector);
 				} else if( isElement( selector) ){
-					this.el = [selector];
+					this.el = [$engine(selector)];
 				}
 			}
 			
