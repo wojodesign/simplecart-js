@@ -277,3 +277,21 @@ test("editing items", function(){
 				
 	});
 	
+	module('simpleCart UI updates');
+	test("basic outlets work", function(){
+	
+		var item = simpleCart.add({
+			name: "Cool T-shirt",
+			price: 25,
+		});
+
+		same( document.getElementById('simpleCart_quantity').innerHTML , "" + simpleCart.quantity() , "quantity outlet works" );
+		same( document.getElementById('simpleCart_total').innerHTML , simpleCart.toCurrency( simpleCart.total() ), "total outlet works" );
+		same( document.getElementById('simpleCart_taxRate').innerHTML , simpleCart.taxRate().toFixed() , "taxRate outlet works" );
+		same( document.getElementById('simpleCart_tax').innerHTML , simpleCart.toCurrency( simpleCart.tax() ) , "tax outlet works" );
+		same( document.getElementById('simpleCart_shipping').innerHTML , simpleCart.toCurrency( simpleCart.shipping() ) , "shipping outlet works" );
+		same( document.getElementById('simpleCart_grandTotal').innerHTML , simpleCart.toCurrency( simpleCart.grandTotal() ) , "grand total outlet works" );
+		
+	});
+	
+	
