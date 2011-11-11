@@ -1526,7 +1526,7 @@ generateSimpleCart = function(space){
 					return this.el[0].innerHTML; 
 				} else {
 					this.each(function(e,x){
-						e.update( text );	
+						$engine(e).update( text );	
 					});
 					return this;
 				} 
@@ -1542,7 +1542,7 @@ generateSimpleCart = function(space){
 					return this.el[0].readAttribute( attr );
 				} else {
 					this.each(function(e,x){
-						e.writeAttribute( attr , val );
+						$engine(e).writeAttribute( attr , val );
 					});
 					return this;
 				}
@@ -1551,29 +1551,29 @@ generateSimpleCart = function(space){
 				this.each(function(e,x){
 					if( item.el ){
 						item.each(function(e2,x2){
-							e.appendChild( e2 );
+							$engine(e).appendChild( e2 );
 						});
 					} else if( isElement( item ) ){
-						e.appendChild(item);
+						$engine(e).appendChild(item);
 					}
 				});
 				return this;
 			} ,
 			remove: function(){
 				this.each(function(e,x){
-					e.remove();
+					$engine(e).remove();
 				});
 				return this;
 			} ,
 			addClass: function( klass ){
 				this.each(function(e,x){
-					e.addClassName( klass );
+					$engine(e).addClassName( klass );
 				});
 				return this;
 			} , 
 			removeClass: function( klass ){
 				this.each(function(e,x){
-					e.removeClassName( klass );
+					$engine(e).removeClassName( klass );
 				});
 				return this;
 			} ,
@@ -1586,13 +1586,13 @@ generateSimpleCart = function(space){
 			click: function(callback){
 				if( isFunction(callback) ){
 					this.each(function(e,x){
-						e.observe( _CLICK_ , function(ev){
+						$engine(e).observe( _CLICK_ , function(ev){
 							callback.call(e,ev);
 						});
 					});
 				} else if( isUndefined(callback) ) {
 					this.each(function(e,x){
-						e.fire(_CLICK_);
+						$engine(e).fire(_CLICK_);
 					});
 				}
 				return this;
@@ -1601,7 +1601,7 @@ generateSimpleCart = function(space){
 				if( isFunction(callback) ){
 					var selector = this.selector;
 					document.observe( event, function( e, el ){
-						if( el == e.findElement(selector) ){
+						if( el == $engine(e).findElement(selector) ){
 							callback.call( el , e );
 						}
 					});
