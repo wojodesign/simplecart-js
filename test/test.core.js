@@ -1,4 +1,32 @@
 
+if( !QUnit.urlParams.storage ){
+	simpleCart.empty();
+	simpleCart.add({
+		name: "Cool T-shirt",
+		price: 25
+	});
+	var mark = document.location.href.match(/\?/) ? "&" : "?";
+	document.location.href = document.location.href + mark + "storage=true";
+}
+
+
+module('simpleCart-storage');
+test("proper loading after page refesh", function(){
+
+	var item = simpleCart.find({})[0];
+	
+	same( item.quantity() , 1 , "item quantity loaded properly" );
+	same( item.get('name') , "Cool T-shirt" , "item name loaded properly" );
+	same( item.price() , 25 , "item price loaded properly" );
+	same( simpleCart.quantity() , 1 , "sc quantity loaded properly" );
+	same( simpleCart.total() , 25 , "sc total loaded properly" );
+	
+	
+});
+
+
+
+
 module('simpleCart core functions');
 test("adding and removing items", function(){
 	
@@ -292,6 +320,13 @@ test("editing items", function(){
 		same( document.getElementById('simpleCart_shipping').innerHTML , simpleCart.toCurrency( simpleCart.shipping() ) , "shipping outlet works" );
 		same( document.getElementById('simpleCart_grandTotal').innerHTML , simpleCart.toCurrency( simpleCart.grandTotal() ) , "grand total outlet works" );
 		
+		
+		
 	});
 	
-	
+// just incase we refresh ;)
+	simpleCart.empty();
+	simpleCart.add({
+		name: "Cool T-shirt",
+		price: 25
+	});	
