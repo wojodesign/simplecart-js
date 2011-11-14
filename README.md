@@ -115,7 +115,7 @@ Here are the possible options and their default values:
 
 ##Function Reference
 
-simpleCart.$( selector )
+###simpleCart.$( selector )
 ####arguments 
 *selector: string of a css selector
 
@@ -123,11 +123,11 @@ simpleCart.$( selector )
 *simpleCart.ELEMENT object containing one or more dom elements if the selector matches anything on the page
 
 Before:
-	<ul>
+	`<ul>
 		<li class="item">Item 1</li>
 		<li class="item">Item 2</li>
 		<li class="item">Item 3</li>
-	</ul>
+	</ul>`
 
 	
 	var items = simpleCart.$('li.item');
@@ -135,11 +135,11 @@ Before:
 
 
 After:
-	<ul>
+	`<ul>
 		<li class="item cool">Item 1</li>
 		<li class="item cool">Item 2</li>
 		<li class="item cool">Item 3</li>
-	</ul>
+	</ul>`
 
 
 
