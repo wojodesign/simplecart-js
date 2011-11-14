@@ -137,11 +137,11 @@ The Cart Columns allow the user to specify how the cart will be formatted and di
 
 Each column is represented by an object, the most basic setup simple specifies which attribute to display and how to label the column: 
 
-`{ attr: "name" , label: "Name" }`.
+    { attr: "name" , label: "Name" }
 
 There are also some built in 'views' that will create a special column.  For example, an 'increment' view: 
 
-`{ view: "increment" , label: false , text: "+" }` 
+    { view: "increment" , label: false , text: "+" }
 
 will have a link that increments the quantity. Setting the `label:false` will hide the label for the view. You can specify the text of the link with that `text:` attribute.
 
@@ -153,7 +153,7 @@ There are a number of built-in views, and you can create your own.  Here are wha
 
 This is the basic view that displays an attribute of the item, and looks like 
 
-`{ attr: "name" , label: "Name" }`
+    { attr: "name" , label: "Name" }
 
 will output 
 
@@ -165,7 +165,7 @@ This will simply display the attribute value and set the header label. Notice yo
 
 This view is exactly like the attribute view, except that it will format the attribute value as currency: 
 
-`{ attr: "price" , label: "Price", view: 'currency' }`
+    { attr: "price" , label: "Price", view: 'currency' }
 
 `<div class="item-price">$139.86</div>`
 
@@ -173,13 +173,13 @@ This view is exactly like the attribute view, except that it will format the att
 
 This view will output a link that will decrement the quantity of the item:
 
-`{view:'decrement', label: false }`
+    {view:'decrement', label: false }
 
 `<div class="item-decrement "><a href="javascript:;" class="simpleCart_decrement">-</a></div>`
 
 Optionally, you can set the `text` attribute which will set the innerHTML of the link (default is '-'):
 
-`{view:'decrement' , label: false, text: 'Less' }`
+    {view:'decrement' , label: false, text: 'Less' }
 
 `<div class="item-decrement "><a href="javascript:;" class="simpleCart_decrement">Less</a></div>`
 
@@ -188,13 +188,13 @@ Optionally, you can set the `text` attribute which will set the innerHTML of the
 
 This view will output a link that will increment the quantity of the item:
 
-`{view:'increment', label: false }`
+    {view:'increment', label: false }
 
 `<div class="item-increment "><a href="javascript:;" class="simpleCart_increment">+</a></div>`
 
 Optionally, you can set the `text` attribute which will set the innerHTML of the link (default is '+'):
 
-`{view:'increment' , label: false, text: 'More' }`
+    {view:'increment' , label: false, text: 'More' }
 
 `<div class="item-increment "><a href="javascript:;" class="simpleCart_increment">More</a></div>`
 
@@ -202,13 +202,13 @@ Optionally, you can set the `text` attribute which will set the innerHTML of the
 
 This view will output a link that will remove the item from the cart when clicked:
 
-`{view:'remove', label: 'Remove' }`
+    {view:'remove', label: 'Remove' }
 
 `<div class="item-remove "><a href="javascript:;" class="simpleCart_remove">X</a></div>`
 
 Optionally, you can set the `text` attribute which will set the innerHTML of the link (default is 'X'):
 
-`{view:'remove' , label: 'Remove', text: 'Remove' }`
+    {view:'remove' , label: 'Remove', text: 'Remove' }
 
 `<div class="item-remove "><a href="javascript:;" class="simpleCart_remove">Remove</a></div>`
 
@@ -216,7 +216,7 @@ Optionally, you can set the `text` attribute which will set the innerHTML of the
 
 This view will output a link, using the attribute provided as the href, and the `text` value as the innerHTML:
 
-`{view:'link' , label: 'Details' , attr: 'pageLink' , text: 'View More' }`
+    {view:'link' , label: 'Details' , attr: 'pageLink' , text: 'View More' }
 
 `<div class="item-pageLink"><a href="[value-of-pageLink-attr]">View More</a></div>`
 
@@ -224,7 +224,7 @@ This view will output a link, using the attribute provided as the href, and the 
 
 This view will output an image, using the attribute specified as the source:
 
-`{view:'image' , attr:'thumb', label: false}`
+    {view:'image' , attr:'thumb', label: false}
 
 `<div class="item-thumb "><img src='[value-of-thumb-attr]' /></div>`
 
@@ -232,7 +232,7 @@ This view will output an image, using the attribute specified as the source:
 
 This view will create an input, with the value set to the attribute provided.  When the user alters the input text, simpleCart(js) will input the item attribute.  This example makes the quantity an input that the user can alter:
 
-`{view:'input', attr:'quantity', label: "Quantity" }`
+    {view:'input', attr:'quantity', label: "Quantity" }
 
 `<div class="item-quantity"><input type="text" value="[item-quantity]" class="simpleCart_input"/></div>`
 
@@ -262,11 +262,93 @@ As an example, let's say you wanted to have one column that displayed the total 
 
 
 ##Checkout Methods
+
+There are 4 built-in checkout methods that are included in simpleCart(js):
 * Paypal 
 * Google Checkout
 * Amazon Payments
 * Send Form
-* Custom
+
+You can also create your own custom checkout or use an extension for prebuilt checkouts.  
+
+###Paypal
+
+In order to use PayPal Standard checkout, you can set the options like this:
+
+    simpleCart({
+		checkout: { 
+			type: "PayPal" , 
+			email: "you@yours.com" 
+		} 
+    });
+
+There are additional optional parameters that can be set as well:
+
+    simpleCart({
+		checkout: { 
+			type: "PayPal" , 
+			email: "you@yours.com" ,
+			
+			// use paypal sandbox, default is false
+			sandbox: true , 
+			
+			// http method for form, "POST" or "GET", default is "POST"
+			method: "GET" , 
+			
+			// url to return to on successful checkout, default is null
+			success: "success.html" , 
+			
+			// url to return to on cancelled checkout, default is null
+			cancel: "cancel.html" 
+		} 
+    });
+
+
+###Google Checkout
+
+In order to use Google Checkout, you can set the options like this:
+
+    simpleCart({
+		checkout: { 
+			type: "GoogleCheckout" , 
+			marchantID: "XXXXXXXXX" ,
+			
+			// http method for form, "POST" or "GET", default is "POST"
+			method: "GET" 
+		} 
+    });
+
+**Google Checkout only accepts USD and GBP as currency**
+
+
+###Amazon Payments
+*Amazon Payments checkout is very lightly tested, please report any issues when testing*
+
+To use Amazon Payments, you can setup the cart with these options:
+
+    simpleCart({
+		checkout: { 
+			type: "AmazonPayments" , 
+			merchant_signature: "XXXXXXXXX" ,
+			merchant_id: "XXX",
+			aws_access_key_id: "XXX" ,
+			
+			// optional parameters
+			// http method for form, "POST" or "GET", default is "POST"
+			method: "GET" ,
+			
+			// use sandbox server, default is false
+			sandbox: true ,
+			
+			// optional weight unit for calculating shipping, default is "lb"
+			weight_unit: "lb" 
+		} 
+    });
+
+
+###Send Form
+
+
 
 ##Events
 
