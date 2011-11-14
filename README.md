@@ -98,7 +98,73 @@ Here are the possible options and their default values:
 	
 ##The Shelf
 
+You can make items be available to your users by simple using class names in your html. For any Item you want to be available to be added to the cart, you make a container with a class name of `simpleCart_shelfItem`. Then add classes to tags inside of that container that have the general form `item_[name of field]` and simpleCart will use the value or innerHTML of that tag for the cart. For example, if you wanted to sell a T-shirt with 3 different sizes, you can do this:
+
+    <div class="simpleCart_shelfItem">
+    	<h2 class="item_name"> Awesome T-shirt </h2>
+    	<select class="item_size">
+        	<option value="Small"> Small </option>
+        	<option value="Medium"> Medium </option>
+        	<option value="Large"> Large </option>
+    	</select>
+    	<input type="text" value="1" class="item_Quantity">
+    	<span class="item_price">$35.99</span>
+    	<a class="item_add" href="javascript:;"> Add to Cart </a>
+	</div>
+	
+Notice here that you can use a select to change options for the item when you add it to the cart. You can also use a text input to change the quantity (or any other field!). These classes will work with any tag, so feel free to use what works best for you. Finally, notice that a tag with the class `item_add` will have an event listener on its click. So when the contents of that tag are clicked, an item will be added to the cart with the values of each of the tags in the container with the `item_something` class.
+
+####Some notes:
+*You will want to always supply a quantity and price. Although the cart won't break if you don't, all the quantities and totals are created from it, so the cart will assign a price of $0 if there is none, and a quantity of 1 if no quantity is provided.
+*If you are planning on checking out to googleCheckout or paypal, it is a good idea to use a name field
+*If you use a link for the add to cart button, its a good idea to set the href to `"javascript:;"`
+
 ##Cart Columns
+
+The Cart Columns allow the user to specify how the cart will be formatted and displayed. There is a lot of flexibility here, take a look at the default setup:
+
+    simpleCart({
+		cartColumns: [
+			{ attr: "name" , label: "Name" } ,
+			{ attr: "price" , label: "Price", view: 'currency' } ,
+			{ view: "decrement" , label: false , text: "-" } ,
+			{ attr: "quantity" , label: "Qty" } ,
+			{ view: "increment" , label: false , text: "+" } ,
+			{ attr: "total" , label: "SubTotal", view: 'currency' } ,
+			{ view: "remove" , text: "Remove" , label: false }
+		]
+    });
+
+Each column is represented by an object, the most basic setup simple specifies which attribute to display and how to label the column: `{ attr: "name" , label: "Name" }`.
+
+There are also some built in 'views' that will create a special column.  For example, an 'increment' view: `{ view: "increment" , label: false , text: "+" }` will have a link that increments the quantity.  You can specify the text of the link with that `text:` attribute.
+
+You can add `view: "currency"` to format the column as currency (see the currency section on more information on currency formatting). 
+
+There are a number of built-in views, and you can create your own.  Here are what is already available:
+
+###Attribute 
+
+This is the basic view that displays an attribute of the item, and looks like `{ attr: "name" , label: "Name" }`. This will simply display the attribute value and set the header label. Notice you do not need to specify the `view` in the object: this is the default view
+
+###Currency 
+
+This view is exactly like the attribute view, except that it will format the attribute value as currency: `{ attr: "price" , label: "Price", view: 'currency' }`
+
+###Decrement
+
+###Increment
+
+###Remove
+
+###Link
+
+###Image
+
+###Input
+
+###Creating your own view
+
 
 ##Checkout Methods
 * Paypal 
@@ -109,9 +175,88 @@ Here are the possible options and their default values:
 
 ##Events
 
+simpleCart(js) has lots of events that allow you to customize and modify the core functionality.  You can add a callback to an event by using the `simpleCart.bind()` event:
+
+    simpleCart.bind( 'afterAdd' , function( item ){
+		alert( item.name + " has been added to the cart!");
+    });
+
+There are several built in events that you can tie in to:
+
+###beforeAdd
+
+###afterAdd
+	
+###load
+
+###beforeSave
+
+###afterSave
+
+###update
+
+###ready
+
+###checkoutSuccess
+
+###checkoutFail
+
+###beforeCheckout
+
+###Custom events
+
+You can trigger custom simpleCart(js) events using the `.trigger()` function:
+
+    simpleCart.trigger( 'awesomeEvent' );
+
+You can optionally send arguments to a triggered event by passing an array of values to `.trigger()`:
+
+    simpleCart.trigger( 'awesomeEvent' , [ myfirstarg, mysecondarg ] );
+
+
 ##Currency
 
+simpleCart(js) has a number of currencies that are already supported out of the box.  You can specify the currency a number of ways, such as setting the option:
+
+    simpleCart({
+		currency: "GBP" // set the currency to pounds sterling
+    });
+
+You can also set the currency using the `.currency()` function:
+
+    simpleCart.currency( "EUR" ); // set the currency to Euros
+
+The built-in currencies are listed below, but you can also set a new currency using the `.currency()` function:
+
+	simpleCart.currency({ 
+		code: "MAC" ,
+		name: "My Awesome Currency" ,
+		symbol: "$@" 
+	});
+	
+There are a number of formatting options when setting a currency as well.  For example, if you wanted your currency to be formatted as `123 456,780 $AWE` instead of `$123,456.78`, you would use:
+
+	simpleCart.currency({
+		code: "MAC" ,
+		name: "My Awesome Currency" ,
+		symbol: " $AWE" ,
+		delimiter: " " , 
+		decimal: "," , 
+		after: true ,
+		accuracy: 3
+	});
+	
+If you would like to see what the currency is currently set to, you can call the `.currency()` function with no arguments:
+
+	simpleCart.currency("USD");
+
+    simpleCart.currency();  // returns { code:"USD", symbol:"&#36;", name:"US Dollar" } 
+
+
+
 ##Shipping
+
+
 
 ##Function Reference
 

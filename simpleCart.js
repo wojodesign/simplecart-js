@@ -848,6 +848,7 @@ generateSimpleCart = function(space){
 					, rm			: opts.method === "GET" ? "0" : "2"
 					, tax_cart		: simpleCart.tax()
 					, handling_cart : simpleCart.shipping()
+					, charset		: "utf-8"
 				},
 				action = opts.sandbox ? "https://www.sandbox.paypal.com/cgi-bin/webscr" : "https://www.paypal.com/cgi-bin/webscr",
 				method = opts.method === "GET" ? "GET" : "POST";
@@ -873,6 +874,7 @@ generateSimpleCart = function(space){
 				data["quantity_" + counter ] = item.quantity();
 				data["amount_" + counter] = item.price();
 				data["item_number_" + counter ] = item.get("item_number") || counter;
+				
 				
 				// add the options
 				simpleCart.each( item_options , function(val,k,attr){
