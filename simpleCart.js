@@ -270,7 +270,8 @@ function Cart(){
 		form.appendChild(me.createHiddenElement("upload", "1"));
 		form.appendChild(me.createHiddenElement("business", me.email ));
 		form.appendChild(me.createHiddenElement("currency_code", me.currency));
-		
+		form.appendChild(me.createHiddenElement("charset", "utf-8"));
+
 		if( me.taxRate ){
 			form.appendChild(me.createHiddenElement("tax_cart",me.taxCost ));
 		}
