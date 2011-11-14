@@ -135,9 +135,13 @@ The Cart Columns allow the user to specify how the cart will be formatted and di
 		]
     });
 
-Each column is represented by an object, the most basic setup simple specifies which attribute to display and how to label the column: `{ attr: "name" , label: "Name" }`.
+Each column is represented by an object, the most basic setup simple specifies which attribute to display and how to label the column: 
 
-There are also some built in 'views' that will create a special column.  For example, an 'increment' view: `{ view: "increment" , label: false , text: "+" }` will have a link that increments the quantity.  You can specify the text of the link with that `text:` attribute.
+`{ attr: "name" , label: "Name" }`.
+
+There are also some built in 'views' that will create a special column.  For example, an 'increment' view: 
+
+`{ view: "increment" , label: false , text: "+" }` will have a link that increments the quantity.  You can specify the text of the link with that `text:` attribute.
 
 You can add `view: "currency"` to format the column as currency (see the currency section on more information on currency formatting). 
 
@@ -145,11 +149,17 @@ There are a number of built-in views, and you can create your own.  Here are wha
 
 ###Attribute 
 
-This is the basic view that displays an attribute of the item, and looks like `{ attr: "name" , label: "Name" }`. This will simply display the attribute value and set the header label. Notice you do not need to specify the `view` in the object: this is the default view
+This is the basic view that displays an attribute of the item, and looks like 
+
+`{ attr: "name" , label: "Name" }`.
+
+This will simply display the attribute value and set the header label. Notice you do not need to specify the `view` in the object: this is the default view
 
 ###Currency 
 
-This view is exactly like the attribute view, except that it will format the attribute value as currency: `{ attr: "price" , label: "Price", view: 'currency' }`
+This view is exactly like the attribute view, except that it will format the attribute value as currency: 
+
+`{ attr: "price" , label: "Price", view: 'currency' }`
 
 ###Decrement
 
@@ -252,6 +262,30 @@ If you would like to see what the currency is currently set to, you can call the
 
     simpleCart.currency();  // returns { code:"USD", symbol:"&#36;", name:"US Dollar" } 
 
+Built-in currencies:
+
+    "USD": { code:"USD", symbol:"&#36;", name:"US Dollar" } , 
+    "AUD": { code:"AUD", symbol:"&#36;", name:"Australian Dollar" } , 
+    "BRL": { code:"BRL", symbol:"&#36;", name:"Brazilian Real" } , 
+    "CAD": { code:"CAD", symbol:"&#36;", name:"Canadian Dollar" } , 
+    "CZK": { code:"CZK", symbol:"&nbsp;&#75;&#269;", name:"Czech Koruna", after: true } , 
+    "DKK": { code:"DKK", symbol:"DKK&nbsp;", name:"Danish Krone" } , 
+    "EUR": { code:"EUR", symbol:"&euro;", name:"Euro" } , 
+    "HKD": { code:"HKD", symbol:"&#36;", name:"Hong Kong Dollar" } ,
+    "HUF": { code:"HUF", symbol:"&#70;&#116;", name:"Hungarian Forint" } ,
+    "ILS": { code:"ILS", symbol:"&#8362;", name:"Israeli New Sheqel" } ,
+    "JPY": { code:"JPY", symbol:"&yen;", name:"Japanese Yen" } ,
+    "MXN": { code:"MXN", symbol:"&#36;", name:"Mexican Peso" } ,
+    "NOK": { code:"NOK", symbol:"NOK&nbsp;", name:"Norwegian Krone" } ,
+    "NZD": { code:"NZD", symbol:"&#36;", name:"New Zealand Dollar" } ,
+    "PLN": { code:"PLN", symbol:"PLN&nbsp;", name:"Polish Zloty" } ,
+    "GBP": { code:"GBP", symbol:"&pound;", name:"Pound Sterling" } ,
+    "SGD": { code:"SGD", symbol:"&#36;", name:"Singapore Dollar" } ,
+    "SEK": { code:"SEK", symbol:"SEK&nbsp;", name:"Swedish Krona" } ,
+    "CHF": { code:"CHF", symbol:"CHF&nbsp;", name:"Swiss Franc" } ,
+    "THB": { code:"THB", symbol:"&#3647;", name:"Thai Baht" }
+
+**If there are errors or problems with the default formatting of your currency, please let us know so we can update the base code**
 
 
 ##Shipping
