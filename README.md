@@ -143,7 +143,7 @@ There are also some built in 'views' that will create a special column.  For exa
 
 `{ view: "increment" , label: false , text: "+" }` 
 
-will have a link that increments the quantity.  You can specify the text of the link with that `text:` attribute.
+will have a link that increments the quantity. Setting the `label:false` will hide the label for the view. You can specify the text of the link with that `text:` attribute.
 
 You can add `view: "currency"` to format the column as currency (see the currency section on more information on currency formatting). 
 
@@ -153,7 +153,11 @@ There are a number of built-in views, and you can create your own.  Here are wha
 
 This is the basic view that displays an attribute of the item, and looks like 
 
-`{ attr: "name" , label: "Name" }`.
+`{ attr: "name" , label: "Name" }`
+
+will output 
+
+`<div class="item-name">Awesome T-Shirt</div>`
 
 This will simply display the attribute value and set the header label. Notice you do not need to specify the `view` in the object: this is the default view
 
@@ -163,19 +167,98 @@ This view is exactly like the attribute view, except that it will format the att
 
 `{ attr: "price" , label: "Price", view: 'currency' }`
 
+`<div class="item-price">$139.86</div>`
+
 ###Decrement
+
+This view will output a link that will decrement the quantity of the item:
+
+`{view:'decrement', label: false }`
+
+`<div class="item-decrement "><a href="javascript:;" class="simpleCart_decrement">-</a></div>`
+
+Optionally, you can set the `text` attribute which will set the innerHTML of the link (default is '-'):
+
+`{view:'decrement' , label: false, text: 'Less' }`
+
+`<div class="item-decrement "><a href="javascript:;" class="simpleCart_decrement">Less</a></div>`
+
 
 ###Increment
 
+This view will output a link that will increment the quantity of the item:
+
+`{view:'increment', label: false }`
+
+`<div class="item-increment "><a href="javascript:;" class="simpleCart_increment">+</a></div>`
+
+Optionally, you can set the `text` attribute which will set the innerHTML of the link (default is '+'):
+
+`{view:'increment' , label: false, text: 'More' }`
+
+`<div class="item-increment "><a href="javascript:;" class="simpleCart_increment">More</a></div>`
+
 ###Remove
+
+This view will output a link that will remove the item from the cart when clicked:
+
+`{view:'remove', label: 'Remove' }`
+
+`<div class="item-remove "><a href="javascript:;" class="simpleCart_remove">X</a></div>`
+
+Optionally, you can set the `text` attribute which will set the innerHTML of the link (default is 'X'):
+
+`{view:'remove' , label: 'Remove', text: 'Remove' }`
+
+`<div class="item-remove "><a href="javascript:;" class="simpleCart_remove">Remove</a></div>`
 
 ###Link
 
+This view will output a link, using the attribute provided as the href, and the `text` value as the innerHTML:
+
+`{view:'link' , label: 'Details' , attr: 'pageLink' , text: 'View More' }`
+
+`<div class="item-pageLink"><a href="[value-of-pageLink-attr]">View More</a></div>`
+
 ###Image
+
+This view will output an image, using the attribute specified as the source:
+
+`{view:'image' , attr:'thumb', label: false}`
+
+`<div class="item-thumb "><img src='[value-of-thumb-attr]' /></div>`
 
 ###Input
 
+This view will create an input, with the value set to the attribute provided.  When the user alters the input text, simpleCart(js) will input the item attribute.  This example makes the quantity an input that the user can alter:
+
+`{view:'input', attr:'quantity', label: "Quantity" }`
+
+`<div class="item-quantity"><input type="text" value="[item-quantity]" class="simpleCart_input"/></div>`
+
 ###Creating your own view
+
+You can create custom views for the cart by setting the `view` to a function instead of a string.  The function should take two arguments, the item for that row, and the column details you specify.
+
+    { view: function( item , column ){
+			// return some html
+	  } ,
+	  label: "My Custom Column"	
+	}
+	
+As an example, let's say you wanted to have one column that displayed the total quantity, along with the links for incrementing and decrementing the quantity:
+
+    { view: function(item, column){
+        return  "<span>"+ item.quantity() +"</span>" + 
+                "<div>" +
+                    "<a href='javascript:;' class='simpleCart_increment'>+</a>" +
+                    "<a href='javascript:;' class='simpleCart_decrement'>-</a>" +
+                "</div>";
+      } , 
+      attr: "custom" ,
+      label: "Quantity"
+    },
+
 
 
 ##Checkout Methods
