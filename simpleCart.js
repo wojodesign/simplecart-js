@@ -1296,7 +1296,7 @@ generateSimpleCart = function(space){
 			if( isObject( val ) && val.el ){
 				simpleCart.$( selector ).html( ' ' ).append( val );
 			} else if( !isUndefined( val ) ){
-				simpleCart.$( selector ).text( val );
+				simpleCart.$( selector ).html( val );
 			}
 		},
 		
@@ -1558,7 +1558,7 @@ generateSimpleCart = function(space){
 				} 
 			} ,
 			html: function( html ){
-				return this.text( html );
+				return this.html( html );
 			} ,
 			val: function( val ){
 				return this.attr( _VALUE_ , val );

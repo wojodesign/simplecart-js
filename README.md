@@ -141,7 +141,9 @@ Each column is represented by an object, the most basic setup simple specifies w
 
 There are also some built in 'views' that will create a special column.  For example, an 'increment' view: 
 
-`{ view: "increment" , label: false , text: "+" }` will have a link that increments the quantity.  You can specify the text of the link with that `text:` attribute.
+`{ view: "increment" , label: false , text: "+" }` 
+
+will have a link that increments the quantity.  You can specify the text of the link with that `text:` attribute.
 
 You can add `view: "currency"` to format the column as currency (see the currency section on more information on currency formatting). 
 
