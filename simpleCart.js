@@ -49,11 +49,35 @@ generateSimpleCart = function(space){
 	sc_items 				= {},
 	namespace 				= space || "simpleCart",
 	
+	/* for reference---- delete this:
+	 symbol: 		"$"
+	, decimal: 		"."
+	, delimiter: 	","
+	, accuracy:  	2
+	, after: false */
 	
 	// Currencies
 	currencies = {
-		  "USD": { code:"USD", symbol:"$", name:"US Dollar" }
-		, "AUD": { code:"AUD", symbol:"$", name:"Australian Dollar" }
+		  "USD": { code:"USD", symbol:"&#36;", name:"US Dollar" }
+		, "AUD": { code:"AUD", symbol:"&#36;", name:"Australian Dollar" }
+		, "BRL": { code:"BRL", symbol:"&#36;", name:"Brazilian Real" }
+		, "CAD": { code:"CAD", symbol:"&#36;", name:"Canadian Dollar" }
+		, "CZK": { code:"CZK", symbol:"CZK&nbsp;", name:"Czech Koruna" }
+		, "DKK": { code:"DKK", symbol:"DKK&nbsp;", name:"Danish Krone" }
+		, "EUR": { code:"EUR", symbol:"&euro;", name:"Euro" }
+		, "HKD": { code:"HKD", symbol:"&#36;", name:"Hong Kong Dollar" }
+		, "HUF": { code:"HUF", symbol:"HUF&nbsp;", name:"Hungarian Forint" }
+		, "ILS": { code:"ILS", symbol:"&#36;", name:"Israeli New Sheqel" }
+		, "JPY": { code:"JPY", symbol:"&yen;", name:"Japanese Yen" }
+		, "MXN": { code:"MXN", symbol:"&#36;", name:"Mexican Peso" }
+		, "NOK": { code:"NOK", symbol:"NOK&nbsp;", name:"Norwegian Krone" }
+		, "NZD": { code:"NZD", symbol:"&#36;", name:"New Zealand Dollar" }
+		, "PLN": { code:"PLN", symbol:"PLN&nbsp;", name:"Polish Zloty" }
+		, "GBP": { code:"GBP", symbol:"&pound;", name:"Pound Sterling" }
+		, "SGD": { code:"SGD", symbol:"&#36;", name:"Singapore Dollar" }
+		, "SEK": { code:"SEK", symbol:"SEK&nbsp;", name:"Swedish Krona" }
+		, "CHF": { code:"CHF", symbol:"CHF&nbsp;", name:"Swiss Franc" }
+		, "THB": { code:"THB", symbol:"&#3647;", name:"Thai Baht" }
 	},
 	
 	// default options
@@ -946,13 +970,13 @@ generateSimpleCart = function(space){
 		AmazonPayments: function(opts){
 			// required options 
 			if( !opts.merchant_signature ){
-				return simpleCart.error("No merchant signature provided for Amazong Payments");
+				return simpleCart.error("No merchant signature provided for Amazon Payments");
 			}
 			if( !opts.merchant_id ){
-				return simpleCart.error("No merchant id provided for Amazong Payments");
+				return simpleCart.error("No merchant id provided for Amazon Payments");
 			}
 			if( !opts.aws_access_key_id ){
-				return simpleCart.error("No AWS access key id provided for Amazong Payments");
+				return simpleCart.error("No AWS access key id provided for Amazon Payments");
 			}
 			
 			
