@@ -335,6 +335,66 @@ test("editing items", function(){
 		
 	});
 	
+	module('simpleCart UI updates');
+	test("basic outlets work", function(){
+	
+		var item = simpleCart.add({
+			name: "Cool T-shirt",
+			price: 25
+		});
+
+		document.getElementById('test_id').innerHTML = simpleCart.quantity();
+		same( document.getElementById('simpleCart_quantity').innerHTML , document.getElementById('test_id').innerHTML , "quantity outlet works" );
+		
+		document.getElementById('test_id').innerHTML = simpleCart.toCurrency( simpleCart.total() );
+		same( document.getElementById('simpleCart_total').innerHTML , document.getElementById('test_id').innerHTML, "total outlet works" );
+		
+		document.getElementById('test_id').innerHTML = simpleCart.taxRate().toFixed();
+		same( document.getElementById('simpleCart_taxRate').innerHTML , document.getElementById('test_id').innerHTML , "taxRate outlet works" );
+		
+		document.getElementById('test_id').innerHTML = simpleCart.toCurrency( simpleCart.tax() );
+		same( document.getElementById('simpleCart_tax').innerHTML , document.getElementById('test_id').innerHTML , "tax outlet works" );
+		
+		document.getElementById('test_id').innerHTML = simpleCart.toCurrency( simpleCart.shipping() );
+		same( document.getElementById('simpleCart_shipping').innerHTML , document.getElementById('test_id').innerHTML , "shipping outlet works" );
+		
+		document.getElementById('test_id').innerHTML = simpleCart.toCurrency( simpleCart.grandTotal() );
+		same( document.getElementById('simpleCart_grandTotal').innerHTML , document.getElementById('test_id').innerHTML , "grand total outlet works" );
+				
+	});
+	
+	
+	module('simpleCart cart views');
+	test("basic cart views", function(){
+		
+		simpleCart({
+			cartColumns	: [
+				  { attr: "name" , label: "Name" }
+				, { view: "image" , attr: "thumb" }
+				, { attr: "price" , label: "Price", view: 'currency' }
+				, { view: "decrement" , label: false }
+				, { attr: "quantity" , label: "Qty" }
+				, { view: "increment" , label: false }
+				, { attr: "total" , label: "SubTotal", view: 'currency' }
+				, { view: "remove" , text: "Remove" , label: false }
+			]
+		});
+		
+		simpleCart.empty();
+	
+		var item = simpleCart.add({
+			name: "The Letter E", 
+			thumb: "e.png" ,
+			price: 34
+		});
+		
+		same( simpleCart.$("#cartItem_" + item.id() + " .item-thumb img").attr("src") , "e.png" , "Image view works properly");
+		
+		
+	});
+
+	
+	
 // just incase we refresh ;)
 	simpleCart.empty();
 	simpleCart.add({
