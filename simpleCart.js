@@ -392,7 +392,7 @@ generateSimpleCart = function(space){
 				items[item.id()] = simpleCart.extend( item.fields() , item.options() );
 			});
 			
-			localStorage.setItem( namespace + "_items" , JSON.stringify( items ) );
+			localStorage.setItem( namespace + "_items" , escape( JSON.stringify( items ) ) );
 			
 			simpleCart.trigger('afterSave');
 		}, 
@@ -402,7 +402,7 @@ generateSimpleCart = function(space){
 			// empty without the update
 			sc_items = {};
 			
-			var items = localStorage.getItem( namespace + "_items" );
+			var items = unescape( localStorage.getItem( namespace + "_items" ) );
 			
 			if( !items ){
 				return;
@@ -742,7 +742,7 @@ generateSimpleCart = function(space){
 				simpleCart.each(_data,function(val,x,label){
 					var add = true;
 					simpleCart.each( me.reservedFields(), function(field ){
-						if( field !== label ){
+						if( field === label ){
 							add = false;
 						}
 						return add;

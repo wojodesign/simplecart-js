@@ -3,7 +3,8 @@ if( !QUnit.urlParams.storage ){
 	simpleCart.empty();
 	simpleCart.add({
 		name: "Cool T-shirt",
-		price: 25
+		price: 25,
+		thumb: "http://www.google.com/intl/en_com/images/srpr/logo3w.png"
 	});
 	var mark = document.location.href.match(/\?/) ? "&" : "?";
 	document.location.href = document.location.href + mark + "storage=true";
@@ -20,11 +21,10 @@ test("proper loading after page refesh", function(){
 	same( item.price() , 25 , "item price loaded properly" );
 	same( simpleCart.quantity() , 1 , "sc quantity loaded properly" );
 	same( simpleCart.total() , 25 , "sc total loaded properly" );
+	same( item.get("thumb") , "http://www.google.com/intl/en_com/images/srpr/logo3w.png" , "storage non-regular option works" );
 	
 	
 });
-
-
 
 
 module('simpleCart core functions');
@@ -399,5 +399,6 @@ test("editing items", function(){
 	simpleCart.empty();
 	simpleCart.add({
 		name: "Cool T-shirt",
-		price: 25
+		price: 25,
+		thumb: "http://www.google.com/intl/en_com/images/srpr/logo3w.png"
 	});	
