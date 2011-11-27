@@ -96,17 +96,17 @@ test("editing items", function(){
 		
 		var number = 2234.23;
 		
-		same( simpleCart.toCurrency( number ), "$2,234.23" , "Currency Base Case");
+		same( simpleCart.toCurrency( number ), "&#36;2,234.23" , "Currency Base Case");
 		
-		same( simpleCart.toCurrency( number , { delimiter: " " }) ,"$2 234.23" ,  "Changing Delimiter");
+		same( simpleCart.toCurrency( number , { delimiter: " " }) ,"&#36;2 234.23" ,  "Changing Delimiter");
 
-		same( simpleCart.toCurrency( number , { decimal: ","  }) ,  "$2,234,23" , "Changing decimal delimiter");
+		same( simpleCart.toCurrency( number , { decimal: ","  }) ,  "&#36;2,234,23" , "Changing decimal delimiter");
 
 		same(  simpleCart.toCurrency( number , { symbol: "!"  }) , "!2,234.23" , "Changing currency symbol");
 		
-		same( simpleCart.toCurrency( number , { accuracy: 1  }) , "$2,234.2" ,  "Changing decimal accuracy");
+		same( simpleCart.toCurrency( number , { accuracy: 1  }) , "&#36;2,234.2" ,  "Changing decimal accuracy");
 		
-		same( simpleCart.toCurrency( number , { after: true  }) ,  "2,234.23$" , "Changing symbol location");
+		same( simpleCart.toCurrency( number , { after: true  }) ,  "2,234.23&#36;" , "Changing symbol location");
 		
 		same( simpleCart.toCurrency( number , { symbol: "", accuracy:0, delimiter:"" }) , "2234", "Long hand toInt string" );
 		
@@ -313,12 +313,23 @@ test("editing items", function(){
 			price: 25
 		});
 
-		same( document.getElementById('simpleCart_quantity').innerHTML , "" + simpleCart.quantity() , "quantity outlet works" );
-		same( document.getElementById('simpleCart_total').innerHTML , simpleCart.toCurrency( simpleCart.total() ), "total outlet works" );
-		same( document.getElementById('simpleCart_taxRate').innerHTML , simpleCart.taxRate().toFixed() , "taxRate outlet works" );
-		same( document.getElementById('simpleCart_tax').innerHTML , simpleCart.toCurrency( simpleCart.tax() ) , "tax outlet works" );
-		same( document.getElementById('simpleCart_shipping').innerHTML , simpleCart.toCurrency( simpleCart.shipping() ) , "shipping outlet works" );
-		same( document.getElementById('simpleCart_grandTotal').innerHTML , simpleCart.toCurrency( simpleCart.grandTotal() ) , "grand total outlet works" );
+		document.getElementById('test_id').innerHTML = simpleCart.quantity();
+		same( document.getElementById('simpleCart_quantity').innerHTML , document.getElementById('test_id').innerHTML , "quantity outlet works" );
+		
+		document.getElementById('test_id').innerHTML = simpleCart.toCurrency( simpleCart.total() );
+		same( document.getElementById('simpleCart_total').innerHTML , document.getElementById('test_id').innerHTML, "total outlet works" );
+		
+		document.getElementById('test_id').innerHTML = simpleCart.taxRate().toFixed();
+		same( document.getElementById('simpleCart_taxRate').innerHTML , document.getElementById('test_id').innerHTML , "taxRate outlet works" );
+		
+		document.getElementById('test_id').innerHTML = simpleCart.toCurrency( simpleCart.tax() );
+		same( document.getElementById('simpleCart_tax').innerHTML , document.getElementById('test_id').innerHTML , "tax outlet works" );
+		
+		document.getElementById('test_id').innerHTML = simpleCart.toCurrency( simpleCart.shipping() );
+		same( document.getElementById('simpleCart_shipping').innerHTML , document.getElementById('test_id').innerHTML , "shipping outlet works" );
+		
+		document.getElementById('test_id').innerHTML = simpleCart.toCurrency( simpleCart.grandTotal() );
+		same( document.getElementById('simpleCart_grandTotal').innerHTML , document.getElementById('test_id').innerHTML , "grand total outlet works" );
 		
 		
 		

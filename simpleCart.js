@@ -49,18 +49,12 @@ generateSimpleCart = function(space){
 	sc_items 				= {},
 	namespace 				= space || "simpleCart",
 	
-	/* for reference---- delete this:
-	 symbol: 		"$"
-	, decimal: 		"."
-	, delimiter: 	","
-	, accuracy:  	2
-	, after: false */
-	
+
 	// Currencies
 	currencies = {
 		  "USD": { code:"USD", symbol:"&#36;", name:"US Dollar" }
 		, "AUD": { code:"AUD", symbol:"&#36;", name:"Australian Dollar" }
-		, "BRL": { code:"BRL", symbol:"&#36;", name:"Brazilian Real" }
+		, "BRL": { code:"BRL", symbol:"R&#36;", name:"Brazilian Real" }
 		, "CAD": { code:"CAD", symbol:"&#36;", name:"Canadian Dollar" }
 		, "CZK": { code:"CZK", symbol:"&nbsp;&#75;&#269;", name:"Czech Koruna", after: true }
 		, "DKK": { code:"DKK", symbol:"DKK&nbsp;", name:"Danish Krone" }
