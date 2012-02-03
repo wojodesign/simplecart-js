@@ -43,6 +43,21 @@ test("adding and removing items", function(){
 	same( simpleCart.total() , 25 , "Total correct after one item added" );
 	same( item.get( 'price' ) , 25 , "Price is correctly saved" );
 	same( item.get( 'name' ) , "Cool T-shirt", "Name is correctly saved" );
+	
+	
+	var item2 = simpleCart.add({
+		name: "Really Cool T-shirt",
+		price: "25.99"
+	});
+	
+	same( item2.price() , 25.99 , "Price as string works");
+	
+	var item3 = simpleCart.add({
+		name: "Reeeeeally Cool Sweatshirt",
+		price: "$36"
+	});
+	
+	same( item3.price() , 36 , "Price with dollar sign in front is parsed correctly");
 });
 
 test("editing items", function(){	
