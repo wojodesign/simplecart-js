@@ -678,7 +678,10 @@ generateSimpleCart = function(space){
 				
 				// check to make sure price is valid
 				if( isString(_data.price ) ){
-					_data.price = parseFloat( _data.price.replace(simpleCart.currency().symbol,"").replace(simpleCart.currency().delimiter,"") );
+				//	_data.price = parseFloat( _data.price.replace(simpleCart.currency().symbol,"").replace(simpleCart.currency().delimiter,"") );
+				//  trying to remove all chars that aren't numbers or '.'
+					_data.price = parseFloat( _data.price.replace( /[^0-9\.]+/ig,"") );
+				
 				}
 				if( isNaN( _data.price ) ){
 					_data.price = 0;
