@@ -273,7 +273,7 @@ function Cart(){
 		form.appendChild(me.createHiddenElement("charset", "utf-8"));
 
 		if( me.taxRate ){
-			form.appendChild(me.createHiddenElement("tax_cart",me.taxCost ));
+			form.appendChild(me.createHiddenElement("tax_cart", parseFloat(me.taxCost).toFixed(2)));
 		}
 		
 		if( me.shipping() !== 0){
