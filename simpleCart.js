@@ -36,6 +36,7 @@ function Cart(){
 	me.Shelf = null;
 	me.items = {};
 	me.isLoaded = false;
+	me.invoice = null;
 	me.pageIsReady = false;
 	me.quantity = 0;
 	me.total = 0;
@@ -271,6 +272,10 @@ function Cart(){
 		form.appendChild(me.createHiddenElement("business", me.email ));
 		form.appendChild(me.createHiddenElement("currency_code", me.currency));
 		form.appendChild(me.createHiddenElement("charset", "utf-8"));
+
+		if (me.invoice) {
+		    form.appendChild(me.createHiddenElement("invoice", me.invoice));
+		}
 
 		if( me.taxRate ){
 			form.appendChild(me.createHiddenElement("tax_cart", parseFloat(me.taxCost).toFixed(2)));
