@@ -85,7 +85,14 @@ function Cart(){
 
 
 	*/
-
+	/******************************************************
+			function for setting options 
+	 ******************************************************/
+	me.options = function( values ){
+		me.each(values, function( value , x , name ){
+			me[name]=value;
+		});
+	};
 
 
 
