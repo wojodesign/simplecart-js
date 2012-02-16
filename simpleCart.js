@@ -1413,10 +1413,12 @@ generateSimpleCart = function(space){
 									val = "";
 								switch( $item.tag().toLowerCase() ){
 									case "input":
-									case "checkbox":
 									case "textarea":
 									case "select":
-										val = $item.val();
+										var type = $item.attr("type");
+										if( !type || ( ( type.toLowerCase() === "checkbox" || type.toLowerCase() === "radio" ) && $item.attr("checked") ) ){
+											val = $item.val();
+										}							
 										break;
 									case "img":
 										val = $item.attr('src');
@@ -1425,7 +1427,10 @@ generateSimpleCart = function(space){
 										val = $item.text();
 										break;
 								}
-								fields[attr.toLowerCase()] = val;
+								
+								if( val != null && val != "" ){
+									fields[attr.toLowerCase()] = fields[attr.toLowerCase()] ? fields[attr.toLowerCase()] + ", " +  val : val;
+								}
 							}
 						});
 					}
