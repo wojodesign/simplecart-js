@@ -1555,7 +1555,7 @@ generateSimpleCart = function(space){
 				} 
 			} ,
 			html: function( html ){
-				return this.html( html );
+				return this.text( html );
 			} ,
 			val: function( val ){
 				return this.attr( _VALUE_ , val );

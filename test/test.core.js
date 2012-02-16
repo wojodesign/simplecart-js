@@ -155,23 +155,6 @@ test("editing items", function(){
 		
 		ok( test_bill() , "function dismissed in each" );
 		same( test_names() , "bobjoejeff" , "items iterated properly");
-		
-		
-		
-		function test_cart_items(){
-			var items = simpleCart.items,
-				pass = true;
-				
-			simpleCart.each(function(item,x){
-				if( items[item.id] !== item ){
-					pass = fail;
-				}
-			});
-			
-			return pass;
-		}
-	
-		ok( test_cart_items() , "simpleCart items iterated correctly with .each");
 	
 	});
 	
@@ -405,7 +388,12 @@ test("editing items", function(){
 			price: 34
 		});
 		
-		same( simpleCart.$("#cartItem_" + item.id() + " .item-thumb img").attr("src") , "e.png" , "Image view works properly");
+		
+		var src = simpleCart.$("#cartItem_" + item.id() + " .item-thumb img").attr("src");
+		if( typeof src.push === 'function' ){
+			src = src[0];
+		}
+		same( src , "e.png" , "Image view works properly");
 		
 		
 	});
