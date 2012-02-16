@@ -285,13 +285,9 @@ generateSimpleCart = function(space){
 		
 		// check to see if item is in the cart already
 		has: function( item ){
-			var current, 
-				matches,
-				field,
-				match=false;
+			var match=false;
 
 			simpleCart.each(function(testItem){ 
-				matches = true;
 				if( testItem.equals( item ) ){
 					match = testItem;
 				}
