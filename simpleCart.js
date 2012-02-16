@@ -42,10 +42,8 @@ generateSimpleCart = function(space){
 	
 	
 	// local variables for internal use
-	item_id 				= 1,
+	item_id 				= 0,
 	item_id_namespace		= "SCI-",
-	shelfitem_id			= 1,
-	shelfitem_id_namespace 	= "SCS-",
 	sc_items 				= {},
 	namespace 				= space || "simpleCart",
 	
