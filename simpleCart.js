@@ -1381,7 +1381,7 @@ generateSimpleCart = function(space){
 				simpleCart.each( classList , function(klass,x){
 					if( klass.match(/item-.+/i) ){
 						var field = klass.split("-")[1];
-						simpleCart.find( $parent.closest('itemRow').attr('id').split("_")[1] ).set(field,$input.val() );
+						simpleCart.find( $parent.closest('.itemRow').attr('id').split("_")[1] ).set(field,$input.val() );
 						simpleCart.update();
 						return;
 					}
