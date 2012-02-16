@@ -1423,7 +1423,7 @@ generateSimpleCart = function(space){
 								
 								if( val != null && val != "" ){
 									fields[attr.toLowerCase()] = fields[attr.toLowerCase()] ? fields[attr.toLowerCase()] + ", " +  val : val;
-								}
+								} 
 							}
 						});
 					}
