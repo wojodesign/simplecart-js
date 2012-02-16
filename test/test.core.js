@@ -114,6 +114,8 @@ test("editing items", function(){
 		same( simpleCart.toCurrency( number ), "&#36;2,234.23" , "Currency Base Case");
 		
 		same( simpleCart.toCurrency( number , { delimiter: " " }) ,"&#36;2 234.23" ,  "Changing Delimiter");
+		
+		same( simpleCart.toCurrency( number , { delimiter: "&thinsp;" }) ,"&#36;2&thinsp;234.23" ,  "Multi Character Delimiter");
 
 		same( simpleCart.toCurrency( number , { decimal: ","  }) ,  "&#36;2,234,23" , "Changing decimal delimiter");
 

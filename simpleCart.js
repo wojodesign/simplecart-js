@@ -1233,7 +1233,7 @@ generateSimpleCart = function(space){
 				dec = numParts[1],
 				ints = numParts[0];
 							
-			ints = simpleCart.chunk( ints.reverse() , 3 ).join(_opts.delimiter).reverse();
+			ints = simpleCart.chunk( ints.reverse() , 3 ).join(_opts.delimiter.reverse() ).reverse();
 			
 			return 	(!_opts.after ? _opts.symbol : "") + 
 				  	ints + 
