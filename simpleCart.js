@@ -219,7 +219,6 @@ generateSimpleCart = function(space){
 					var match = true;
 					simpleCart.each( id, function(val,x,attr){
 						
-						
 						if( isString(val) ){
 							// less than or equal to
 							if( val.match(/<=.*/) ){
@@ -1219,13 +1218,14 @@ generateSimpleCart = function(space){
 	simpleCart.extend({
 		toCurrency: function(number,opts){
 			var num = parseFloat(number),
+			    opt_input = opts || {},
 				_opts = simpleCart.extend( simpleCart.extend({
 					  symbol: 		"$"
 					, decimal: 		"."
 					, delimiter: 	","
 					, accuracy:  	2
 					, after: false
-				}, simpleCart.currency() ), opts ),
+				}, simpleCart.currency() ), opt_input ),
 				
 				numParts = num.toFixed(_opts.accuracy).split("."),
 				dec = numParts[1],
