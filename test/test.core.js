@@ -364,41 +364,7 @@ test("editing items", function(){
 	});
 	
 	
-	module('simpleCart cart views');
-	test("basic cart views", function(){
-		
-		simpleCart({
-			cartColumns	: [
-				  { attr: "name" , label: "Name" }
-				, { view: "image" , attr: "thumb" }
-				, { attr: "price" , label: "Price", view: 'currency' }
-				, { view: "decrement" , label: false }
-				, { attr: "quantity" , label: "Qty" }
-				, { view: "increment" , label: false }
-				, { attr: "total" , label: "SubTotal", view: 'currency' }
-				, { view: "remove" , text: "Remove" , label: false }
-			]
-		});
-		
-		simpleCart.empty();
-	
-		var item = simpleCart.add({
-			name: "The Letter E", 
-			thumb: "e.png" ,
-			price: 34
-		});
-		
-		
-		var src = simpleCart.$("#cartItem_" + item.id() + " .item-thumb img").attr("src");
-		if( typeof src.push === 'function' ){
-			src = src[0];
-		}
-		same( src , "e.png" , "Image view works properly");
-		
-		
-	});
 
-	
 	
 // just incase we refresh ;)
 	simpleCart.empty();
