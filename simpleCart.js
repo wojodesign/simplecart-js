@@ -283,6 +283,11 @@ generateSimpleCart = function(space){
 			}
 		},
 		
+		// return all items
+		items: function(){
+			return this.find();
+		},
+		
 		// check to see if item is in the cart already
 		has: function( item ){
 			var match=false;
