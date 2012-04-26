@@ -6,7 +6,7 @@
 			array = [ "11111" , "11111" , "11111" , "11111" , "11111" ];
 			test = simpleCart.chunk( str , 5 );
 			
-		same( test , array , "chunked array properly into 5 piece chunks");
+		deepEqual( test , array , "chunked array properly into 5 piece chunks");
 		
 	});
 	
@@ -34,7 +34,7 @@
 		}
 		
 		ok( test_bill() , "function dismissed in each" );
-		same( test_names() , "bobjoejeff" , "items iterated properly");
+		deepEqual( test_names() , "bobjoejeff" , "items iterated properly");
 		
 		
 		
@@ -72,7 +72,7 @@
 			},
 			output = simpleCart.createCartRow( info , item , null );
 			
-		same( output , "<input type=\"text\" value=\"small\" onchange=\"simpleCart.items['c9'].set('size' , this.value);\" />", 'onchange event has expected format' );
+		deepEqual( output , "<input type=\"text\" value=\"small\" onchange=\"simpleCart.items['c9'].set('size' , this.value);\" />", 'onchange event has expected format' );
 	});
 	
 	
@@ -81,7 +81,7 @@
 	
 	module('price handling');
 	test('non number prices interpretted as 0', function(){
-		same( simpleCart.valueToCurrencyString( 'wers' ) , simpleCart.valueToCurrencyString( '0' ) , 'NaN converted to 0 for output');
+		deepEqual( simpleCart.valueToCurrencyString( 'wers' ) , simpleCart.valueToCurrencyString( '0' ) , 'NaN converted to 0 for output');
 		
 	});
 	
@@ -93,28 +93,28 @@
 		simpleCart.add("name=Bob","price=13.00");
 		simpleCart.nextId=99;
 		simpleCart.add("name=Joe","price=13.00");
-		same( simpleCart.items['c99'].name , "Bob" , "Item not overwritten" );
+		deepEqual( simpleCart.items['c99'].name , "Bob" , "Item not overwritten" );
 	});
 	
 	
 	test('return item after adding to cart', function(){
 		
 		var item = simpleCart.add("name=Jeff","price=14.00");
-		same( item.name , "Jeff" , "Name is the same" );
-		same( simpleCart.items[ item.id ] , item , "Item accessible by id in simpleCart.items" );
+		deepEqual( item.name , "Jeff" , "Name is the same" );
+		deepEqual( simpleCart.items[ item.id ] , item , "Item accessible by id in simpleCart.items" );
 		item.remove();
-		same( simpleCart.items[ item.id ] , undefined , "Item removed properly with pointer");
+		deepEqual( simpleCart.items[ item.id ] , undefined , "Item removed properly with pointer");
 		
 	});
 	
 	test('special characters removed from new item', function(){
 		
 		var item = simpleCart.add("name=Bill~","price=1422.00");
-		same( item.name , "Bill" , "~ removed from new item" );
+		deepEqual( item.name , "Bill" , "~ removed from new item" );
 		item.set( 'name' , "Nick=");
-		same( item.name , "Nick" , "= removed from item update" );
+		deepEqual( item.name , "Nick" , "= removed from item update" );
 		item.set( 'name' , "John~");
-		same( item.name , "John" , "~ removed from item update" );
+		deepEqual( item.name , "John" , "~ removed from item update" );
 		
 	});
 	
@@ -142,9 +142,9 @@
 			after++;
 		});
 		
-		same( before , after , "individual item count remains the same" );
-		same( simpleCart.quantity , before_q+1, "cart quantity increased" );
-		same( item.quantity , before_iq+1, "item quantity increased" );
+		deepEqual( before , after , "individual item count remains the same" );
+		deepEqual( simpleCart.quantity , before_q+1, "cart quantity increased" );
+		deepEqual( item.quantity , before_iq+1, "item quantity increased" );
 	});
 	
 	
@@ -153,14 +153,14 @@
 		//simpleCart.empty();
 		var item = simpleCart.add("name=Cool Tshirt","price=132.00");
 		item.set( 'quantity' , 30 );
-		same( item.quantity , 30 , "Quantity with number properly updated" );
+		deepEqual( item.quantity , 30 , "Quantity with number properly updated" );
 	});
 	
 	test('updates to quantity using item.set() with string value work', function(){
 		//simpleCart.empty();
 		var item = simpleCart.add("name=Cool Tshirt","price=132.00");
 		item.set( 'quantity' , "30" );
-		same( item.quantity , 30 , "Quantity with string properly updated" );
+		deepEqual( item.quantity , 30 , "Quantity with string properly updated" );
 	});
 	
 	
@@ -183,9 +183,9 @@
 		simpleCart.language = "fake";
 		simpleCart.update();
 		
-		same( simpleCart.print("Price") , "Boom" , "Humanized name translated");
-		same( simpleCart.print("price") , "Boom" , "Lower case name translated");
-		same( simpleCart.print("Boom")  , "Boom" , "No translation returns input");
+		deepEqual( simpleCart.print("Price") , "Boom" , "Humanized name translated");
+		deepEqual( simpleCart.print("price") , "Boom" , "Lower case name translated");
+		deepEqual( simpleCart.print("Boom")  , "Boom" , "No translation returns input");
 		
 		
 	});
