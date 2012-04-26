@@ -279,7 +279,10 @@ generateSimpleCart = function(space){
 					items.push(item);
 				});
 				return items;
-			} 
+			} else {
+				// return empty array as default
+				return [];
+			}
 		},
 		
 		// return all items
