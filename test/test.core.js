@@ -1,3 +1,38 @@
+simpleCart.ready(function(){
+	if( !QUnit.urlParams.storage ){
+		simpleCart.empty();
+		simpleCart.add("name=Cool T-shirt","price=25.00","quantity=1","thumb=http://www.google.com/intl/en_com/images/srpr/logo3w.png");
+	
+		for( var x = 0; x<100; x++ ){
+			simpleCart.add("name=Cool item #" + x , "price=1" );
+		}
+	
+	
+		var mark = document.location.href.match(/\?/) ? "&" : "?";
+		document.location.href = document.location.href + mark + "storage=true";
+	} else { 
+
+
+	module('simpleCart-storage');
+	test("proper loading after page refesh", function(){
+
+
+		deepEqual( simpleCart.quantity , 101 , "sc quantity loaded properly" );
+		deepEqual( simpleCart.total , 125 , "sc total loaded properly" );
+
+		var item = simpleCart.find({name:"Cool T-shirt"})[0];
+
+		deepEqual( item.quantity , 1 , "item quantity loaded properly" );
+		deepEqual( item.name , "Cool T-shirt" , "item name loaded properly" );
+		deepEqual( item.price , 25 , "item price loaded properly" );
+		deepEqual( item.thumb , "http://www.google.com/intl/en_com/images/srpr/logo3w.png" , "storage irregular option works" );
+
+
+	});
+
+
+
+
 
 	module('simpleCart core functions');
 	test("simpleCart.chunk() function works", function(){
@@ -88,7 +123,7 @@
 	
 	module("saving/removing items");
 	test('items not overwritten because of duplicate id', function(){
-		//simpleCart.empty();
+		simpleCart.empty();
 		simpleCart.nextId=99;
 		simpleCart.add("name=Bob","price=13.00");
 		simpleCart.nextId=99;
@@ -189,3 +224,15 @@
 		
 		
 	});
+	
+	simpleCart.empty();
+	simpleCart.add("name=Cool T-shirt","price=25.00","quantity=1","thumb=http://www.google.com/intl/en_com/images/srpr/logo3w.png");
+	
+	for( var x = 0; x<100; x++ ){
+		simpleCart.add("name=Cool item #" + x , "price=1" );
+	}
+
+}
+
+});
+	
