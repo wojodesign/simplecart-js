@@ -304,6 +304,12 @@ generateSimpleCart = function(space){
 		
 		// empty the cart
 		empty: function(){
+			// remove each item individually so we see the remove events
+			simpleCart.each(function( item ){
+				// send a param of true to make sure it doesn't
+				// update after every removal
+				item.remove( true );
+			});
 			sc_items = {};
 			simpleCart.update();
 		},
@@ -781,9 +787,10 @@ generateSimpleCart = function(space){
 			var diff = amount || 1;
 			return this.increment( -parseInt( diff , 10 ) );
 		},
-		remove: function(){
+		remove: function( skipUpdate ){
+			simpleCart.trigger("beforeRemove", [ sc_items[ this.id() ] ] );
 			delete sc_items[this.id()];
-			simpleCart.update();
+			skipUpdate || simpleCart.update();
 			return null;
 		},
 		
@@ -1205,6 +1212,7 @@ generateSimpleCart = function(space){
 		, checkoutSuccess		: null
 		, checkoutFail			: null
 		, beforeCheckout		: null
+		, beforeRemove 			: null
 	};
 			
 	// extend events in options
