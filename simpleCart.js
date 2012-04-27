@@ -359,7 +359,7 @@ Dual licensed under the MIT or GPL licenses.
 
 				setupViewTool: function () {
 					var members, member, context = window, engine;
-					
+
 					// Determine the "best fit" selector engine
 					for (engine in selectorEngines) {
 						if (window[engine]) {
@@ -367,12 +367,12 @@ Dual licensed under the MIT or GPL licenses.
 							member = members.shift();
 							if (member) {
 								context = context[member];
-							} 
+							}
 							if (typeof context === "function") {
 								// set the selector engine and extend the prototype of our
 								// element wrapper class
 								$engine = context;
-								simpleCart.extend(simpleCart.ELEMENT._, selectorFunctions[engine]);
+								simpleCart.extend(simpleCart.ELEMENT._proto, selectorFunctions[engine]);
 								return;
 							}
 						}
@@ -771,7 +771,7 @@ Dual licensed under the MIT or GPL licenses.
 					checkQuantityAndPrice();
 				};
 
-			Item._ = Item.prototype = {
+			Item._proto = Item.prototype = {
 
 				// editing the item quantity
 				increment: function (amount) {
@@ -1200,7 +1200,7 @@ Dual licensed under the MIT or GPL licenses.
 
 			};
 			simpleCart.extend(eventFunctions);
-			simpleCart.extend(simpleCart.Item._, eventFunctions);
+			simpleCart.extend(simpleCart.Item._proto, eventFunctions);
 
 
 			// base simpleCart events
@@ -1759,7 +1759,7 @@ Dual licensed under the MIT or GPL licenses.
 
 				}
 			};
-			ELEMENT._ = ELEMENT.prototype;
+			ELEMENT._proto = ELEMENT.prototype;
 
 			// bind the DOM setup to the ready event
 			simpleCart.ready(simpleCart.setupViewTool);
