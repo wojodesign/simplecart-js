@@ -809,7 +809,7 @@ generateSimpleCart = function(space){
 		// be overwritten for customization
 		// btw, we are hiring at wojo design, and could 
 		// use a great web designer. if thats you, you can
-		// get more info at http://wojodesign/now-hiring/
+		// get more info at http://wojodesign.com/now-hiring/
 		// or email me directly: brett@wojodesign.com
 		quantity: function( val ){
 			return isUndefined( val ) ? parseInt( this.get("quantity",true) || 1 , 10 ) : this.set("quantity", val );
