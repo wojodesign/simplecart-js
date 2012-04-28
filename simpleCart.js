@@ -12,7 +12,7 @@ Dual licensed under the MIT or GPL licenses.
 /*jslint browser: true, unparam: true, white: true, nomen: true, regexp: true, maxerr: 50, indent: 4 */
 
 (function (window, document) {
-	"use strict";
+	//"use strict";
 	/*global HTMLElement */
 
 	var typeof_string			= typeof "",
@@ -735,13 +735,15 @@ Dual licensed under the MIT or GPL licenses.
 					return me;
 				};
 				me.equals = function (item) {
-					simpleCart.each(_data,function (val, x, label) {
-						if (label !== 'quantity' && label !== 'id') {
-							if (item.get(label) !== val) {
-								return false;
+					for( var label in _data ){
+						if (Object.prototype.hasOwnProperty.call(_data, label)) {
+							if (label !== 'quantity' && label !== 'id') {
+								if (item.get(label) !== _data[label]) {
+									return false;
+								}
 							}
 						}
-					});
+					}
 					return true;
 				};
 				me.options = function () {

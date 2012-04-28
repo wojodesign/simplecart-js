@@ -50,10 +50,18 @@ test("adding and removing items", function(){
 		price: "25.99"
 	});
 	
+	
+	var items = simpleCart.find();
+	
+	same( items.length , 2 , "new items being recognized");
+	ok( item2.equals( item2 ), "same items are .equal" );
+	ok( !item2.equals( item ), "no false positives on item.equal" );
+	
 	same( item2.price() , 25.99 , "Price as string works");
 	
 	var item3 = simpleCart.add({
 		name: "Reeeeeally Cool Sweatshirt",
+		UUID: "xxxfdajfdsf823jf92j9fj9f23",
 		price: "$36"
 	});
 	
@@ -133,28 +141,45 @@ test("editing items", function(){
 	
 	test("simpleCart.each() function works", function(){
 		
-		var myarray = ['bob' , 'joe' , function bill(){} , 'jeff' ];
+		Object.prototype.extra = function(){};
+		Array.prototype.awesome = function(){};
 		
-		function test_bill(){
+		var myObject = {'bob':4 , 'joe':2 , bill: function(){} , jeff:9 },
+			myArray = ['bob','joe','bill','jeff'];
+		
+		function test_object_prototype(){
 			var test = true;
-			simpleCart.each( myarray , function(item,x){
-				if( x === 3 ){
+			simpleCart.each( myObject , function(val,x,name){
+				if( name === "extra" ){
 					test = false;
 				}
 			});
 			return test;
 		}
 		
-		function test_names(){
+		function test_array_prototype(){
+			var test = true;
+			simpleCart.each( myArray , function(val,x){
+				if( x === 4 ){
+					test = false;
+				}
+			});
+			return test;
+		}
+		
+		function output_members(){
 			var ms = "";
-			simpleCart.each( myarray , function(item,x){
-				ms += item;
+			simpleCart.each( myObject , function(val,x,name){
+				ms += name;
 			});
 			return ms;
 		}
 		
-		ok( test_bill() , "function dismissed in each" );
-		same( test_names() , "bobjoejeff" , "items iterated properly");
+	
+		
+		ok( test_object_prototype() , "prototype attrs dismissed for object " );
+		ok( test_array_prototype() , "prototype attrs dismissed for array " );
+		same( output_members() , "bobjoebilljeff" , "items iterated properly");
 	
 	});
 	
