@@ -5,6 +5,8 @@ wojodesign.com
 simplecartjs.com
 http://github.com/wojodesign/simplecart-js
 
+VERSION 3.x.dev
+
 Dual licensed under the MIT or GPL licenses.
 ****************************************************************************/
 /*jslint browser: true, unparam: true, white: true, nomen: true, regexp: true, maxerr: 50, indent: 4 */
