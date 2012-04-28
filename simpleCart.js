@@ -43,7 +43,17 @@ Dual licensed under the MIT or GPL licenses.
 				item_id_namespace		= "SCI-",
 				sc_items				= {},
 				namespace				= space || "simpleCart",
+				selectorFunctions		= {},
 
+				// local references
+				localStorage			= window.localStorage,
+				console					= window.console || { msgs: [], log: function (msg) { console.msgs.push(msg); } },
+
+				// used in views 
+				_VALUE_		= 'value',
+				_TEXT_		= 'text',
+				_HTML_		= 'html',
+				_CLICK_		= 'click',
 
 				// Currencies
 				currencies = {
@@ -115,7 +125,10 @@ Dual licensed under the MIT or GPL licenses.
 				},
 
 				// selector engine
-				$engine;
+				$engine,
+
+				// built in cart views for item cells
+				cartColumnViews;
 
 			// function for extending objects
 			simpleCart.extend = function (target, opts) {
@@ -127,7 +140,9 @@ Dual licensed under the MIT or GPL licenses.
 				}
 
 				for (next in opts) {
-					target[next] = opts[next];
+					if (Object.prototype.hasOwnProperty.call(opts, next)) {
+						target[next] = opts[next];
+					}
 				}
 				return target;
 			};
@@ -196,7 +211,7 @@ Dual licensed under the MIT or GPL licenses.
 					}
 
 					for (next in items) {
-						if (!isFunction(items[next])) {
+						if (Object.prototype.hasOwnProperty.call(items, next)) {
 							result = cb.call(simpleCart, items[next], x, next);
 							if (result === false) {
 								return;
@@ -362,7 +377,7 @@ Dual licensed under the MIT or GPL licenses.
 
 					// Determine the "best fit" selector engine
 					for (engine in selectorEngines) {
-						if (window[engine]) {
+						if (Object.prototype.hasOwnProperty.call(selectorEngines, engine) && window[engine]) {
 							members = selectorEngines[engine].replace("*", engine).split(".");
 							member = members.shift();
 							if (member) {
@@ -372,7 +387,7 @@ Dual licensed under the MIT or GPL licenses.
 								// set the selector engine and extend the prototype of our
 								// element wrapper class
 								$engine = context;
-								simpleCart.extend(simpleCart.ELEMENT._proto, selectorFunctions[engine]);
+								simpleCart.extend(simpleCart.ELEMENT._, selectorFunctions[engine]);
 								return;
 							}
 						}
@@ -398,11 +413,10 @@ Dual licensed under the MIT or GPL licenses.
 
 					// save all the items
 					simpleCart.each(function (item) {
-
 						items[item.id()] = simpleCart.extend(item.fields(), item.options());
 					});
 
-					localStorage.setItem(namespace + "_items", escape(JSON.stringify(items)));
+					localStorage.setItem(namespace + "_items", JSON.stringify(items));
 
 					simpleCart.trigger('afterSave');
 				},
@@ -412,7 +426,7 @@ Dual licensed under the MIT or GPL licenses.
 					// empty without the update
 					sc_items = {};
 
-					var items = unescape(localStorage.getItem(namespace + "_items"));
+					var items = localStorage.getItem(namespace + "_items");
 
 					if (!items) {
 						return;
@@ -432,15 +446,14 @@ Dual licensed under the MIT or GPL licenses.
 						// call function if already ready already
 						if (simpleCart.isReady) {
 							fn.call(simpleCart);
-						}
+
 						// bind if not ready
-						else {
+						} else {
 							simpleCart.bind('ready', fn);
 						}
-					}
 
 					// trigger ready event
-					else if (isUndefined(fn) && !simpleCart.isReady) {
+					} else if (isUndefined(fn) && !simpleCart.isReady) {
 						simpleCart.trigger('ready');
 						simpleCart.isReady = true;
 					}
@@ -455,51 +468,11 @@ Dual licensed under the MIT or GPL licenses.
 					} else if (isObject(message) && isString(message.message)) {
 						msg = message.message;
 					}
-					try{ console.log("simpleCart(js) Error: " + msg); } catch(e) {}
+					try { console.log("simpleCart(js) Error: " + msg); } catch (e) {}
 					simpleCart.trigger('error', message);
 				}
 			});
 
-			// bind ready event used from jquery
-			var sc_BindReady = function () {
-
-				// Catch cases where $(document).ready() is called after the
-				// browser event has already occurred.
-				if (document.readyState === "complete") {
-					// Handle it asynchronously to allow scripts the opportunity to delay ready
-					return setTimeout(simpleCart.init, 1);
-				}
-
-				// Mozilla, Opera and webkit nightlies currently support this event
-				if (document.addEventListener) {
-					// Use the handy event callback
-					document.addEventListener("DOMContentLoaded", DOMContentLoaded, false);
-
-					// A fallback to window.onload, that will always work
-					window.addEventListener("load", simpleCart.init, false);
-
-				// If IE event model is used
-				} else if (document.attachEvent) {
-					// ensure firing before onload,
-					// maybe late but safe also for iframes
-					document.attachEvent("onreadystatechange", DOMContentLoaded);
-
-					// A fallback to window.onload, that will always work
-					window.attachEvent("onload", simpleCart.init);
-
-					// If IE and not a frame
-					// continually check to see if the document is ready
-					var toplevel = false;
-
-					try {
-						toplevel = window.frameElement === null;
-					} catch(e) {}
-
-					if (document.documentElement.doScroll && toplevel) {
-						doScrollCheck();
-					}
-				}
-			};
 
 			/*******************************************************************
 			 *	TAX AND SHIPPING
@@ -508,12 +481,12 @@ Dual licensed under the MIT or GPL licenses.
 
 				// TODO: tax and shipping
 				tax: function () {
-					var cost = simpleCart.taxRate()*simpleCart.total();
+					var cost = simpleCart.taxRate() * simpleCart.total();
 					simpleCart.each(function (item) {
 						if (item.get('tax')) {
 							cost += item.get('tax');
 						} else if (item.get('taxRate')) {
-							cost += item.get('taxRate')*item.total();
+							cost += item.get('taxRate') * item.total();
 						}
 					});
 					return parseFloat(cost);
@@ -532,16 +505,16 @@ Dual licensed under the MIT or GPL licenses.
 						return;
 					}
 
-					var cost = 0 +	settings.shippingFlatRate +
-									settings.shippingQuantityRate*simpleCart.quantity() +
-									settings.shippingTotalRate*simpleCart.total();
-			
+					var cost = settings.shippingQuantityRate * simpleCart.quantity() +
+							settings.shippingTotalRate * simpleCart.total() +
+							settings.shippingFlatRate;
+
 					if (isFunction(settings.shippingCustom)) {
 						cost += settings.shippingCustom.call(simpleCart);
 					}
 
 					simpleCart.each(function (item) {
-						cost += parseFloat(item.get('shipping') || 0 );
+						cost += parseFloat(item.get('shipping') || 0);
 					});
 					return parseFloat(cost);
 				}
@@ -551,6 +524,61 @@ Dual licensed under the MIT or GPL licenses.
 			/*******************************************************************
 			 *	CART VIEWS
 			 *******************************************************************/
+
+			// built in cart views for item cells
+			cartColumnViews = {
+				attr: function (item, column) {
+					return item.get(column.attr) || "";
+				},
+
+				currency: function (item, column) {
+					return simpleCart.toCurrency(item.get(column.attr) || 0);
+				},
+
+				link: function (item, column) {
+					return "<a href='" + item.get(column.attr) + "'>" + column.text + "</a>";
+				},
+
+				decrement: function (item, column) {
+					return "<a href='javascript:;' class='" + namespace + "_decrement'>" + (column.text || "-") + "</a>";
+				},
+
+				increment: function (item, column) {
+					return "<a href='javascript:;' class='" + namespace + "_increment'>" + (column.text || "+") + "</a>";
+				},
+
+				image: function (item, column) {
+					return "<img src='" + item.get(column.attr) + "'/>";
+				},
+
+				input: function (item, column) {
+					return "<input type='text' value='" + item.get(column.attr) + "' class='" + namespace + "_input'/>";
+				},
+
+				remove: function (item, column) {
+					return "<a href='javascript:;' class='" + namespace + "_remove'>" + (column.text || "X") + "</a>";
+				}
+			};
+
+			// cart column wrapper class and functions
+			function cartColumn(opts) {
+				var options = opts || {};
+				return simpleCart.extend({
+					attr			: "",
+					label			: "",
+					view			: "attr",
+					text			: "",
+					className		: "",
+					hide			: false
+				}, options);
+			}
+
+			function cartCellView(item, column) {
+				var viewFunc = isFunction(column.view) ? column.view : isString(column.view) && isFunction(cartColumnViews[column.view]) ? cartColumnViews[column.view] : cartColumnViews.attr;
+
+				return viewFunc.call(simpleCart, item, column);
+			}
+
 
 			simpleCart.extend({
 
@@ -563,19 +591,24 @@ Dual licensed under the MIT or GPL licenses.
 						TD = isTable ? 'td' : 'div',
 						cart_container = simpleCart.$create(TABLE),
 						header_container = simpleCart.$create(TR).addClass('headerRow'),
-						container = simpleCart.$(selector);
-				
+						container = simpleCart.$(selector),
+						column,
+						klass,
+						label,
+						x,
+						xlen;
+
 					container.html(' ').append(cart_container);
 
 					cart_container.append(header_container);
 
 
 					// create header
-					for (var x=0,xlen = settings.cartColumns.length; x<xlen; x++) {
-						var column	= cartColumn(settings.cartColumns[x]),
-							klass	=  "item-" + (column.attr || column.view || column.label || column.text || "cell") + " " + column.className,
-							label	= column.label || "";
-	
+					for (x = 0, xlen = settings.cartColumns.length; x < xlen; x += 1) {
+						column	= cartColumn(settings.cartColumns[x]);
+						klass	=  "item-" + (column.attr || column.view || column.label || column.text || "cell") + " " + column.className;
+						label	= column.label || "";
+
 						// append the header cell
 						header_container.append(
 							simpleCart.$create(TH).addClass(klass).html(label)
@@ -593,17 +626,23 @@ Dual licensed under the MIT or GPL licenses.
 				// generate a cart row from an item
 				createCartRow: function (item, y, TR, TD, container) {
 					var row = simpleCart.$create(TR)
-										.addClass('itemRow row-' + y + " " + (y%2 ? "even" : "odd")	)
-										.attr('id', "cartItem_" + item.id());
-				
+										.addClass('itemRow row-' + y + " " + (y % 2 ? "even" : "odd"))
+										.attr('id', "cartItem_" + item.id()),
+						j,
+						jlen,
+						column,
+						klass,
+						content,
+						cell;
+
 					container.append(row);
 
 					// cycle through the columns to create each cell for the item
-					for (var j=0,jlen=settings.cartColumns.length; j<jlen; j++) {
-						var column	= cartColumn(settings.cartColumns[j]),
-							klass	= "item-" + (column.attr || (isString(column.view) ? column.view : column.label || column.text || "cell")) + " " + column.className,
-							content = cartCellView(item, column),
-							cell	= simpleCart.$create(TD).addClass(klass).html(content);
+					for (j = 0, jlen = settings.cartColumns.length; j < jlen; j += 1) {
+						column	= cartColumn(settings.cartColumns[j]);
+						klass	= "item-" + (column.attr || (isString(column.view) ? column.view : column.label || column.text || "cell")) + " " + column.className;
+						content = cartCellView(item, column);
+						cell	= simpleCart.$create(TD).addClass(klass).html(content);
 
 						row.append(cell);
 					}
@@ -612,166 +651,116 @@ Dual licensed under the MIT or GPL licenses.
 
 			});
 
-			// cart column wrapper class and functions
-			var cartColumn = function (opts) {
-				var options = opts || {};
-				return simpleCart.extend({
-						  attr			: ""
-						, label			: ""
-						, view			: "attr"
-						, text			: ""
-						, className		: ""
-						, hide			: false
-					}, options);
-				},
+			/*******************************************************************
+			 *	CART ITEM CLASS MANAGEMENT
+			 *******************************************************************/
 
-				// built in cart views for item cells
-				cartColumnViews = {
-					  attr: function (item, column) {
-						return item.get(column.attr) || "";
-					}
-					, currency: function (item, column) {
-						return simpleCart.toCurrency(item.get(column.attr) || 0);
-					}
-					, link: function (item, column) {
-						return "<a href='" + item.get(column.attr) + "'>" + column.text + "</a>";
-					}
-					, decrement: function (item, column) {
-						return "<a href='javascript:;' class='" + namespace + "_decrement'>" + (column.text || "-") + "</a>";
-					}
-					, increment: function (item, column) {
-						return "<a href='javascript:;' class='" + namespace + "_increment'>" + (column.text || "+") + "</a>";
-					}
-					, image: function (item, column) {
-						return "<img src='" + item.get(column.attr) + "'/>"
-					}
-					, input: function (item, column) {
-						return "<input type='text' value='" + item.get(column.attr) + "' class='" + namespace + "_input'/>";
-					}
-					, remove: function (item, column) {
-						return "<a href='javascript:;' class='" + namespace + "_remove'>" + (column.text || "X") + "</a>";
-					}
-				},
+			simpleCart.Item = function (info) {
 
-				cartCellView = function (item, column) {
-					var viewFunc =	isFunction(column.view) ? column.view :
-									isString(column.view) && isFunction(cartColumnViews[column.view]) ? cartColumnViews[column.view] :
-									cartColumnViews['attr'];
-			
-					return viewFunc.call(simpleCart, item, column);
-				},
+				// we use the data object to track values for the item
+				var _data = {},
+					me = this;
 
+				// cycle through given attributes and set them to the data object
+				if (isObject(info)) {
+					simpleCart.extend(_data, info);
+				}
 
+				// set the item id
+				item_id += 1;
+				_data.id = _data.id || item_id_namespace + item_id;
+				while (!isUndefined(sc_items[_data.id])) {
+					item_id += 1;
+					_data.id = item_id_namespace + item_id;
+				}
 
-				/*******************************************************************
-				 *	CART ITEM CLASS MANAGEMENT
-				 *******************************************************************/
+				function checkQuantityAndPrice() {
 
-				Item = simpleCart.Item = function (info) {
+					// check to make sure price is valid
+					if (isString(_data.price)) {
+					   // trying to remove all chars that aren't numbers or '.'
+						_data.price = parseFloat(_data.price.replace(simpleCart.currency().decimal, ".").replace(/[^0-9\.]+/ig, ""));
 
-					// we use the data object to track values for the item
-					var _data = {},
-						me = this;
-
-					// cycle through given attributes and set them to the data object
-					if (isObject(info)) {
-						simpleCart.extend(_data, info);
+					}
+					if (isNaN(_data.price)) {
+						_data.price = 0;
+					}
+					if (_data.price < 0) {
+						_data.price = 0;
 					}
 
-					// set the item id
-					_data.id = _data.id || item_id_namespace + (++item_id);
-					while (!isUndefined(sc_items[_data.id])) {
-						_data.id = item_id_namespace + (++item_id);
+					// check to make sure quantity is valid
+					if (isString(_data.quantity)) {
+						_data.quantity = parseInt(_data.quantity.replace(simpleCart.currency().delimiter, ""), 10);
+					}
+					if (isNaN(_data.quantity)) {
+						_data.quantity = 1;
+					}
+					if (_data.quantity <= 0) {
+						me.remove();
 					}
 
-					function checkQuantityAndPrice() {
+				}
 
-						// check to make sure price is valid
-						if (isString(_data.price)) {
-						//	trying to remove all chars that aren't numbers or '.'
-							_data.price = parseFloat(_data.price.replace(simpleCart.currency().decimal,".").replace(/[^0-9\.]+/ig,""));
+				// getter and setter methods to access private variables
+				me.get = function (name, skipPrototypes) {
 
+					var usePrototypes = !skipPrototypes;
+
+					if (isUndefined(name)) {
+						return name;
+					}
+
+					// return the value in order of the data object and then the prototype
+					return isFunction(_data[name])	? _data[name].call(me) :
+							!isUndefined(_data[name]) ? _data[name] :
+
+							isFunction(me[name]) && usePrototypes		? me[name].call(me) :
+							!isUndefined(me[name]) && usePrototypes	? me[name] :
+							_data[name];
+				};
+				me.set = function (name, value) {
+					if (!isUndefined(name)) {
+						_data[name.toLowerCase()] = value;
+						if (name.toLowerCase() === 'price' || name.toLowerCase() === 'quantity') {
+							checkQuantityAndPrice();
 						}
-						if (isNaN(_data.price)) {
-							_data.price = 0;
-						}
-						if (_data.price < 0) {
-							_data.price = 0;
-						}
-
-						// check to make sure quantity is valid
-						if (isString(_data.quantity)) {
-							_data.quantity = parseInt(_data.quantity.replace(simpleCart.currency().delimiter,""));
-						}
-						if (isNaN(_data.quantity)) {
-							_data.quantity = 1;
-						}
-						if (_data.quantity <= 0) {
-							me.remove();
-						}
-
 					}
-
-					// getter and setter methods to access private variables
-					me.get = function (name, skipPrototypes) {
-
-						usePrototypes = !skipPrototypes;
-
-						if (isUndefined(name)) {
-							return name;
-						}
-
-						// return the value in order of the data object and then the prototype
-						return	isFunction(_data[name])	? _data[name].call(me) :
-								!isUndefined(_data[name]) ? _data[name] :
-	
-								isFunction(me[name]) && usePrototypes		? me[name].call(me) :
-								!isUndefined(me[name]) && usePrototypes	? me[name] :
-								_data[name];
-					};
-					me.set = function (name, value) {
-						if (!isUndefined(name)) {
-							_data[name.toLowerCase()] = value;
-							if (name.toLowerCase() === 'price' || name.toLowerCase() === 'quantity') {
-								checkQuantityAndPrice();
+					return me;
+				};
+				me.equals = function (item) {
+					simpleCart.each(_data,function (val,x,label) {
+						if (label !== 'quantity' && label !== 'id') {
+							if (item.get(label) !== val) {
+								return false;
 							}
 						}
-						return me;
-					};
-					me.equals = function (item) {
-						var matches = true;
-						simpleCart.each(_data,function (val,x,label) {
-							if (label !== 'quantity' && label !== 'id') {
-								if (item.get(label) != val) {
-									return matches = false;
-								}
+					});
+					return true;
+				};
+				me.options = function () {
+					var data = {};
+					simpleCart.each(_data,function (val,x,label) {
+						var add = true;
+						simpleCart.each(me.reservedFields(), function (field) {
+							if (field === label) {
+								add = false;
 							}
+							return add;
 						});
-						return matches;
-					};
-					me.options = function () {
-						var data = {};
-						simpleCart.each(_data,function (val,x,label) {
-							var add = true;
-							simpleCart.each(me.reservedFields(), function (field) {
-								if (field === label) {
-									add = false;
-								}
-								return add;
-							});
-	
-							if (add) {
-								data[label] = me.get(label);
-							}
-						});
-						return data;
-					};
 
-
-					checkQuantityAndPrice();
+						if (add) {
+							data[label] = me.get(label);
+						}
+					});
+					return data;
 				};
 
-			Item._proto = Item.prototype = {
+
+				checkQuantityAndPrice();
+			};
+
+			simpleCart.Item._ = simpleCart.Item.prototype = {
 
 				// editing the item quantity
 				increment: function (amount) {
@@ -793,13 +782,15 @@ Dual licensed under the MIT or GPL licenses.
 				remove: function (skipUpdate) {
 					simpleCart.trigger("beforeRemove", [sc_items[this.id()]]);
 					delete sc_items[this.id()];
-					skipUpdate || simpleCart.update();
+					if (!skipUpdate) { 
+						simpleCart.update();
+					}
 					return null;
 				},
 
 				// special fields for items
 				reservedFields: function () {
-					return ['quantity', 'id', 'item_number', 'price', 'name', 'shipping', 'tax', 'taxRate']
+					return ['quantity', 'id', 'item_number', 'price', 'name', 'shipping', 'tax', 'taxRate'];
 				},
 
 				// return values for all reserved fields if they exist
@@ -826,7 +817,7 @@ Dual licensed under the MIT or GPL licenses.
 				},
 				price: function (val) {
 					return isUndefined(val) ?
-							parseFloat((""+this.get("price",true)).replace(simpleCart.currency().symbol,"").replace(simpleCart.currency().delimiter,"") || 1) :
+							parseFloat((this.get("price",true) + "").replace(simpleCart.currency().symbol,"").replace(simpleCart.currency().delimiter,"") || 1) :
 							this.set("price", parseFloat((""+val).replace(simpleCart.currency().symbol,"").replace(simpleCart.currency().delimiter,"")));
 				},
 				id: function () {
@@ -1200,7 +1191,7 @@ Dual licensed under the MIT or GPL licenses.
 
 			};
 			simpleCart.extend(eventFunctions);
-			simpleCart.extend(simpleCart.Item._proto, eventFunctions);
+			simpleCart.extend(simpleCart.Item._, eventFunctions);
 
 
 			// base simpleCart events
@@ -1462,18 +1453,13 @@ Dual licensed under the MIT or GPL licenses.
 
 
 			// class for wrapping DOM selector shit
-			var ELEMENT = simpleCart.ELEMENT = function (selector) {
+			simpleCart.ELEMENT = function (selector) {
 
 				this.create(selector);
 				this.selector = selector || null; // "#" + this.attr('id'); TODO: test length?
-			},
+			};
 
-			_VALUE_		= 'value',
-			_TEXT_		= 'text',
-			_HTML_		= 'html',
-			_CLICK_		= 'click',
-
-			selectorFunctions = {
+			simpleCart.extend(selectorFunctions, {
 
 				"MooTools"		: {
 					text: function (text) {
@@ -1755,11 +1741,9 @@ Dual licensed under the MIT or GPL licenses.
 					create: function (selector) {
 						this.el = $engine(selector);
 					}
-
-
 				}
-			};
-			ELEMENT._proto = ELEMENT.prototype;
+			});
+			simpleCart.ELEMENT._ = simpleCart.ELEMENT.prototype;
 
 			// bind the DOM setup to the ready event
 			simpleCart.ready(simpleCart.setupViewTool);
@@ -1802,13 +1786,54 @@ Dual licensed under the MIT or GPL licenses.
 					// If IE is used, use the trick by Diego Perini
 					// http://javascript.nwbox.com/IEContentLoaded/
 					document.documentElement.doScroll("left");
-				} catch(e) {
+				} catch (e) {
 					setTimeout(doScrollCheck, 1);
 					return;
 				}
 
 				// and execute any waiting functions
 				simpleCart.init();
+			}
+			
+			// bind ready event used from jquery
+			function sc_BindReady () {
+
+				// Catch cases where $(document).ready() is called after the
+				// browser event has already occurred.
+				if (document.readyState === "complete") {
+					// Handle it asynchronously to allow scripts the opportunity to delay ready
+					return setTimeout(simpleCart.init, 1);
+				}
+
+				// Mozilla, Opera and webkit nightlies currently support this event
+				if (document.addEventListener) {
+					// Use the handy event callback
+					document.addEventListener("DOMContentLoaded", DOMContentLoaded, false);
+
+					// A fallback to window.onload, that will always work
+					window.addEventListener("load", simpleCart.init, false);
+
+				// If IE event model is used
+				} else if (document.attachEvent) {
+					// ensure firing before onload,
+					// maybe late but safe also for iframes
+					document.attachEvent("onreadystatechange", DOMContentLoaded);
+
+					// A fallback to window.onload, that will always work
+					window.attachEvent("onload", simpleCart.init);
+
+					// If IE and not a frame
+					// continually check to see if the document is ready
+					var toplevel = false;
+
+					try {
+						toplevel = window.frameElement === null;
+					} catch (e) {}
+
+					if (document.documentElement.doScroll && toplevel) {
+						doScrollCheck();
+					}
+				}
 			}
 
 			// bind the ready event
@@ -1833,6 +1858,6 @@ p=/[\\\"\x00-\x1f\x7f-\x9f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u20
 
 
 /************ HTML5 Local Storage Support *************/
-(function () {if (!this.localStorage)if (this.globalStorage)try{this.localStorage=this.globalStorage}catch(e) {}else{var a=document.createElement("div");a.style.display="none";document.getElementsByTagName("head")[0].appendChild(a);if (a.addBehavior) {a.addBehavior("#default#userdata");var d=this.localStorage={length:0,setItem:function (b,d) {a.load("localStorage");b=c(b);a.getAttribute(b)||this.length++;a.setAttribute(b,d);a.save("localStorage")},getItem:function (b) {a.load("localStorage");b=c(b);return a.getAttribute(b)},
+(function () {if (!this.localStorage)if (this.globalStorage)try {this.localStorage=this.globalStorage}catch(e) {}else{var a=document.createElement("div");a.style.display="none";document.getElementsByTagName("head")[0].appendChild(a);if (a.addBehavior) {a.addBehavior("#default#userdata");var d=this.localStorage={length:0,setItem:function (b,d) {a.load("localStorage");b=c(b);a.getAttribute(b)||this.length++;a.setAttribute(b,d);a.save("localStorage")},getItem:function (b) {a.load("localStorage");b=c(b);return a.getAttribute(b)},
 removeItem:function (b) {a.load("localStorage");b=c(b);a.removeAttribute(b);a.save("localStorage");this.length=0},clear:function () {a.load("localStorage");for (var b=0;attr=a.XMLDocument.documentElement.attributes[b++];)a.removeAttribute(attr.name);a.save("localStorage");this.length=0},key:function (b) {a.load("localStorage");return a.XMLDocument.documentElement.attributes[b]}},c=function (a) {return a.replace(/[^-._0-9A-Za-z\xb7\xc0-\xd6\xd8-\xf6\xf8-\u037d\u37f-\u1fff\u200c-\u200d\u203f\u2040\u2070-\u218f]/g,
 "-")};a.load("localStorage");d.length=a.XMLDocument.documentElement.attributes.length}}})();
