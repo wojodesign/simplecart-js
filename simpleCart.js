@@ -7,9 +7,11 @@ http://github.com/wojodesign/simplecart-js
 
 Dual licensed under the MIT or GPL licenses.
 ****************************************************************************/
+/*jslint browser: true, unparam: true, white: true, nomen: true, regexp: true, maxerr: 50, indent: 4 */
 
-(function (window, document, HTMLElement) {
+(function (window, document) {
 	"use strict";
+	/*global HTMLElement */
 
 	var typeof_string			= typeof "",
 		typeof_undefined		= typeof undefined,
@@ -21,7 +23,7 @@ Dual licensed under the MIT or GPL licenses.
 		isFunction				= function (item) { return isTypeOf(item, typeof_function); },
 
 		isObject				= function (item) { return isTypeOf(item, typeof_object); },
-		//Returns true if it is a DOM element	
+		//Returns true if it is a DOM element
 		isElement				= function (o) {
 			return typeof HTMLElement === "object" ? o instanceof HTMLElement : typeof o === "object" && o.nodeType === 1 && typeof o.nodeName === "string";
 		},
@@ -44,6 +46,8 @@ Dual licensed under the MIT or GPL licenses.
 				sc_items				= {},
 				namespace				= space || "simpleCart",
 				selectorFunctions		= {},
+				eventFunctions			= {},
+				baseEvents				= {},
 
 				// local references
 				localStorage			= window.localStorage,
@@ -432,7 +436,7 @@ Dual licensed under the MIT or GPL licenses.
 						return;
 					}
 
-					simpleCart.each(JSON.parse(items), function (item, x, id) {
+					simpleCart.each(JSON.parse(items), function (item) {
 						simpleCart.add(item);
 					});
 
@@ -729,7 +733,7 @@ Dual licensed under the MIT or GPL licenses.
 					return me;
 				};
 				me.equals = function (item) {
-					simpleCart.each(_data,function (val,x,label) {
+					simpleCart.each(_data,function (val, x, label) {
 						if (label !== 'quantity' && label !== 'id') {
 							if (item.get(label) !== val) {
 								return false;
@@ -740,7 +744,7 @@ Dual licensed under the MIT or GPL licenses.
 				};
 				me.options = function () {
 					var data = {};
-					simpleCart.each(_data,function (val,x,label) {
+					simpleCart.each(_data,function (val, x, label) {
 						var add = true;
 						simpleCart.each(me.reservedFields(), function (field) {
 							if (field === label) {
@@ -813,12 +817,12 @@ Dual licensed under the MIT or GPL licenses.
 				// get more info at http://wojodesign.com/now-hiring/
 				// or email me directly: brett@wojodesign.com
 				quantity: function (val) {
-					return isUndefined(val) ? parseInt(this.get("quantity",true) || 1, 10) : this.set("quantity", val);
+					return isUndefined(val) ? parseInt(this.get("quantity", true) || 1, 10) : this.set("quantity", val);
 				},
 				price: function (val) {
 					return isUndefined(val) ?
-							parseFloat((this.get("price",true) + "").replace(simpleCart.currency().symbol,"").replace(simpleCart.currency().delimiter,"") || 1) :
-							this.set("price", parseFloat((""+val).replace(simpleCart.currency().symbol,"").replace(simpleCart.currency().delimiter,"")));
+							parseFloat((this.get("price",true).toString()).replace(simpleCart.currency().symbol,"").replace(simpleCart.currency().delimiter,"") || 1) :
+							this.set("price", parseFloat((val).toString().replace(simpleCart.currency().symbol,"").replace(simpleCart.currency().delimiter,"")));
 				},
 				id: function () {
 					return this.get('id',false);
@@ -836,7 +840,36 @@ Dual licensed under the MIT or GPL licenses.
 			 *	CHECKOUT MANAGEMENT
 			 *******************************************************************/
 
-			var checkoutMethods = {
+			simpleCart.extend({
+				checkout: function () {
+					if (settings.checkout.type.toLowerCase() === 'custom' && isFunction(settings.checkout.fn)) {
+						settings.checkout.fn.call(simpleCart,settings.checkout);
+					} else if (isFunction(simpleCart.checkout[settings.checkout.type])) {
+						simpleCart.checkout[settings.checkout.type].call(simpleCart,settings.checkout);
+					} else {
+						simpleCart.error("No Valid Checkout Method Specified");
+					}
+				},
+				extendCheckout: function (methods) {
+					return simpleCart.extend(simpleCart.checkout, methods);
+				},
+				generateAndSendForm: function (opts) {
+					var form = simpleCart.$create("form");
+					form.attr('style', 'display:none;');
+					form.attr('action', opts.action);
+					form.attr('method', opts.method);
+					simpleCart.each(opts.data, function (val, x, name) {
+						form.append(
+							simpleCart.$create("input").attr("type","hidden").attr("name",name).val(val)
+						);
+					});
+					simpleCart.$("body").append(form);
+					form.el.submit();
+					form.remove();
+				}
+			});
+
+			simpleCart.extendCheckout({
 				PayPal: function (opts) {
 					// account email is required
 					if (!opts.email) {
@@ -863,7 +896,7 @@ Dual licensed under the MIT or GPL licenses.
 						data['return'] = opts.success;
 					}
 					if (opts.cancel) {
-						data['cancel_return'] = opts.cancel;
+						data.cancel_return = opts.cancel;
 					}
 
 
@@ -871,7 +904,8 @@ Dual licensed under the MIT or GPL licenses.
 					simpleCart.each(function (item,x) {
 						var counter = x+1,
 							item_options = item.options(),
-							optionCount = 0;
+							optionCount = 0,
+							send;
 	
 						// basic item data
 						data["item_name_" + counter] = item.get("name");
@@ -886,12 +920,12 @@ Dual licensed under the MIT or GPL licenses.
 							if (k < 10) {
 		
 								// check to see if we need to exclude this from checkout
-								var send = true
+								send = true;
 								simpleCart.each(settings.excludeFromCheckout, function (field_name) {
 									if (field_name === attr) { send = false; }
 								});
 								if (send) {
-										optionCount++;
+										optionCount += 1;
 										data["on" + k + "_" + counter] = attr;
 										data["os" + k + "_" + counter] = val;
 								}
@@ -939,17 +973,18 @@ Dual licensed under the MIT or GPL licenses.
 					// add items to data
 					simpleCart.each(function (item,x) {
 						var counter = x+1,
-							options_list = [];
+							options_list = [],
+							send;
 						data['item_name_' + counter]		= item.get('name');
 						data['item_quantity_' + counter]	= item.quantity();
 						data['item_price_' + counter]		= item.price();
-						data['item_currency_ ' + counter]	= simpleCart.currency().code
-						data['item_tax_rate' + counter]	= item.get('taxRate') || simpleCart.taxRate();
+						data['item_currency_ ' + counter]	= simpleCart.currency().code;
+						data['item_tax_rate' + counter]		= item.get('taxRate') || simpleCart.taxRate();
 
 						// create array of extra options
 						simpleCart.each(item.options(), function (val,x,attr) {
 							// check to see if we need to exclude this from checkout
-							var send = true
+							send = true;
 							simpleCart.each(settings.excludeFromCheckout, function (field_name) {
 								if (field_name === attr) { send = false; }
 							});
@@ -1018,11 +1053,11 @@ Dual licensed under the MIT or GPL licenses.
 						// create array of extra options
 						simpleCart.each(item.options(), function (val,x,attr) {
 							// check to see if we need to exclude this from checkout
-							var send = true
+							var send = true;
 							simpleCart.each(settings.excludeFromCheckout, function (field_name) {
 								if (field_name === attr) { send = false; }
 							});
-							if (send && attr != 'weight' && attr != 'tax') {
+							if (send && attr !== 'weight' && attr !== 'tax') {
 								options_list.push(attr + ": " + val);
 							}
 						});
@@ -1057,14 +1092,15 @@ Dual licensed under the MIT or GPL licenses.
 							, taxRate	: simpleCart.taxRate()
 							, itemCount : simpleCart.find({}).length
 						},
-						action = opts.url
+						action = opts.url,
 						method = opts.method === "GET" ? "GET" : "POST";
 
 
 					// add items to data
 					simpleCart.each(function (item,x) {
 						var counter = x+1,
-							options_list = [];
+							options_list = [],
+							send;
 						data['item_name_' + counter]		= item.get('name');
 						data['item_quantity_' + counter]	= item.quantity();
 						data['item_price_' + counter]		= item.price();
@@ -1072,7 +1108,7 @@ Dual licensed under the MIT or GPL licenses.
 						// create array of extra options
 						simpleCart.each(item.options(), function (val,x,attr) {
 							// check to see if we need to exclude this from checkout
-							var send = true
+							send = true;
 							simpleCart.each(settings.excludeFromCheckout, function (field_name) {
 								if (field_name === attr) { send = false; }
 							});
@@ -1091,7 +1127,7 @@ Dual licensed under the MIT or GPL licenses.
 						data['return'] = opts.success;
 					}
 					if (opts.cancel) {
-						data['cancel_return'] = opts.cancel;
+						data.cancel_return = opts.cancel;
 					}
 
 					if (opts.extra_data) {
@@ -1109,47 +1145,13 @@ Dual licensed under the MIT or GPL licenses.
 				}
 
 
-			};
-
-
-
-
-			simpleCart.extend({
-				checkout: function () {
-					if (settings.checkout.type.toLowerCase() === 'custom' && isFunction(settings.checkout.fn)) {
-						settings.checkout.fn.call(simpleCart,settings.checkout)
-					} else if (isFunction(simpleCart.checkout[settings.checkout.type])) {
-						simpleCart.checkout[settings.checkout.type].call(simpleCart,settings.checkout);
-					} else {
-						simpleCart.error("No Valid Checkout Method Specified");
-					}
-				},
-				extendCheckout: function (methods) {
-					return simpleCart.extend(simpleCart.checkout, checkoutMethods);
-				},
-				generateAndSendForm: function (opts) {
-					var form = simpleCart.$create("form");
-					form.attr('style', 'display:none;');
-					form.attr('action', opts.action);
-					form.attr('method', opts.method);
-					simpleCart.each(opts.data, function (val, x, name) {
-						form.append(
-							simpleCart.$create("input").attr("type","hidden").attr("name",name).val(val)
-						);
-					});
-					simpleCart.$("body").append(form);
-					form.el.submit();
-					form.remove();
-				}
 			});
-
-			simpleCart.extendCheckout(checkoutMethods);
 
 
 			/*******************************************************************
 			 *	EVENT MANAGEMENT
 			 *******************************************************************/
-			var eventFunctions = {
+			eventFunctions = {
 
 				// bind a callback to an event
 				bind: function (name, callback) {
@@ -1173,20 +1175,22 @@ Dual licensed under the MIT or GPL licenses.
 
 				// trigger event
 				trigger: function (name, options) {
-					var returnval = true;
+					var returnval = true,
+						x,
+						xlen;
+
 					if (!this._events) {
 						this._events = {};
 					}
 					if (!isUndefined(this._events[name]) && isFunction(this._events[name][0])) {
-						for (var x=0,xlen=this._events[name].length; x<xlen; x++) {
-							returnval = this._events[name][x].apply(this, (options ? options : []));
+						for (x = 0, xlen = this._events[name].length; x < xlen; x += 1) {
+							returnval = this._events[name][x].apply(this, (options || []));
 						}
 					}
 					if (returnval === false) {
 						return false;
-					} else {
-						return true;
 					}
+					return true;
 				}
 
 			};
@@ -1194,8 +1198,8 @@ Dual licensed under the MIT or GPL licenses.
 			simpleCart.extend(simpleCart.Item._, eventFunctions);
 
 
-			// base simpleCart events
-			var events = {
+			// base simpleCart events in options
+			baseEvents = {
 				  beforeAdd				: null
 				, afterAdd				: null
 				, load					: null
@@ -1208,12 +1212,12 @@ Dual licensed under the MIT or GPL licenses.
 				, beforeCheckout		: null
 				, beforeRemove			: null
 			};
+			
+			// extend with base events
+			simpleCart(baseEvents);
 
-			// extend events in options
-			simpleCart(events);
-
-			//bind settings to events
-			simpleCart.each(events, function (val, x, name) {
+			// bind settings to events
+			simpleCart.each(baseEvents, function (val, x, name) {
 				simpleCart.bind(name, function () {
 					if (isFunction(settings[name])) {
 						settings[name].apply(this, arguments);
@@ -1255,7 +1259,7 @@ Dual licensed under the MIT or GPL licenses.
 					if (typeof n==='undefined') {
 						n=2;
 					}
-					var result = str.match(RegExp('.{1,'+n+'}','g'));
+					var result = str.match(new RegExp('.{1,' + n + '}','g'));
 					return result || [];
 				}
 
@@ -1286,7 +1290,8 @@ Dual licensed under the MIT or GPL licenses.
 			/*******************************************************************
 			 *	VIEW MANAGEMENT
 			 *******************************************************************/
-			var outletAndInputFunctions = {
+
+			simpleCart.extend({
 				// bind outlets to function
 				bindOutlets: function (outlets) {
 					simpleCart.each(outlets, function (info, x, selector) {
@@ -1308,7 +1313,7 @@ Dual licensed under the MIT or GPL licenses.
 
 				// bind click events on inputs
 				bindInputs: function (inputs) {
-					simpleCart.each(inputs, function (info, x) {
+					simpleCart.each(inputs, function (info) {
 						simpleCart.setInput("." + namespace + "_" + info.selector, info.event, info.callback);
 					});
 				},
@@ -1317,139 +1322,7 @@ Dual licensed under the MIT or GPL licenses.
 				setInput: function (selector, event, func) {
 					simpleCart.$(selector).live(event, func);
 				}
-			},
-
-			outlets = {
-				total: { callback: function () {
-					return simpleCart.toCurrency(simpleCart.total());
-				} }
-				, quantity: { callback: function () {
-					return simpleCart.quantity();
-				} }
-				, items: { callback: function (selector) {
-					simpleCart.writeCart(selector);
-				} }
-				, tax: { callback: function () {
-					return simpleCart.toCurrency(simpleCart.tax());
-				} }
-				, taxRate: { callback: function () {
-					return simpleCart.taxRate().toFixed();
-				} }
-				, shipping: { callback: function () {
-					return simpleCart.toCurrency(simpleCart.shipping());
-				} }
-				, grandTotal: { callback: function () {
-					return simpleCart.toCurrency(simpleCart.grandTotal());
-				} }
-			},
-
-			inputs = [
-				{	  selector: 'checkout'
-					, event: 'click'
-					, callback: function () {
-						simpleCart.checkout();
-					}
-				}
-				, {	  selector: 'empty'
-					, event: 'click'
-					, callback: function () {
-						simpleCart.empty();
-					}
-				}
-				, {	  selector: 'increment'
-					, event: 'click'
-					, callback: function (e) {
-						simpleCart.find(simpleCart.$(this).closest('.itemRow').attr('id').split("_")[1]).increment();
-						simpleCart.update();
-					}
-				}
-				, {	  selector: 'decrement'
-					, event: 'click'
-					, callback: function (e) {
-						simpleCart.find(simpleCart.$(this).closest('.itemRow').attr('id').split("_")[1]).decrement();
-						simpleCart.update();
-					}
-				}
-				/* remove from cart */
-				, {	  selector: 'remove'
-					, event: 'click'
-					, callback: function (e) {
-						simpleCart.find(simpleCart.$(this).closest('.itemRow').attr('id').split("_")[1]).remove();
-					}
-				}
-
-				/* cart inputs */
-				, {	  selector: 'input'
-					, event: 'change'
-					, callback: function (e) {
-						var $input = simpleCart.$(this),
-							$parent = $input.parent(),
-							classList = $parent.attr('class').split(" ");
-						simpleCart.each(classList, function (klass,x) {
-							if (klass.match(/item-.+/i)) {
-								var field = klass.split("-")[1];
-								simpleCart.find($parent.closest('.itemRow').attr('id').split("_")[1]).set(field,$input.val());
-								simpleCart.update();
-								return;
-							}
-						});
-					}
-				}
-
-				/* here is our shelfItem add to cart button listener */
-				, {	  selector: 'shelfItem .item_add'
-					, event: 'click'
-					, callback: function (e) {
-						var $button = simpleCart.$(this),
-							fields = {};
-	
-						$button.closest("." + namespace + "_shelfItem").descendants().each(function (x,item) {
-							var $item = simpleCart.$(item);
-	
-							// check to see if the class matches the item_[fieldname] pattern
-							if ($item.attr("class") &&
-								$item.attr("class").match(/item_.+/) &&
-								!$item.attr('class').match(/item_add/)) {
-			
-								// find the class name
-								simpleCart.each($item.attr('class').split(' '), function (klass, y) {
-			
-									// get the value or text depending on the tagName
-									if (klass.match(/item_.+/)) {
-										var attr = klass.split("_")[1],
-											val = "";
-										switch($item.tag().toLowerCase()) {
-											case "input":
-											case "textarea":
-											case "select":
-												var type = $item.attr("type");
-												if (!type || ((type.toLowerCase() === "checkbox" || type.toLowerCase() === "radio") && $item.attr("checked"))) {
-													val = $item.val();
-												}				
-												break;
-											case "img":
-												val = $item.attr('src');
-												break;
-											default:
-												val = $item.text();
-												break;
-										}
-				
-										if (val != null && val != "") {
-											fields[attr.toLowerCase()] = fields[attr.toLowerCase()] ? fields[attr.toLowerCase()] + ", " +  val : val;
-										}
-									}
-								});
-							}
-						});
-
-						// add the item
-						simpleCart.add(fields);
-					}
-				}
-			];
-
-			simpleCart.extend(outletAndInputFunctions);		
+			});		
 
 
 			// class for wrapping DOM selector shit
@@ -1473,11 +1346,11 @@ Dual licensed under the MIT or GPL licenses.
 					},
 					attr: function (attr, val) {
 						if (isUndefined(val)) {
-							return this.el.get(attr)
-						} else {
-							this.el.set(attr, val);
-							return this;
+							return this.el.get(attr);
 						}
+						
+						this.el.set(attr, val);
+						return this;
 					},
 					remove: function () {
 						this.el.dispose();
@@ -1503,7 +1376,7 @@ Dual licensed under the MIT or GPL licenses.
 					},
 					click: function (callback) {
 						if (isFunction(callback)) {
-							this.each(function (e,x) {
+							this.each(function (e) {
 								e.addEvent(_CLICK_, function (ev) {
 									callback.call(e,ev);
 								});
@@ -1556,12 +1429,11 @@ Dual licensed under the MIT or GPL licenses.
 					text: function (text) {
 						if (isUndefined(text)) {
 							return this.el[0].innerHTML;
-						} else {
-							this.each(function (e,x) {
-								$(e).update(text);
-							});
-							return this;
 						}
+						this.each(function (e) {
+							simpleCart.$(e).update(text);
+						});
+						return this;
 					},
 					html: function (html) {
 						return this.text(html);
@@ -1572,40 +1444,39 @@ Dual licensed under the MIT or GPL licenses.
 					attr: function (attr, val) {
 						if (isUndefined(val)) {
 							return this.el[0].readAttribute(attr);
-						} else {
-							this.each(function (e,x) {
-								$(e).writeAttribute(attr, val);
-							});
-							return this;
 						}
+						this.each(function (e) {
+							$engine(e).writeAttribute(attr, val);
+						});
+						return this;
 					},
 					append: function (item) {
-						this.each(function (e,x) {
+						this.each(function (e) {
 							if (item.el) {
-								item.each(function (e2,x2) {
-									$(e).appendChild(e2);
+								item.each(function (e2) {
+									$engine(e).appendChild(e2);
 								});
 							} else if (isElement(item)) {
-								$(e).appendChild(item);
+								$engine(e).appendChild(item);
 							}
 						});
 						return this;
 					},
 					remove: function () {
-						this.each(function (e,x) {
-							$(e).remove();
+						this.each(function (e) {
+							$engine(e).remove();
 						});
 						return this;
 					},
 					addClass: function (klass) {
-						this.each(function (e,x) {
-							$(e).addClassName(klass);
+						this.each(function (e) {
+							$engine(e).addClassName(klass);
 						});
 						return this;
 					},
 					removeClass: function (klass) {
-						this.each(function (e,x) {
-							$(e).removeClassName(klass);
+						this.each(function (e) {
+							$engine(e).removeClassName(klass);
 						});
 						return this;
 					},
@@ -1617,14 +1488,14 @@ Dual licensed under the MIT or GPL licenses.
 					},
 					click: function (callback) {
 						if (isFunction(callback)) {
-							this.each(function (e,x) {
-								$(e).observe(_CLICK_, function (ev) {
+							this.each(function (e) {
+								$engine(e).observe(_CLICK_, function (ev) {
 									callback.call(e,ev);
 								});
 							});
 						} else if (isUndefined(callback)) {
-							this.each(function (e,x) {
-								$(e).fire(_CLICK_);
+							this.each(function (e) {
+								$engine(e).fire(_CLICK_);
 							});
 						}
 						return this;
@@ -1660,7 +1531,7 @@ Dual licensed under the MIT or GPL licenses.
 						if (isString(selector)) {
 							this.el = $engine(selector);
 						} else if (isElement(selector)) {
-							this.el = [$(selector)];
+							this.el = [$engine(selector)];
 						}
 					}
 
@@ -1672,10 +1543,10 @@ Dual licensed under the MIT or GPL licenses.
 					passthrough: function (action, val) {
 						if (isUndefined(val)) {
 							return this.el[action]();
-						} else {
-							this.el[action](val);
-							return this;
 						}
+						
+						this.el[action](val);
+						return this;
 					},
 					text: function (text) {
 						return this.passthrough(_TEXT_, text);
@@ -1694,10 +1565,9 @@ Dual licensed under the MIT or GPL licenses.
 					attr: function (attr, val) {
 						if (isUndefined(val)) {
 							return this.el.attr(attr);
-						} else {
-							this.el.attr(attr, val);
-							return this;
 						}
+						this.el.attr(attr, val);
+						return this;
 					},
 					remove: function () {
 						this.el.remove();
@@ -1718,7 +1588,7 @@ Dual licensed under the MIT or GPL licenses.
 						return this.passthrough(_CLICK_, callback);
 					},
 					live: function (event, callback) {
-						jQuery(document).delegate(this.selector, event, callback);
+						$engine(document).delegate(this.selector, event, callback);
 						return this;
 					},
 					parent: function () {
@@ -1750,8 +1620,137 @@ Dual licensed under the MIT or GPL licenses.
 
 			// bind the input and output events
 			simpleCart.ready(function () {
-				simpleCart.bindOutlets(outlets);
-				simpleCart.bindInputs(inputs);
+				simpleCart.bindOutlets({
+					total: { callback: function () {
+						return simpleCart.toCurrency(simpleCart.total());
+					} }
+					, quantity: { callback: function () {
+						return simpleCart.quantity();
+					} }
+					, items: { callback: function (selector) {
+						simpleCart.writeCart(selector);
+					} }
+					, tax: { callback: function () {
+						return simpleCart.toCurrency(simpleCart.tax());
+					} }
+					, taxRate: { callback: function () {
+						return simpleCart.taxRate().toFixed();
+					} }
+					, shipping: { callback: function () {
+						return simpleCart.toCurrency(simpleCart.shipping());
+					} }
+					, grandTotal: { callback: function () {
+						return simpleCart.toCurrency(simpleCart.grandTotal());
+					} }
+				});
+				simpleCart.bindInputs([
+					{	  selector: 'checkout'
+						, event: 'click'
+						, callback: function () {
+							simpleCart.checkout();
+						}
+					}
+					, {	  selector: 'empty'
+						, event: 'click'
+						, callback: function () {
+							simpleCart.empty();
+						}
+					}
+					, {	  selector: 'increment'
+						, event: 'click'
+						, callback: function () {
+							simpleCart.find(simpleCart.$(this).closest('.itemRow').attr('id').split("_")[1]).increment();
+							simpleCart.update();
+						}
+					}
+					, {	  selector: 'decrement'
+						, event: 'click'
+						, callback: function () {
+							simpleCart.find(simpleCart.$(this).closest('.itemRow').attr('id').split("_")[1]).decrement();
+							simpleCart.update();
+						}
+					}
+					/* remove from cart */
+					, {	  selector: 'remove'
+						, event: 'click'
+						, callback: function () {
+							simpleCart.find(simpleCart.$(this).closest('.itemRow').attr('id').split("_")[1]).remove();
+						}
+					}
+
+					/* cart inputs */
+					, {	  selector: 'input'
+						, event: 'change'
+						, callback: function () {
+							var $input = simpleCart.$(this),
+								$parent = $input.parent(),
+								classList = $parent.attr('class').split(" ");
+							simpleCart.each(classList, function (klass) {
+								if (klass.match(/item-.+/i)) {
+									var field = klass.split("-")[1];
+									simpleCart.find($parent.closest('.itemRow').attr('id').split("_")[1]).set(field,$input.val());
+									simpleCart.update();
+									return;
+								}
+							});
+						}
+					}
+
+					/* here is our shelfItem add to cart button listener */
+					, { selector: 'shelfItem .item_add'
+						, event: 'click'
+						, callback: function () {
+							var $button = simpleCart.$(this),
+								fields = {};
+
+							$button.closest("." + namespace + "_shelfItem").descendants().each(function (x,item) {
+								var $item = simpleCart.$(item);
+
+								// check to see if the class matches the item_[fieldname] pattern
+								if ($item.attr("class") &&
+									$item.attr("class").match(/item_.+/) &&
+									!$item.attr('class').match(/item_add/)) {
+
+									// find the class name
+									simpleCart.each($item.attr('class').split(' '), function (klass) {
+										var attr,
+											val,
+											type;
+
+										// get the value or text depending on the tagName
+										if (klass.match(/item_.+/)) {
+											attr = klass.split("_")[1];
+											val = "";
+											switch($item.tag().toLowerCase()) {
+												case "input":
+												case "textarea":
+												case "select":
+													type = $item.attr("type");
+													if (!type || ((type.toLowerCase() === "checkbox" || type.toLowerCase() === "radio") && $item.attr("checked"))) {
+														val = $item.val();
+													}				
+													break;
+												case "img":
+													val = $item.attr('src');
+													break;
+												default:
+													val = $item.text();
+													break;
+											}
+
+											if (val !== null && val !== "") {
+												fields[attr.toLowerCase()] = fields[attr.toLowerCase()] ? fields[attr.toLowerCase()] + ", " +  val : val;
+											}
+										}
+									});
+								}
+							});
+
+							// add the item
+							simpleCart.add(fields);
+						}
+					}
+				]);
 			});
 
 
@@ -1760,14 +1759,15 @@ Dual licensed under the MIT or GPL licenses.
 			 *******************************************************************/
 			// Cleanup functions for the document ready method
 			// used from jQuery
+			/*global DOMContentLoaded */
 			if (document.addEventListener) {
-				DOMContentLoaded = function () {
+				window.DOMContentLoaded = function () {
 					document.removeEventListener("DOMContentLoaded", DOMContentLoaded, false);
 					simpleCart.init();
 				};
 
 			} else if (document.attachEvent) {
-				DOMContentLoaded = function () {
+				window.DOMContentLoaded = function () {
 					// Make sure body exists, at least, in case IE gets a little overzealous (ticket #5443).
 					if (document.readyState === "complete") {
 						document.detachEvent("onreadystatechange", DOMContentLoaded);
@@ -1845,7 +1845,7 @@ Dual licensed under the MIT or GPL licenses.
 
 	window.simpleCart = generateSimpleCart();
 
-}(window, document, HTMLElement));
+}(window, document));
 
 /************ JSON *************/
 var JSON;JSON||(JSON={});
