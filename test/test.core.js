@@ -1,92 +1,185 @@
-simpleCart.ready(function(){
-	if( !QUnit.urlParams.storage ){
-		simpleCart.empty();
-		simpleCart.add("name=Cool T-shirt","price=25.00","quantity=1","thumb=http://www.google.com/intl/en_com/images/srpr/logo3w.png");
-	
-		for( var x = 0; x<100; x++ ){
-			simpleCart.add("name=Cool item #" + x , "price=1" );
-		}
-	
-	
-		var mark = document.location.href.match(/\?/) ? "&" : "?";
-		document.location.href = document.location.href + mark + "storage=true";
-	} else { 
 
-
-	module('simpleCart-storage');
-	test("proper loading after page refesh", function(){
-
-
-		deepEqual( simpleCart.quantity , 101 , "sc quantity loaded properly" );
-		deepEqual( simpleCart.total , 125 , "sc total loaded properly" );
-
-		var item = simpleCart.find({name:"Cool T-shirt"})[0];
-
-		deepEqual( item.quantity , 1 , "item quantity loaded properly" );
-		deepEqual( item.name , "Cool T-shirt" , "item name loaded properly" );
-		deepEqual( item.price , 25 , "item price loaded properly" );
-		deepEqual( item.thumb , "http://www.google.com/intl/en_com/images/srpr/logo3w.png" , "storage irregular option works" );
-
-
+if( !QUnit.urlParams.storage ){
+	simpleCart.empty();
+	simpleCart.add({
+		name: "Cool T-shirt",
+		price: 25,
+		thumb: "http://www.google.com/intl/en_com/images/srpr/logo3w.png"
 	});
+	var mark = document.location.href.match(/\?/) ? "&" : "?";
+	document.location.href = document.location.href + mark + "storage=true";
+}
 
 
+module('simpleCart-storage');
+test("proper loading after page refesh", function(){
+
+	var item = simpleCart.find({})[0];
+	
+	same( item.quantity() , 1 , "item quantity loaded properly" );
+	same( item.get('name') , "Cool T-shirt" , "item name loaded properly" );
+	same( item.price() , 25 , "item price loaded properly" );
+	same( simpleCart.quantity() , 1 , "sc quantity loaded properly" );
+	same( simpleCart.total() , 25 , "sc total loaded properly" );
+	same( item.get("thumb") , "http://www.google.com/intl/en_com/images/srpr/logo3w.png" , "storage non-regular option works" );
+	
+	
+});
 
 
+module('simpleCart core functions');
+test("adding and removing items", function(){
+	
+	simpleCart.empty();
+	
+	same( simpleCart.quantity() , 0 , "Quantity correct after one item added" );
+	
+	var item = simpleCart.add({
+		name: "Cool T-shirt",
+		price: 25
+	});
+	
+	same( simpleCart.quantity() , 1 , "Quantity correct after one item added" );
+	same( simpleCart.total() , 25 , "Total correct after one item added" );
+	same( item.get( 'price' ) , 25 , "Price is correctly saved" );
+	same( item.get( 'name' ) , "Cool T-shirt", "Name is correctly saved" );
+	
+	
+	var item2 = simpleCart.add({
+		name: "Really Cool T-shirt",
+		price: "25.99"
+	});
+	
+	
+	var items = simpleCart.find();
+	
+	same( items.length , 2 , "new items being recognized");
+	ok( item2.equals( item2 ), "same items are .equal" );
+	ok( !item2.equals( item ), "no false positives on item.equal" );
+	
+	same( item2.price() , 25.99 , "Price as string works");
+	
+	var item3 = simpleCart.add({
+		name: "Reeeeeally Cool Sweatshirt",
+		UUID: "xxxfdajfdsf823jf92j9fj9f23",
+		price: "$36"
+	});
+	
+	same( item3.price() , 36 , "Price with dollar sign in front is parsed correctly");
+});
 
-	module('simpleCart core functions');
+test("editing items", function(){	
+	
+	simpleCart.empty();
+	
+	var item = simpleCart.add({
+		name: "Cool T-shirt",
+		price: 25
+	});
+	
+	item.set( "name" , "Really Cool Shorts" );
+	item.set("quantity" , 2 );
+	
+	same( item.get( "name" ) , "Really Cool Shorts" , "Name attribute updated with .set" );
+	same( item.get( "quantity" ) , 2 , "quantity updated with .set" );
+	
+	item.quantity(2);
+	
+	same( item.quantity() , 2 , "Setting quantity with item.quantity() works" );
+	
+	item.increment();
+	
+	same( simpleCart.quantity() , 3 , "Quantity is two after item incremented");
+	same( item.quantity() , 3 , "Item quantity incremented to 2" );
+	same( simpleCart.total() , 75 , "Total increased properly after incremented item");
+	
+	item.increment( 5 );
+	
+	same( item.quantity() , 8 , "Quantity incremented with larger value");
+	
+	item.remove();
+	
+	same( simpleCart.quantity() , 0 , "Quantity correct after item removed" );
+	same( simpleCart.total() , 0 , "Total correct after item removed" );
+	
+});
+
+
 	test("simpleCart.chunk() function works", function(){
 		
 		var str = "11111" + "11111" + "11111" + "11111" + "11111",
 			array = [ "11111" , "11111" , "11111" , "11111" , "11111" ];
 			test = simpleCart.chunk( str , 5 );
 			
-		deepEqual( test , array , "chunked array properly into 5 piece chunks");
+		same( test , array , "chunked array properly into 5 piece chunks");
+		
+	});
+	
+	test("simpleCart.toCurrency() function works", function(){
+		
+		var number = 2234.23;
+		
+		same( simpleCart.toCurrency( number ), "&#36;2,234.23" , "Currency Base Case");
+		
+		same( simpleCart.toCurrency( number , { delimiter: " " }) ,"&#36;2 234.23" ,  "Changing Delimiter");
+		
+		same( simpleCart.toCurrency( number , { delimiter: "&thinsp;" }) ,"&#36;2&thinsp;234.23" ,  "Multi Character Delimiter");
+
+		same( simpleCart.toCurrency( number , { decimal: ","  }) ,  "&#36;2,234,23" , "Changing decimal delimiter");
+
+		same(  simpleCart.toCurrency( number , { symbol: "!"  }) , "!2,234.23" , "Changing currency symbol");
+		
+		same( simpleCart.toCurrency( number , { accuracy: 1  }) , "&#36;2,234.2" ,  "Changing decimal accuracy");
+		
+		same( simpleCart.toCurrency( number , { after: true  }) ,  "2,234.23&#36;" , "Changing symbol location");
+		
+		same( simpleCart.toCurrency( number , { symbol: "", accuracy:0, delimiter:"" }) , "2234", "Long hand toInt string" );
+		
 		
 	});
 	
 	
 	test("simpleCart.each() function works", function(){
 		
-		var myarray = ['bob' , 'joe' , function bill(){} , 'jeff' ];
+		Object.prototype.extra = function(){};
+		Array.prototype.awesome = function(){};
 		
-		function test_bill(){
+		var myObject = {'bob':4 , 'joe':2 , bill: function(){} , jeff:9 },
+			myArray = ['bob','joe','bill','jeff'];
+		
+		function test_object_prototype(){
 			var test = true;
-			simpleCart.each( myarray , function(item,x){
-				if( x === 3 ){
+			simpleCart.each( myObject , function(val,x,name){
+				if( name === "extra" ){
 					test = false;
 				}
 			});
 			return test;
 		}
 		
-		function test_names(){
+		function test_array_prototype(){
+			var test = true;
+			simpleCart.each( myArray , function(val,x){
+				if( x === 4 ){
+					test = false;
+				}
+			});
+			return test;
+		}
+		
+		function output_members(){
 			var ms = "";
-			simpleCart.each( myarray , function(item,x){
-				ms += item;
+			simpleCart.each( myObject , function(val,x,name){
+				ms += name;
 			});
 			return ms;
 		}
 		
-		ok( test_bill() , "function dismissed in each" );
-		deepEqual( test_names() , "bobjoejeff" , "items iterated properly");
-		
-		
-		
-		function test_cart_items(){
-			var items = simpleCart.items,
-				pass = true;
-				
-			simpleCart.each(function(item,x){
-				if( items[item.id] !== item ){
-					pass = fail;
-				}
-			});
-			
-			return pass;
-		}
 	
-		ok( test_cart_items() , "simpleCart items iterated correctly with .each");
+		
+		ok( test_object_prototype() , "prototype attrs dismissed for object " );
+		ok( test_array_prototype() , "prototype attrs dismissed for array " );
+		same( output_members() , "bobjoebilljeff" , "items iterated properly");
 	
 	});
 	
@@ -98,141 +191,210 @@ simpleCart.ready(function(){
 	});
 	
 	
-	module('update view');
-	test("cart row input event property" , function(){
-		var info = ['size' , 'input'],
-			item = {
-				  id: 'c9'
-				, size: 'small'
-			},
-			output = simpleCart.createCartRow( info , item , null );
-			
-		deepEqual( output , "<input type=\"text\" value=\"small\" onchange=\"simpleCart.items['c9'].set('size' , this.value);\" />", 'onchange event has expected format' );
-	});
-	
-	
-	
-	
-	
-	module('price handling');
-	test('non number prices interpretted as 0', function(){
-		deepEqual( simpleCart.valueToCurrencyString( 'wers' ) , simpleCart.valueToCurrencyString( '0' ) , 'NaN converted to 0 for output');
-		
-	});
-	
-	
-	module("saving/removing items");
-	test('items not overwritten because of duplicate id', function(){
-		simpleCart.empty();
-		simpleCart.nextId=99;
-		simpleCart.add("name=Bob","price=13.00");
-		simpleCart.nextId=99;
-		simpleCart.add("name=Joe","price=13.00");
-		deepEqual( simpleCart.items['c99'].name , "Bob" , "Item not overwritten" );
-	});
-	
-	
-	test('return item after adding to cart', function(){
-		
-		var item = simpleCart.add("name=Jeff","price=14.00");
-		deepEqual( item.name , "Jeff" , "Name is the same" );
-		deepEqual( simpleCart.items[ item.id ] , item , "Item accessible by id in simpleCart.items" );
-		item.remove();
-		deepEqual( simpleCart.items[ item.id ] , undefined , "Item removed properly with pointer");
-		
-	});
-	
-	test('special characters removed from new item', function(){
-		
-		var item = simpleCart.add("name=Bill~","price=1422.00");
-		deepEqual( item.name , "Bill" , "~ removed from new item" );
-		item.set( 'name' , "Nick=");
-		deepEqual( item.name , "Nick" , "= removed from item update" );
-		item.set( 'name' , "John~");
-		deepEqual( item.name , "John" , "~ removed from item update" );
-		
-	});
-	
-	
-	test('duplicate items increase quantity', function(){
-		
-		
-		var before = 0,
-			before_q,
-			before_iq,
-			after = 0,
-		 	item;
-		
-		item = simpleCart.add("name=Jorge","price=1.00");
-		
-		simpleCart.each(function(item,x){
-			before++;
-		});
-		before_iq = item.quantity;
-		before_q = simpleCart.quantity;
-		
-		item = simpleCart.add("name=Jorge","price=1.00");
-		
-		simpleCart.each(function(item,x){
-			after++;
-		});
-		
-		deepEqual( before , after , "individual item count remains the same" );
-		deepEqual( simpleCart.quantity , before_q+1, "cart quantity increased" );
-		deepEqual( item.quantity , before_iq+1, "item quantity increased" );
-	});
-	
-	
-	module("updating items");
-	test('updates to quantity using item.set() with number value work', function(){
-		//simpleCart.empty();
-		var item = simpleCart.add("name=Cool Tshirt","price=132.00");
-		item.set( 'quantity' , 30 );
-		deepEqual( item.quantity , 30 , "Quantity with number properly updated" );
-	});
-	
-	test('updates to quantity using item.set() with string value work', function(){
-		//simpleCart.empty();
-		var item = simpleCart.add("name=Cool Tshirt","price=132.00");
-		item.set( 'quantity' , "30" );
-		deepEqual( item.quantity , 30 , "Quantity with string properly updated" );
-	});
-	
-	
 
+	test("simpleCart.copy() function works", function(){
+			
+		var sc_demo = simpleCart.copy('sc_demo');
+		sc_demo.add({ name:"bob",price:34,size:"big"});
+		
+	});
 	
-	module("language");
-	test("change language", function(){
-		simpleCart.ln.fake = {
-			  quantity: "Bleh"
-			, price: "Boom"
-			, total: "Pow"
-			, decrement: "Crack"
-			, increment: "Click"
-			, remove: "Snap"
-			, tax: "Crash"
-			, shipping: "Zoom"
-			, image: "Zap"
+	
+	
+	
+	module('tax and shipping');
+	test("shipping works", function(){
+			
+		simpleCart.empty();
+		simpleCart({
+			taxRate: 0.06 ,
+			shippingFlatRate: 20
+		});
+		
+		simpleCart.add({name: "bob" , price: 2 });
+		
+		same( simpleCart.taxRate() , 0.06 , "Tax Rate saved properly");
+		same( simpleCart.tax() , 0.06*2 , "Tax Cost Calculated properly");
+		same( simpleCart.shipping() , 20 , "Flat Rate shipping works");
+		
+		
+		simpleCart({
+			shippingQuantityRate: 3
+		});
+		
+		same( simpleCart.shipping() , 20 + 1*3 , "Shipping Quantity Rate works");
+		
+		simpleCart({
+			shippingTotalRate: 0.1
+		});
+		
+		
+		same( simpleCart.shipping() , 20 + 1*3 + 0.1*2 , "Shipping Quantity Rate works");
+		
+		
+		simpleCart({
+			shippingFlatRate: 0 ,
+			shippingQuantityRate: 0 ,
+			shippingTotalRate: 0 ,
+			taxRate: 0 ,
+			shippingCustom: function(){
+				return 45;
+			}
+		});
+		
+		simpleCart.empty();
+		same( simpleCart.shipping() ,  45 , "Custom Shipping works");
+		
+		simpleCart.add({name:"cool",price:1,shipping:45});
+		same( simpleCart.shipping() ,  90 , "item shipping field works");
+		
+		simpleCart.Item._.shipping = function(){
+			if( this.get('name') === 'cool'){
+				return 5;
+			} else {
+				return 1;
+			}
 		};
 		
-		simpleCart.language = "fake";
-		simpleCart.update();
+		simpleCart.empty();
+		simpleCart.add({name:'cool',price:2});
+		simpleCart.add({name:'bob',price:3});
+		simpleCart.add({name:'weird',price:3});
+		simpleCart({
+			shippingCustom: null
+		});
+		same( simpleCart.shipping() ,  7 , "Item shipping prototype function works");
 		
-		deepEqual( simpleCart.print("Price") , "Boom" , "Humanized name translated");
-		deepEqual( simpleCart.print("price") , "Boom" , "Lower case name translated");
-		deepEqual( simpleCart.print("Boom")  , "Boom" , "No translation returns input");
+	});
+	test("tax works", function(){
+		
+		simpleCart.empty();
+		simpleCart({
+			taxRate: 0.06 
+		});
+
+		simpleCart.add({name: "bob" , price: 2 });
+
+		same( simpleCart.taxRate() , 0.06 , "Tax Rate saved properly");
+		same( simpleCart.tax() , 0.06*2 , "Tax Cost Calculated properly");
+		
+		
+		simpleCart({
+			taxRate: 0 
+		});
+		simpleCart.empty();
+		simpleCart.add({name:"cool",price:2,taxRate:0.05});
+		same( simpleCart.tax() ,  2*0.05 , "Individual item tax rate works");
+		
+		
+		simpleCart.empty();
+		simpleCart.add({name:"cool",price:2,tax:1});
+		same( simpleCart.tax() ,  1 , "Individual item tax cost works");
+		
+		simpleCart.empty();
+		simpleCart.add({name:"cool",price:2,tax:function(){
+			return this.price()*0.1;
+		}});
+		same( simpleCart.tax() , 0.2, "individual tax cost function works");
+		
+		simpleCart.empty()
+		
+	});
+	
+	
+	module('simpleCart.find');
+	test("simpleCart.find() function works", function(){
+			
+		simpleCart.empty();
+		var bob = simpleCart.add({name: "bob" , price: 2 , color:'blue' , size: 6 }),
+			joe = simpleCart.add({name: "joe" , price: 3 , color:'orange' , size: 3 }),
+			jeff = simpleCart.add({name: "jeff" , price: 4 , color:'blue' , size: 4 }),
+			bill = simpleCart.add({name: "bill" , price: 5 , color:'red' , size: 5 }),
+		
+		 	orange_items = simpleCart.find({ color: 'orange' }),
+			expensive = simpleCart.find({ price: '>=4' }),
+			small = simpleCart.find({ size: '<5' }),
+			bob_search = simpleCart.find({ name: "bob" }),
+			blue_and_big = simpleCart.find({ color: 'blue', size: '>4' });
+			
+			
+		
+			
+		
+		same( simpleCart.find(bob.id()).id() , bob.id() , "Searching with id works");
+		same( orange_items[0].id() , joe.id() , "Searching with string = val works");
+		same( expensive[0].id() , jeff.id(), "Searching >= works");
+		same( small[0].id() , joe.id(), "Searching < works");
+		same( bob_search[0].id() , bob.id(), "Searching by name works");
+		same( blue_and_big[0].id() , bob.id(), "Searching on multiple indices works");
+				
+	});
+	
+	module('simpleCart UI updates');
+	test("basic outlets work", function(){
+	
+		var item = simpleCart.add({
+			name: "Cool T-shirt",
+			price: 25
+		});
+
+		document.getElementById('test_id').innerHTML = simpleCart.quantity();
+		same( document.getElementById('simpleCart_quantity').innerHTML , document.getElementById('test_id').innerHTML , "quantity outlet works" );
+		
+		document.getElementById('test_id').innerHTML = simpleCart.toCurrency( simpleCart.total() );
+		same( document.getElementById('simpleCart_total').innerHTML , document.getElementById('test_id').innerHTML, "total outlet works" );
+		
+		document.getElementById('test_id').innerHTML = simpleCart.taxRate().toFixed();
+		same( document.getElementById('simpleCart_taxRate').innerHTML , document.getElementById('test_id').innerHTML , "taxRate outlet works" );
+		
+		document.getElementById('test_id').innerHTML = simpleCart.toCurrency( simpleCart.tax() );
+		same( document.getElementById('simpleCart_tax').innerHTML , document.getElementById('test_id').innerHTML , "tax outlet works" );
+		
+		document.getElementById('test_id').innerHTML = simpleCart.toCurrency( simpleCart.shipping() );
+		same( document.getElementById('simpleCart_shipping').innerHTML , document.getElementById('test_id').innerHTML , "shipping outlet works" );
+		
+		document.getElementById('test_id').innerHTML = simpleCart.toCurrency( simpleCart.grandTotal() );
+		same( document.getElementById('simpleCart_grandTotal').innerHTML , document.getElementById('test_id').innerHTML , "grand total outlet works" );
+		
 		
 		
 	});
 	
+	module('simpleCart UI updates');
+	test("basic outlets work", function(){
+	
+		var item = simpleCart.add({
+			name: "Cool T-shirt",
+			price: 25
+		});
+
+		document.getElementById('test_id').innerHTML = simpleCart.quantity();
+		same( document.getElementById('simpleCart_quantity').innerHTML , document.getElementById('test_id').innerHTML , "quantity outlet works" );
+		
+		document.getElementById('test_id').innerHTML = simpleCart.toCurrency( simpleCart.total() );
+		same( document.getElementById('simpleCart_total').innerHTML , document.getElementById('test_id').innerHTML, "total outlet works" );
+		
+		document.getElementById('test_id').innerHTML = simpleCart.taxRate().toFixed();
+		same( document.getElementById('simpleCart_taxRate').innerHTML , document.getElementById('test_id').innerHTML , "taxRate outlet works" );
+		
+		document.getElementById('test_id').innerHTML = simpleCart.toCurrency( simpleCart.tax() );
+		same( document.getElementById('simpleCart_tax').innerHTML , document.getElementById('test_id').innerHTML , "tax outlet works" );
+		
+		document.getElementById('test_id').innerHTML = simpleCart.toCurrency( simpleCart.shipping() );
+		same( document.getElementById('simpleCart_shipping').innerHTML , document.getElementById('test_id').innerHTML , "shipping outlet works" );
+		
+		document.getElementById('test_id').innerHTML = simpleCart.toCurrency( simpleCart.grandTotal() );
+		same( document.getElementById('simpleCart_grandTotal').innerHTML , document.getElementById('test_id').innerHTML , "grand total outlet works" );
+				
+	});
+	
+	
+
+	
+// just incase we refresh ;)
 	simpleCart.empty();
-	simpleCart.add("name=Cool T-shirt","price=25.00","quantity=1","thumb=http://www.google.com/intl/en_com/images/srpr/logo3w.png");
-	
-	for( var x = 0; x<100; x++ ){
-		simpleCart.add("name=Cool item #" + x , "price=1" );
-	}
-
-}
-
-});
-	
+	simpleCart.add({
+		name: "Cool T-shirt",
+		price: 25,
+		thumb: "http://www.google.com/intl/en_com/images/srpr/logo3w.png"
+	});	
