@@ -1298,9 +1298,10 @@ Dual licensed under the MIT or GPL licenses.
 			simpleCart.extend({
 				// bind outlets to function
 				bindOutlets: function (outlets) {
-					simpleCart.each(outlets, function (info, x, selector) {
+					simpleCart.each(outlets, function (callback, x, selector) {
+						
 						simpleCart.bind('update', function () {
-							simpleCart.setOutlet("." + namespace + "_" + selector, info.callback);
+							simpleCart.setOutlet("." + namespace + "_" + selector, callback);
 						});
 					});
 				},
@@ -1625,27 +1626,27 @@ Dual licensed under the MIT or GPL licenses.
 			// bind the input and output events
 			simpleCart.ready(function () {
 				simpleCart.bindOutlets({
-					total: { callback: function () {
+					total: function () {
 						return simpleCart.toCurrency(simpleCart.total());
-					} }
-					, quantity: { callback: function () {
+					}
+					, quantity: function () {
 						return simpleCart.quantity();
-					} }
-					, items: { callback: function (selector) {
+					}
+					, items: function (selector) {
 						simpleCart.writeCart(selector);
-					} }
-					, tax: { callback: function () {
+					}
+					, tax: function () {
 						return simpleCart.toCurrency(simpleCart.tax());
-					} }
-					, taxRate: { callback: function () {
+					}
+					, taxRate: function () {
 						return simpleCart.taxRate().toFixed();
-					} }
-					, shipping: { callback: function () {
+					}
+					, shipping: function () {
 						return simpleCart.toCurrency(simpleCart.shipping());
-					} }
-					, grandTotal: { callback: function () {
+					}
+					, grandTotal: function () {
 						return simpleCart.toCurrency(simpleCart.grandTotal());
-					} }
+					}
 				});
 				simpleCart.bindInputs([
 					{	  selector: 'checkout'
