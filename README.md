@@ -16,6 +16,7 @@ downloads area
 
 v3.0.1 changelog
  - Added support for preventing items from being removed/added using event callbacks
+ - Catching JSON parse errors on load
 
 ## Version 3 Documentation 
 		 

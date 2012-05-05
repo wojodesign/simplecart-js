@@ -27,6 +27,17 @@ test("proper loading after page refesh", function(){
 });
 
 
+test("simpleCart handles corrupt storage", function(){
+
+	// like a stick in the spokes of a 10 speed
+	localStorage.setItem( "simpleCart_items" , "%%%%%%%%" );
+	
+	simpleCart.load();
+	
+	
+});
+
+
 module('simpleCart core functions');
 test("adding and removing items", function(){
 	

@@ -447,10 +447,19 @@
 					if (!items) {
 						return;
 					}
+					
+					// we wrap this in a try statement so we can catch 
+					// any json parsing errors. no more stick and we
+					// have a playing card pluckin the spokes now...
+					// soundin like a harley.
+					try {
+						simpleCart.each(JSON.parse(items), function (item) {
+							simpleCart.add(item);
+						});
+					} catch (e){
+						simpleCart.error( "Error Loading data: " + e );
+					}
 
-					simpleCart.each(JSON.parse(items), function (item) {
-						simpleCart.add(item);
-					});
 
 					simpleCart.trigger('load');
 				},
