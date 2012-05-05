@@ -14,6 +14,9 @@ Dual licensed under the MIT or GPL licenses.
 If you would like to use an older version, you can use a different branch or see them in the 
 downloads area
 
+v3.0.1 changelog
+ - Added support for preventing items from being removed/added using event callbacks
+
 ## Version 3 Documentation 
 		 
 A work in progress..... I'm putting it here until we

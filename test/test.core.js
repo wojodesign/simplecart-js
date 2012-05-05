@@ -199,7 +199,45 @@ test("editing items", function(){
 		
 	});
 	
+	module('Events');
+	test("Event return values work", function(){
+		
 	
+		simpleCart.empty();
+		
+		simpleCart.bind( 'beforeAdd' , function( item ){
+			if( item.get( 'special_value') === 'do not add' ){
+				return false;
+			}
+		});
+		
+		
+		simpleCart.add({ name: "neat thing" , price: 4 , special_value: 'do not add' });
+		same( simpleCart.quantity() , 0 , "Returning false on 'beforeAdd' event prevents item from being added to the cart");
+		
+		
+		simpleCart.empty();
+		
+		simpleCart.bind( 'beforeRemove' , function( item ){
+			if( item.get( 'special_value' ) === 'do not remove' ){
+				return false;
+			}
+		});
+		
+		var item = simpleCart.add({ name: "thing" , price: 3 , special_value: "do not remove" });
+		
+		item.remove();
+		
+		same( simpleCart.quantity() , 1 , "Returning false on 'beforeRemove' event prevents item from being removed.");
+		
+		simpleCart.empty();
+		
+		same( simpleCart.quantity() , 1 , "Empty does not clear when beforeRemove prevents items from being removed");
+		
+		item.set("special_value" , "hullo");
+		
+		
+	});
 	
 	
 	module('tax and shipping');

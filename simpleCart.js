@@ -1,14 +1,14 @@
-/****************************************************************************
-Copyright (c) 2011 Brett Wejrowski
+/*~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~
+	Copyright (c) 2012 Brett Wejrowski
 
-wojodesign.com
-simplecartjs.com
-http://github.com/wojodesign/simplecart-js
+	wojodesign.com
+	simplecartjs.com
+	http://github.com/wojodesign/simplecart-js
 
-VERSION 3.0.0
+	VERSION 3.0.1
 
-Dual licensed under the MIT or GPL licenses.
-****************************************************************************/
+	Dual licensed under the MIT or GPL licenses.
+~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~*/
 /*jslint browser: true, unparam: true, white: true, nomen: true, regexp: true, maxerr: 50, indent: 4 */
 
 (function (window, document) {
@@ -171,11 +171,15 @@ Dual licensed under the MIT or GPL licenses.
 				add: function (values) {
 					var info		= values || {},
 						newItem		= new simpleCart.Item(info),
-						oldItem;
+						oldItem,
+						addItem 	= true;
 
 					// trigger before add event
-					simpleCart.trigger('beforeAdd', [newItem]);
-
+					addItem = simpleCart.trigger('beforeAdd', [newItem]);
+					
+					if (addItem === false) {
+						return false;
+					}
 					// if the new item already exists, increment the value
 					oldItem = simpleCart.has(newItem);
 					if (oldItem) {
@@ -325,12 +329,18 @@ Dual licensed under the MIT or GPL licenses.
 				// empty the cart
 				empty: function () {
 					// remove each item individually so we see the remove events
+					var newItems = {};
 					simpleCart.each(function (item) {
 						// send a param of true to make sure it doesn't
 						// update after every removal
-						item.remove(true);
+						// keep the item if the function returns false,
+						// because we know it has been prevented 
+						// from being removed
+						if (item.remove(true) === false) {
+							newItems[item.id()] = item
+						}
 					});
-					sc_items = {};
+					sc_items = newItems;
 					simpleCart.update();
 				},
 
@@ -788,7 +798,10 @@ Dual licensed under the MIT or GPL licenses.
 					return this.increment(-parseInt(diff, 10));
 				},
 				remove: function (skipUpdate) {
-					simpleCart.trigger("beforeRemove", [sc_items[this.id()]]);
+					var removeItemBool = simpleCart.trigger("beforeRemove", [sc_items[this.id()]]);
+					if (removeItemBool === false ) {
+						return false;
+					}
 					delete sc_items[this.id()];
 					if (!skipUpdate) { 
 						simpleCart.update();
