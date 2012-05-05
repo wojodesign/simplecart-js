@@ -18,6 +18,63 @@ v3.0.1 changelog
  - Added support for preventing items from being removed/added using event callbacks
  - Catching JSON parse errors on load
 
+
+## Quick Start
+
+To get started, just add the simpleCart javascript file to your page, and set your PayPal checkout:
+
+	<script src="simpleCart.js"></script>
+	<script>
+		simpleCart({
+			checkout: { 
+				type: "PayPal" , 
+				email: "you@yours.com" 
+			}
+		});	
+	</script>
+
+If you want to change options, like the tax or currency, you can do that as well:
+
+	simpleCart({
+		checkout: { 
+			type: "PayPal" , 
+			email: "you@yours.com" 
+		},
+		tax: 		0.075,
+		currency: 	"EUR"
+	});
+	
+To sell items, you add them to your "Shelf" by simply adding a few classes to your html:
+
+
+	<div class="simpleCart_shelfItem">
+	    <h2 class="item_name"> Awesome T-shirt </h2>
+	    <input type="text" value="1" class="item_Quantity">
+	    <span class="item_price">$35.99</span>
+		<a class="item_add" href="javascript:;"> Add to Cart </a>
+	</div>
+	
+	
+You can use almost any type of html tag, and set any values for the item you want by adding a class of "item_[attrname]". 
+Here is a more complex item with options and images:
+
+	<div class="simpleCart_shelfItem">
+	    <img src="/images/item_thumb.jpg" class="item_thumb" />
+	    <h2 class="item_name"> Awesome T-shirt </h2>
+	 	<select class="item_size">
+	        <option value="Small"> Small </option>
+	        <option value="Medium"> Medium </option>
+	        <option value="Large"> Large </option>
+	    </select>
+	    <input type="text" value="1" class="item_Quantity">
+	    <span class="item_price">$35.99</span>
+		<a class="item_add" href="javascript:;"> Add to Cart </a>
+	</div>
+	
+	
+Please check out our documentation to see all of the options simpleCart has available!
+
+
 ## Version 3 Documentation 
 		 
 A work in progress..... I'm putting it here until we
