@@ -5,7 +5,7 @@
 	simplecartjs.com
 	http://github.com/wojodesign/simplecart-js
 
-	VERSION 3.0.1
+	VERSION 3.0.2
 
 	Dual licensed under the MIT or GPL licenses.
 ~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~*/
@@ -1753,7 +1753,7 @@
 												case "textarea":
 												case "select":
 													type = $item.attr("type");
-													if (!type || ((type.toLowerCase() === "checkbox" || type.toLowerCase() === "radio") && $item.attr("checked"))) {
+													if (!type || ((type.toLowerCase() === "checkbox" || type.toLowerCase() === "radio") && $item.attr("checked")) || type.toLowerCase() === "text") {
 														val = $item.val();
 													}				
 													break;
