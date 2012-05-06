@@ -517,6 +517,7 @@
 				tax: function () {
 					var totalToTax = settings.taxShipping ? simpleCart.total() + simpleCart.shipping() : simpleCart.total(),
 						cost = simpleCart.taxRate() * totalToTax;
+					
 					simpleCart.each(function (item) {
 						if (item.get('tax')) {
 							cost += item.get('tax');
@@ -526,6 +527,7 @@
 					});
 					return parseFloat(cost);
 				},
+				
 				taxRate: function () {
 					return settings.taxRate || 0;
 				},

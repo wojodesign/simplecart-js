@@ -210,6 +210,11 @@ test("editing items", function(){
 		
 	});
 	
+	
+
+
+
+	
 	module('Events');
 	test("Event return values work", function(){
 		
@@ -354,6 +359,22 @@ test("editing items", function(){
 		same( simpleCart.taxRate() , 0.06 , "Tax Rate saved properly");
 		same( simpleCart.tax() , 0.06*2 , "Tax Cost Calculated properly");
 		
+		simpleCart({
+			shippingFlatRate: 0 ,
+			shippingQuantityRate: 0 ,
+			shippingTotalRate: 0 ,
+			shippingCustom: function(){
+				return 5;
+			},
+			taxShipping: true
+		});
+		
+		same( simpleCart.tax() , 0.06*(simpleCart.shipping()+simpleCart.total()) , "taxShipping works correctly" );
+		
+		simpleCart({
+			taxShipping: false
+		});
+		
 		
 		simpleCart({
 			taxRate: 0 
@@ -373,7 +394,7 @@ test("editing items", function(){
 		}});
 		same( simpleCart.tax() , 0.2, "individual tax cost function works");
 		
-		simpleCart.empty()
+		simpleCart.empty();
 		
 	});
 	

@@ -15,7 +15,8 @@ If you would like to use an older version, you can use a different branch or see
 downloads area
 
 v3.0.3 changelog
- - removed triggers for beforeAdd and afterAdd on load 
+ - removed triggers for beforeAdd and afterAdd on load
+ - added support for taxShipping 
 
 
 ## Quick Start
