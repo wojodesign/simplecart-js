@@ -14,10 +14,9 @@ Dual licensed under the MIT or GPL licenses.
 If you would like to use an older version, you can use a different branch or see them in the 
 downloads area
 
-v3.0.1 changelog
- - Added support for preventing items from being removed/added using event callbacks
- - Catching JSON parse errors on load
+v3.0.2 changelog
  - Removed error that ignored text inputs in shelf
+ - Updated Google Checkout methods
 
 
 ## Quick Start
