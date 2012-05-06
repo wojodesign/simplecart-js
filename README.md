@@ -14,9 +14,9 @@ Dual licensed under the MIT or GPL licenses.
 If you would like to use an older version, you can use a different branch or see them in the 
 downloads area
 
-v3.0.2 changelog
- - Removed error that ignored text inputs in shelf
- - Updated Google Checkout methods
+v3.0.3 changelog
+ - removed triggers for beforeAdd and afterAdd on load
+ - added support for taxShipping 
 
 
 ## Quick Start

@@ -210,6 +210,11 @@ test("editing items", function(){
 		
 	});
 	
+	
+
+
+
+	
 	module('Events');
 	test("Event return values work", function(){
 		
@@ -247,6 +252,33 @@ test("editing items", function(){
 		
 		item.set("special_value" , "hullo");
 		
+		
+	});
+	
+	
+	test("Add item on load is quiet", function(){
+	
+		simpleCart.empty();
+		
+		var beforeadd_not_called = true,
+			afteradd_not_called = true;
+			
+		simpleCart.add({name:'yo', price:1});
+		
+		simpleCart.bind( 'beforeAdd' , function( item ){
+			beforeadd_not_called = false;
+		});
+		
+		simpleCart.bind( 'afterAdd' , function( item ){
+			afteradd_not_called = false;
+		});
+		
+		
+		
+		simpleCart.load();
+	
+		ok( beforeadd_not_called , "beforeAdd event is not called on load" );
+		ok( afteradd_not_called , "afterAdd event is not called on load" );
 		
 	});
 	
@@ -327,6 +359,22 @@ test("editing items", function(){
 		same( simpleCart.taxRate() , 0.06 , "Tax Rate saved properly");
 		same( simpleCart.tax() , 0.06*2 , "Tax Cost Calculated properly");
 		
+		simpleCart({
+			shippingFlatRate: 0 ,
+			shippingQuantityRate: 0 ,
+			shippingTotalRate: 0 ,
+			shippingCustom: function(){
+				return 5;
+			},
+			taxShipping: true
+		});
+		
+		same( simpleCart.tax() , 0.06*(simpleCart.shipping()+simpleCart.total()) , "taxShipping works correctly" );
+		
+		simpleCart({
+			taxShipping: false
+		});
+		
 		
 		simpleCart({
 			taxRate: 0 
@@ -346,7 +394,7 @@ test("editing items", function(){
 		}});
 		same( simpleCart.tax() , 0.2, "individual tax cost function works");
 		
-		simpleCart.empty()
+		simpleCart.empty();
 		
 	});
 	
