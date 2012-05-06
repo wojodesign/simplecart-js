@@ -251,6 +251,33 @@ test("editing items", function(){
 	});
 	
 	
+	test("Add item on load is quiet", function(){
+	
+		simpleCart.empty();
+		
+		var beforeadd_not_called = true,
+			afteradd_not_called = true;
+			
+		simpleCart.add({name:'yo', price:1});
+		
+		simpleCart.bind( 'beforeAdd' , function( item ){
+			beforeadd_not_called = false;
+		});
+		
+		simpleCart.bind( 'afterAdd' , function( item ){
+			afteradd_not_called = false;
+		});
+		
+		
+		
+		simpleCart.load();
+	
+		ok( beforeadd_not_called , "beforeAdd event is not called on load" );
+		ok( afteradd_not_called , "afterAdd event is not called on load" );
+		
+	});
+	
+	
 	module('tax and shipping');
 	test("shipping works", function(){
 			

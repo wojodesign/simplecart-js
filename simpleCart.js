@@ -5,7 +5,7 @@
 	simplecartjs.com
 	http://github.com/wojodesign/simplecart-js
 
-	VERSION 3.0.2
+	VERSION 3.0.3
 
 	Dual licensed under the MIT or GPL licenses.
 ~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~*/
@@ -111,6 +111,8 @@
 					shippingCustom		: null,
 
 					taxRate				: 0,
+					
+					taxShipping			: false,
 
 					data				: {}
 
@@ -168,18 +170,23 @@
 				isReady: false,
 
 				// this is where the magic happens, the add function
-				add: function (values) {
+				add: function (values, opt_quiet) {
 					var info		= values || {},
 						newItem		= new simpleCart.Item(info),
-						oldItem,
-						addItem 	= true;
+						addItem 	= true,
+						// optionally supress event triggers
+						quiet 		= opt_quiet === true ? opt_quiet : false,
+						oldItem;
 
 					// trigger before add event
-					addItem = simpleCart.trigger('beforeAdd', [newItem]);
+					if (!quiet) {
+					  	addItem = simpleCart.trigger('beforeAdd', [newItem]);
 					
-					if (addItem === false) {
-						return false;
+						if (addItem === false) {
+							return false;
+						}
 					}
+					
 					// if the new item already exists, increment the value
 					oldItem = simpleCart.has(newItem);
 					if (oldItem) {
@@ -194,8 +201,10 @@
 					// update the cart
 					simpleCart.update();
 
-					// trigger after add event
-					simpleCart.trigger('afterAdd', [newItem, isUndefined(oldItem)]);
+					if (!quiet) {
+						// trigger after add event
+						simpleCart.trigger('afterAdd', [newItem, isUndefined(oldItem)]);
+					}
 
 					// return a reference to the added item
 					return newItem;
@@ -454,7 +463,7 @@
 					// soundin like a harley.
 					try {
 						simpleCart.each(JSON.parse(items), function (item) {
-							simpleCart.add(item);
+							simpleCart.add(item, true);
 						});
 					} catch (e){
 						simpleCart.error( "Error Loading data: " + e );
@@ -506,7 +515,8 @@
 
 				// TODO: tax and shipping
 				tax: function () {
-					var cost = simpleCart.taxRate() * simpleCart.total();
+					var totalToTax = settings.taxShipping ? simpleCart.total() + simpleCart.shipping() : simpleCart.total(),
+						cost = simpleCart.taxRate() * totalToTax;
 					simpleCart.each(function (item) {
 						if (item.get('tax')) {
 							cost += item.get('tax');
