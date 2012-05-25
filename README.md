@@ -14,9 +14,10 @@ Dual licensed under the MIT or GPL licenses.
 If you would like to use an older version, you can use a different branch or see them in the 
 downloads area
 
-v3.0.3 changelog
- - removed triggers for beforeAdd and afterAdd on load
- - added support for taxShipping 
+v3.0.4 changelog
+ - added .on alias for .bind
+ - allowing for multiple event bindings at once with space separated list
+ - fixed check to bug with switched currency and shipping
 
 
 ## Quick Start
