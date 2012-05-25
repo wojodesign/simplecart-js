@@ -283,6 +283,42 @@ test("editing items", function(){
 	});
 	
 	
+	test(".on works", function(){
+		
+		
+		simpleCart.empty();
+		var on_before_add_called = false;
+		simpleCart.on( 'beforeAdd', function(){
+			on_before_add_called = true;
+		});
+		
+		simpleCart.add({ name: "thing" , price: 4 });
+		
+		ok( on_before_add_called , ".on() alias for .bind() works");
+		
+	});
+	
+	test("bind multiple events at once", function(){
+		
+		simpleCart.empty();
+		var callback_called_count = 0,
+			multispace_callback_called_count = 0;
+			
+		simpleCart.on( 'beforeAdd afterAdd', function(){
+			callback_called_count++;
+		});
+		
+		simpleCart.on( 'beforeAdd   afterAdd', function(){
+			multispace_callback_called_count++;
+		});
+		
+		simpleCart.add({ name: "thing" , price: 4 });
+		
+		same( callback_called_count, 2 , "binding to space seperated list of event names works");
+		same( multispace_callback_called_count, 2 , "binding to space seperated list (w/ several spaces) of event names works");
+		
+	});
+	
 	module('tax and shipping');
 	test("shipping works", function(){
 			
