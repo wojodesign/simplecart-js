@@ -5,7 +5,7 @@
 	simplecartjs.com
 	http://github.com/wojodesign/simplecart-js
 
-	VERSION 3.0.3
+	VERSION 3.0.4
 
 	Dual licensed under the MIT or GPL licenses.
 ~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~*/
@@ -1124,8 +1124,8 @@
 
 					// build basic form options
 					var data = {
-							  currency	: simpleCart.shipping()
-							, shipping	: simpleCart.currency().code
+							  currency	: simpleCart.currency().code
+							, shipping	: simpleCart.shipping()
 							, tax		: simpleCart.tax()
 							, taxRate	: simpleCart.taxRate()
 							, itemCount : simpleCart.find({}).length
@@ -1200,17 +1200,25 @@
 					if (!this._events) {
 						this._events = {};
 					}
+					
+					// split by spaces to allow for multiple event bindings at once
+					var eventNameList = name.split(/ +/);
+					
+					// iterate through and bind each event
+					simpleCart.each( eventNameList , function( eventName ){
+						if (this._events[eventName] === true) {
+							callback.apply(this);
+						} else if (!isUndefined(this._events[eventName])) {
+							this._events[eventName].push(callback);
+						} else {
+							this._events[eventName] = [callback];
+						}
+					});
 
-					if (this._events[name] === true) {
-						callback.apply(this);
-					} else if (!isUndefined(this._events[name])) {
-						this._events[name].push(callback);
-					} else {
-						this._events[name] = [callback];
-					}
+					
 					return this;
 				},
-
+				
 				// trigger event
 				trigger: function (name, options) {
 					var returnval = true,
@@ -1232,6 +1240,8 @@
 				}
 
 			};
+			// alias for bind
+			eventFunctions.on = eventFunctions.bind;
 			simpleCart.extend(eventFunctions);
 			simpleCart.extend(simpleCart.Item._, eventFunctions);
 
