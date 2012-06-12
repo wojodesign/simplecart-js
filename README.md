@@ -17,6 +17,8 @@ downloads area
 v3.0.5 changelog
  - moved beforeCheckout event and form sending inside of .checkout() to keep dry
  - added price, shipping, tax formatting for paypal checkout
+ - added .submit method to ELEMENT 
+ - fixed mootools .get and .live bugs
 
 
 ## Quick Start

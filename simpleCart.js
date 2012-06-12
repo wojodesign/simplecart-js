@@ -2,7 +2,7 @@
 	Copyright (c) 2012 Brett Wejrowski
 
 	wojodesign.com
-	simplecartjs.com
+	simplecartjs.org
 	http://github.com/wojodesign/simplecart-js
 
 	VERSION 3.0.4
@@ -12,7 +12,6 @@
 /*jslint browser: true, unparam: true, white: true, nomen: true, regexp: true, maxerr: 50, indent: 4 */
 
 (function (window, document) {
-	//"use strict";
 	/*global HTMLElement */
 
 	var typeof_string			= typeof "",
@@ -1401,7 +1400,7 @@
 					},
 					attr: function (attr, val) {
 						if (isUndefined(val)) {
-							return this.el.get(attr);
+							return this.el[0] && this.el[0].get(attr);
 						}
 						
 						this.el.set(attr, val);
@@ -1425,7 +1424,9 @@
 					},
 					each: function (callback) {
 						if (isFunction(callback)) {
-							simpleCart.each(this.el, callback);
+							simpleCart.each(this.el, function( e, i, c) {
+								callback.call( i, i, e, c );
+							});
 						}
 						return this;
 					},
@@ -1445,11 +1446,8 @@
 					live: function (	event,callback) {
 						var selector = this.selector;
 						if (isFunction(callback)) {
-							simpleCart.$(document).el.addEvent(event, function (e) {
-								var target = simpleCart.$(e.target);
-								if (target.match(selector)) {
-									callback.call(target, e);
-								}
+							simpleCart.$("body").el.addEvent(event + ":relay(" + selector + ")", function (e, el) {
+								callback.call(el, e);
 							});
 						}
 					},
@@ -1471,8 +1469,10 @@
 					tag: function () {
 						return this.el[0].tagName;
 					},
-
-
+					submit: function (){
+						this.el[0].submit();
+						return this;
+					},
 					create: function (selector) {
 						this.el = $engine(selector);
 					}
@@ -1485,7 +1485,7 @@
 						if (isUndefined(text)) {
 							return this.el[0].innerHTML;
 						}
-						this.each(function (e) {
+						this.each(function (i,e) {
 							$(e).update(text);
 						});
 						return this;
@@ -1500,15 +1500,15 @@
 						if (isUndefined(val)) {
 							return this.el[0].readAttribute(attr);
 						}
-						this.each(function (e) {
+						this.each(function (i,e) {
 							$(e).writeAttribute(attr, val);
 						});
 						return this;
 					},
 					append: function (item) {
-						this.each(function (e) {
+						this.each(function (i,e) {
 							if (item.el) {
-								item.each(function (e2) {
+								item.each(function (i2,e2) {
 									$(e).appendChild(e2);
 								});
 							} else if (isElement(item)) {
@@ -1518,38 +1518,40 @@
 						return this;
 					},
 					remove: function () {
-						this.each(function (e) {
+						this.each(function (i, e) {
 							$(e).remove();
 						});
 						return this;
 					},
 					addClass: function (klass) {
-						this.each(function (e) {
+						this.each(function (i, e) {
 							$(e).addClassName(klass);
 						});
 						return this;
 					},
 					removeClass: function (klass) {
-						this.each(function (e) {
+						this.each(function (i, e) {
 							$(e).removeClassName(klass);
 						});
 						return this;
 					},
 					each: function (callback) {
 						if (isFunction(callback)) {
-							simpleCart.each(this.el, callback);
+							simpleCart.each(this.el, function( e, i, c) {
+								callback.call( i, i, e, c );
+							});
 						}
 						return this;
 					},
 					click: function (callback) {
 						if (isFunction(callback)) {
-							this.each(function (e) {
+							this.each(function (i, e) {
 								$(e).observe(_CLICK_, function (ev) {
 									callback.call(e,ev);
 								});
 							});
 						} else if (isUndefined(callback)) {
-							this.each(function (e) {
+							this.each(function (i, e) {
 								$(e).fire(_CLICK_);
 							});
 						}
@@ -1580,7 +1582,9 @@
 					tag: function () {
 						return this.el.tagName;
 					},
-
+					submit: function() {
+						this.el[0].submit();
+					},
 
 					create: function (selector) {
 						if (isString(selector)) {
@@ -1594,7 +1598,7 @@
 
 				},
 
-				"jQuery"		: {
+				"jQuery": {
 					passthrough: function (action, val) {
 						if (isUndefined(val)) {
 							return this.el[action]();
@@ -1661,7 +1665,9 @@
 					descendants: function () {
 						return simpleCart.$(this.el.find("*"));
 					},
-
+					submit: function() {
+						return this.el.submit();
+					},
 
 					create: function (selector) {
 						this.el = $engine(selector);

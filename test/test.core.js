@@ -472,7 +472,7 @@ test("editing items", function(){
 			same( data.tax_cart ,  ( data.tax_cart*1 ).toFixed(2) , "Tax is correctly formated before going to paypal");
 			same( data.handling_cart , ( data.handling_cart*1 ).toFixed(2) ,"Shipping is correctly formated before going to paypal" );
 			
-			//return false;
+			return false;
 		});
 		
 		
@@ -510,6 +510,20 @@ test("editing items", function(){
 	});
 	
 	module('simpleCart UI updates');
+	test("form submit works properly",function(){
+		var form = simpleCart.$create("form"),
+			formSubmittedProperly = false;
+		window.formSubmittedProperly = false;
+		form.attr('style', 'display:none;');
+		form.attr('action', 'javascript:formSubmittedProperly=true;');
+		form.attr('method', "GET");
+		simpleCart.$("body").append(form);
+		form.submit();
+		form.remove();
+		
+		ok( window.formSubmittedProperly , "form submitted properly" );
+	});
+	
 	test("basic outlets work", function(){
 	
 		var item = simpleCart.add({
@@ -539,7 +553,6 @@ test("editing items", function(){
 		
 	});
 	
-	module('simpleCart UI updates');
 	test("basic outlets work", function(){
 	
 		var item = simpleCart.add({
