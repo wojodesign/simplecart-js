@@ -883,7 +883,16 @@
 					if (settings.checkout.type.toLowerCase() === 'custom' && isFunction(settings.checkout.fn)) {
 						settings.checkout.fn.call(simpleCart,settings.checkout);
 					} else if (isFunction(simpleCart.checkout[settings.checkout.type])) {
-						simpleCart.checkout[settings.checkout.type].call(simpleCart,settings.checkout);
+						var checkoutData = simpleCart.checkout[settings.checkout.type].call(simpleCart,settings.checkout);
+						
+						// if the checkout method returns data, try to send the form
+						if( checkoutData.data && checkoutData.action && checkoutData.method ){
+							// if no one has any objections, send the checkout form
+							if( false !== simpleCart.trigger('beforeCheckout', [checkoutData.data]) ){
+								simpleCart.generateAndSendForm( checkoutData );
+							}
+						}
+						
 					} else {
 						simpleCart.error("No Valid Checkout Method Specified");
 					}
@@ -921,8 +930,8 @@
 							, currency_code : simpleCart.currency().code
 							, business		: opts.email
 							, rm			: opts.method === "GET" ? "0" : "2"
-							, tax_cart		: simpleCart.tax()
-							, handling_cart : simpleCart.shipping()
+							, tax_cart		: (simpleCart.tax()*1).toFixed(2)
+							, handling_cart : (simpleCart.shipping()*1).toFixed(2)
 							, charset		: "utf-8"
 						},
 						action = opts.sandbox ? "https://www.sandbox.paypal.com/cgi-bin/webscr" : "https://www.paypal.com/cgi-bin/webscr",
@@ -948,7 +957,7 @@
 						// basic item data
 						data["item_name_" + counter] = item.get("name");
 						data["quantity_" + counter] = item.quantity();
-						data["amount_" + counter] = item.price();
+						data["amount_" + counter] = (item.price()*1).toFixed(2);
 						data["item_number_" + counter] = item.get("item_number") || counter;
 
 
@@ -975,13 +984,14 @@
 						data["option_index_"+ x] = Math.min(10, optionCount);
 					});
 
-					simpleCart.trigger('beforeCheckout', [data]);
 
-					simpleCart.generateAndSendForm({
+					// return the data for the checkout form
+					return {
 						  action	: action
 						, method	: method
 						, data		: data
-					});
+					};
+
 				},
 
 
@@ -1035,13 +1045,13 @@
 						data['item_description_' + counter] = options_list.join(", ");
 					});
 
-					simpleCart.trigger('beforeCheckout', [data]);
-
-					simpleCart.generateAndSendForm({
+					// return the data for the checkout form
+					return {
 						  action	: action
 						, method	: method
 						, data		: data
-					});
+					};
+
 
 				},
 
@@ -1104,14 +1114,12 @@
 						data['item_description_' + counter] = options_list.join(", ");
 					});
 
-					simpleCart.trigger('beforeCheckout', [data]);
-
-					simpleCart.generateAndSendForm({
+					// return the data for the checkout form
+					return {
 						  action	: action
 						, method	: method
 						, data		: data
-					});
-
+					};
 
 				},
 
@@ -1172,14 +1180,12 @@
 						data = simpleCart.extend(data,opts.extra_data);
 					}
 
-					simpleCart.trigger('beforeCheckout', [data]);
-
-					simpleCart.generateAndSendForm({
+					// return the data for the checkout form
+					return {
 						  action	: action
 						, method	: method
 						, data		: data
-					});
-
+					};
 				}
 
 
