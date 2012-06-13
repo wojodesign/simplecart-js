@@ -77,6 +77,18 @@ test("adding and removing items", function(){
 	});
 	
 	same( item3.price() , 36 , "Price with dollar sign in front is parsed correctly");
+	
+	
+	simpleCart.empty();
+	
+	var item4 = simpleCart.add({
+		name: "RaceCar",
+		quantity: 1.4342
+	});
+	
+	same( item4.quantity() , 1 , "Item quantity parsed as INT and not decimal");
+	same( simpleCart.quantity(), 1 , "SimpleCart quantity parsed as INT and not decimal");
+	
 });
 
 test("editing items", function(){	
@@ -252,7 +264,6 @@ test("editing items", function(){
 		
 		item.set("special_value" , "hullo");
 		
-		
 	});
 	
 	
@@ -272,9 +283,7 @@ test("editing items", function(){
 		simpleCart.bind( 'afterAdd' , function( item ){
 			afteradd_not_called = false;
 		});
-		
-		
-		
+				
 		simpleCart.load();
 	
 		ok( beforeadd_not_called , "beforeAdd event is not called on load" );
@@ -381,7 +390,6 @@ test("editing items", function(){
 			shippingCustom: null
 		});
 		same( simpleCart.shipping() ,  7 , "Item shipping prototype function works");
-		
 	});
 	test("tax works", function(){
 		
@@ -435,6 +443,44 @@ test("editing items", function(){
 	});
 	
 	
+	test("tax and shipping send to paypal", function(){
+		
+		simpleCart({
+			taxRate: 0.5
+		});
+		
+		simpleCart.shipping(function(){
+			return 5.55555;
+		});
+		
+		simpleCart.empty();
+		simpleCart.add({
+			name: "cool thing with weird price",
+			price: 111.1111111111
+		});
+		
+		simpleCart({
+			checkout: {
+				type: "PayPal",
+				email: "you@yours.com"
+			}
+		});
+		
+		simpleCart.bind( "beforeCheckout" , function(data){
+			
+			same( data.amount_1 , ( data.amount_1*1).toFixed(2) , "Item price is correctly formatted before going to paypal");	
+			same( data.tax_cart ,  ( data.tax_cart*1 ).toFixed(2) , "Tax is correctly formated before going to paypal");
+			same( data.handling_cart , ( data.handling_cart*1 ).toFixed(2) ,"Shipping is correctly formated before going to paypal" );
+			
+			return false;
+		});
+		
+		
+		simpleCart.checkout();
+		
+	});
+	
+	
 	module('simpleCart.find');
 	test("simpleCart.find() function works", function(){
 			
@@ -463,7 +509,6 @@ test("editing items", function(){
 				
 	});
 	
-	module('simpleCart UI updates');
 	test("basic outlets work", function(){
 	
 		var item = simpleCart.add({
@@ -493,7 +538,6 @@ test("editing items", function(){
 		
 	});
 	
-	module('simpleCart UI updates');
 	test("basic outlets work", function(){
 	
 		var item = simpleCart.add({
