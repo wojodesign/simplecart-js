@@ -2,17 +2,16 @@
 	Copyright (c) 2012 Brett Wejrowski
 
 	wojodesign.com
-	simplecartjs.com
+	simplecartjs.org
 	http://github.com/wojodesign/simplecart-js
 
-	VERSION 3.0.4
+	VERSION 3.0.5
 
 	Dual licensed under the MIT or GPL licenses.
 ~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~*/
 /*jslint browser: true, unparam: true, white: true, nomen: true, regexp: true, maxerr: 50, indent: 4 */
 
 (function (window, document) {
-	//"use strict";
 	/*global HTMLElement */
 
 	var typeof_string			= typeof "",
@@ -883,7 +882,16 @@
 					if (settings.checkout.type.toLowerCase() === 'custom' && isFunction(settings.checkout.fn)) {
 						settings.checkout.fn.call(simpleCart,settings.checkout);
 					} else if (isFunction(simpleCart.checkout[settings.checkout.type])) {
-						simpleCart.checkout[settings.checkout.type].call(simpleCart,settings.checkout);
+						var checkoutData = simpleCart.checkout[settings.checkout.type].call(simpleCart,settings.checkout);
+						
+						// if the checkout method returns data, try to send the form
+						if( checkoutData.data && checkoutData.action && checkoutData.method ){
+							// if no one has any objections, send the checkout form
+							if( false !== simpleCart.trigger('beforeCheckout', [checkoutData.data]) ){
+								simpleCart.generateAndSendForm( checkoutData );
+							}
+						}
+						
 					} else {
 						simpleCart.error("No Valid Checkout Method Specified");
 					}
@@ -921,8 +929,8 @@
 							, currency_code : simpleCart.currency().code
 							, business		: opts.email
 							, rm			: opts.method === "GET" ? "0" : "2"
-							, tax_cart		: simpleCart.tax()
-							, handling_cart : simpleCart.shipping()
+							, tax_cart		: (simpleCart.tax()*1).toFixed(2)
+							, handling_cart : (simpleCart.shipping()*1).toFixed(2)
 							, charset		: "utf-8"
 						},
 						action = opts.sandbox ? "https://www.sandbox.paypal.com/cgi-bin/webscr" : "https://www.paypal.com/cgi-bin/webscr",
@@ -948,7 +956,7 @@
 						// basic item data
 						data["item_name_" + counter] = item.get("name");
 						data["quantity_" + counter] = item.quantity();
-						data["amount_" + counter] = item.price();
+						data["amount_" + counter] = (item.price()*1).toFixed(2);
 						data["item_number_" + counter] = item.get("item_number") || counter;
 
 
@@ -975,13 +983,14 @@
 						data["option_index_"+ x] = Math.min(10, optionCount);
 					});
 
-					simpleCart.trigger('beforeCheckout', [data]);
 
-					simpleCart.generateAndSendForm({
+					// return the data for the checkout form
+					return {
 						  action	: action
 						, method	: method
 						, data		: data
-					});
+					};
+
 				},
 
 
@@ -1035,13 +1044,13 @@
 						data['item_description_' + counter] = options_list.join(", ");
 					});
 
-					simpleCart.trigger('beforeCheckout', [data]);
-
-					simpleCart.generateAndSendForm({
+					// return the data for the checkout form
+					return {
 						  action	: action
 						, method	: method
 						, data		: data
-					});
+					};
+
 
 				},
 
@@ -1104,14 +1113,12 @@
 						data['item_description_' + counter] = options_list.join(", ");
 					});
 
-					simpleCart.trigger('beforeCheckout', [data]);
-
-					simpleCart.generateAndSendForm({
+					// return the data for the checkout form
+					return {
 						  action	: action
 						, method	: method
 						, data		: data
-					});
-
+					};
 
 				},
 
@@ -1172,14 +1179,12 @@
 						data = simpleCart.extend(data,opts.extra_data);
 					}
 
-					simpleCart.trigger('beforeCheckout', [data]);
-
-					simpleCart.generateAndSendForm({
+					// return the data for the checkout form
+					return {
 						  action	: action
 						, method	: method
 						, data		: data
-					});
-
+					};
 				}
 
 
@@ -1395,7 +1400,7 @@
 					},
 					attr: function (attr, val) {
 						if (isUndefined(val)) {
-							return this.el.get(attr);
+							return this.el[0] && this.el[0].get(attr);
 						}
 						
 						this.el.set(attr, val);
@@ -1419,7 +1424,9 @@
 					},
 					each: function (callback) {
 						if (isFunction(callback)) {
-							simpleCart.each(this.el, callback);
+							simpleCart.each(this.el, function( e, i, c) {
+								callback.call( i, i, e, c );
+							});
 						}
 						return this;
 					},
@@ -1439,11 +1446,8 @@
 					live: function (	event,callback) {
 						var selector = this.selector;
 						if (isFunction(callback)) {
-							simpleCart.$(document).el.addEvent(event, function (e) {
-								var target = simpleCart.$(e.target);
-								if (target.match(selector)) {
-									callback.call(target, e);
-								}
+							simpleCart.$("body").el.addEvent(event + ":relay(" + selector + ")", function (e, el) {
+								callback.call(el, e);
 							});
 						}
 					},
@@ -1465,8 +1469,10 @@
 					tag: function () {
 						return this.el[0].tagName;
 					},
-
-
+					submit: function (){
+						this.el[0].submit();
+						return this;
+					},
 					create: function (selector) {
 						this.el = $engine(selector);
 					}
@@ -1479,7 +1485,7 @@
 						if (isUndefined(text)) {
 							return this.el[0].innerHTML;
 						}
-						this.each(function (e) {
+						this.each(function (i,e) {
 							$(e).update(text);
 						});
 						return this;
@@ -1494,15 +1500,15 @@
 						if (isUndefined(val)) {
 							return this.el[0].readAttribute(attr);
 						}
-						this.each(function (e) {
+						this.each(function (i,e) {
 							$(e).writeAttribute(attr, val);
 						});
 						return this;
 					},
 					append: function (item) {
-						this.each(function (e) {
+						this.each(function (i,e) {
 							if (item.el) {
-								item.each(function (e2) {
+								item.each(function (i2,e2) {
 									$(e).appendChild(e2);
 								});
 							} else if (isElement(item)) {
@@ -1512,38 +1518,40 @@
 						return this;
 					},
 					remove: function () {
-						this.each(function (e) {
+						this.each(function (i, e) {
 							$(e).remove();
 						});
 						return this;
 					},
 					addClass: function (klass) {
-						this.each(function (e) {
+						this.each(function (i, e) {
 							$(e).addClassName(klass);
 						});
 						return this;
 					},
 					removeClass: function (klass) {
-						this.each(function (e) {
+						this.each(function (i, e) {
 							$(e).removeClassName(klass);
 						});
 						return this;
 					},
 					each: function (callback) {
 						if (isFunction(callback)) {
-							simpleCart.each(this.el, callback);
+							simpleCart.each(this.el, function( e, i, c) {
+								callback.call( i, i, e, c );
+							});
 						}
 						return this;
 					},
 					click: function (callback) {
 						if (isFunction(callback)) {
-							this.each(function (e) {
+							this.each(function (i, e) {
 								$(e).observe(_CLICK_, function (ev) {
 									callback.call(e,ev);
 								});
 							});
 						} else if (isUndefined(callback)) {
-							this.each(function (e) {
+							this.each(function (i, e) {
 								$(e).fire(_CLICK_);
 							});
 						}
@@ -1574,7 +1582,9 @@
 					tag: function () {
 						return this.el.tagName;
 					},
-
+					submit: function() {
+						this.el[0].submit();
+					},
 
 					create: function (selector) {
 						if (isString(selector)) {
@@ -1588,7 +1598,7 @@
 
 				},
 
-				"jQuery"		: {
+				"jQuery": {
 					passthrough: function (action, val) {
 						if (isUndefined(val)) {
 							return this.el[action]();
@@ -1655,7 +1665,9 @@
 					descendants: function () {
 						return simpleCart.$(this.el.find("*"));
 					},
-
+					submit: function() {
+						return this.el.submit();
+					},
 
 					create: function (selector) {
 						this.el = $engine(selector);
