@@ -5,7 +5,7 @@
 	simplecartjs.org
 	http://github.com/wojodesign/simplecart-js
 
-	VERSION 3.0.4
+	VERSION 3.0.5
 
 	Dual licensed under the MIT or GPL licenses.
 ~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~*/
