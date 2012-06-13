@@ -511,11 +511,11 @@ test("editing items", function(){
 	
 	module('simpleCart UI updates');
 	test("form submit works properly",function(){
-		var form = simpleCart.$create("form"),
-			formSubmittedProperly = false;
+		var form = simpleCart.$create("form");
 		window.formSubmittedProperly = false;
 		form.attr('style', 'display:none;');
-		form.attr('action', 'javascript:formSubmittedProperly=true;');
+		form.attr('action', 'javascript:;');
+		form.attr('onsubmit','formSubmittedProperly=true;')
 		form.attr('method', "GET");
 		simpleCart.$("body").append(form);
 		form.submit();
