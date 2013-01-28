@@ -1,18 +1,16 @@
-/*~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~
-	Copyright (c) 2012 Brett Wejrowski
-
-	wojodesign.com
-	simplecartjs.org
-	http://github.com/wojodesign/simplecart-js
-
-	VERSION 3.0.5
-
-	Dual licensed under the MIT or GPL licenses.
-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~*/
-/*jslint browser: true, unparam: true, white: true, nomen: true, regexp: true, maxerr: 50, indent: 4 */
+/*
+ *	Copyright (c) 2012 Brett Wejrowski
+ *
+ *	wojodesign.com
+ *	simplecartjs.org
+ *	http://github.com/wojodesign/simplecart-js
+ *
+ *	VERSION 3.0.5
+ *
+ *	Dual licensed under the MIT or GPL licenses.
+ */
 
 (function (window, document) {
-	/*global HTMLElement */
 
 	var typeof_string			= typeof "",
 		typeof_undefined		= typeof undefined,
@@ -22,21 +20,15 @@
 		isString				= function (item) { return isTypeOf(item, typeof_string); },
 		isUndefined				= function (item) { return isTypeOf(item, typeof_undefined); },
 		isFunction				= function (item) { return isTypeOf(item, typeof_function); },
-
 		isObject				= function (item) { return isTypeOf(item, typeof_object); },
-		//Returns true if it is a DOM element
 		isElement				= function (o) {
 			return typeof HTMLElement === "object" ? o instanceof HTMLElement : typeof o === "object" && o.nodeType === 1 && typeof o.nodeName === "string";
 		},
 
-
-
 		generateSimpleCart = function (space) {
 
-			// stealing this from selectivizr
 			var selectorEngines = { "jQuery" : "*" },
 
-				// local variables for internal use
 				item_id					= 0,
 				item_id_namespace		= "SCI-",
 				sc_items				= {},
@@ -45,11 +37,10 @@
 				eventFunctions			= {},
 				baseEvents				= {},
 
-				// local references
 				localStorage			= window.localStorage,
 				console					= window.console || { msgs: [], log: function (msg) { console.msgs.push(msg); } },
 
-				// used in views 
+				// For views 
 				_VALUE_		= 'value',
 				_TEXT_		= 'text',
 				_HTML_		= 'html',
@@ -80,14 +71,14 @@
 					"BTC": { code: "BTC", symbol: " BTC", name: "Bitcoin", accuracy: 4, after: true	}
 				},
 
-				// default options
+				// Default options
 				settings = {
-					checkout				: { type: "PayPal", email: "you@yours.com" },
-					currency				: "USD",
-					language				: "english-us",
+					checkout: { type: "PayPal", email: "you@yours.com" },
+					currency: "EUR",
+					language: "english-uk",
 
-					cartStyle				: "div",
-					cartColumns			: [
+					cartStyle: "div",
+					cartColumns: [
 						{ attr: "name", label: "Name" },
 						{ attr: "price", label: "Price", view: 'currency' },
 						{ view: "decrement", label: false },
@@ -105,34 +96,34 @@
 					shippingCustom		: null,
 
 					taxRate				: 0,
-					
 					taxShipping			: false,
 
-					data				: {}
+					pricesIncludeTax	: true,
 
+					data				: {}
 				},
 
 
-				// main simpleCart object, function call is used for setting options
+				// Main simpleCart object, function call is used for setting options
 				simpleCart = function (options) {
-					// shortcut for simpleCart.ready
+					// Shortcut for simpleCart.ready
 					if (isFunction(options)) {
 						return simpleCart.ready(options);
 					}
 
-					// set options
+					// Set options
 					if (isObject(options)) {
 						return simpleCart.extend(settings, options);
 					}
 				},
 
-				// selector engine
+				// Selector engine
 				$engine,
 
-				// built in cart views for item cells
+				// Built in cart views for item cells
 				cartColumnViews;
 
-			// function for extending objects
+			// Function for extending objects
 			simpleCart.extend = function (target, opts) {
 				var next;
 
@@ -149,7 +140,7 @@
 				return target;
 			};
 
-			// create copy function
+			// Create copy function
 			simpleCart.extend({
 				copy: function (n) {
 					var cp = generateSimpleCart(n);
@@ -158,21 +149,21 @@
 				}
 			});
 
-			// add in the core functionality
+			// Add in the core functionality
 			simpleCart.extend({
 
 				isReady: false,
 
-				// this is where the magic happens, the add function
+				// This is where the magic happens, the add function
 				add: function (values, opt_quiet) {
 					var info		= values || {},
 						newItem		= new simpleCart.Item(info),
 						addItem 	= true,
-						// optionally supress event triggers
+						// Optionally supress event triggers
 						quiet 		= opt_quiet === true ? opt_quiet : false,
 						oldItem;
 
-					// trigger before add event
+					// Trigger before add event
 					if (!quiet) {
 					  	addItem = simpleCart.trigger('beforeAdd', [newItem]);
 					
@@ -181,31 +172,31 @@
 						}
 					}
 					
-					// if the new item already exists, increment the value
+					// If the new item already exists, increment the value
 					oldItem = simpleCart.has(newItem);
 					if (oldItem) {
 						oldItem.increment(newItem.quantity());
 						newItem = oldItem;
 
-					// otherwise add the item
+					// Otherwise add the item
 					} else {
 						sc_items[newItem.id()] = newItem;
 					}
 
-					// update the cart
+					// Update the cart
 					simpleCart.update();
 
 					if (!quiet) {
-						// trigger after add event
+						// Trigger after add event
 						simpleCart.trigger('afterAdd', [newItem, isUndefined(oldItem)]);
 					}
 
-					// return a reference to the added item
+					// Return a reference to the added item
 					return newItem;
 				},
 
 
-				// iteration function
+				// Iteration function
 				each: function (array, callback) {
 					var next,
 						x = 0,
@@ -237,39 +228,39 @@
 				find: function (id) {
 					var items = [];
 
-					// return object for id if it exists
+					// Return object for id if it exists
 					if (isObject(sc_items[id])) {
 						return sc_items[id];
 					}
-					// search through items with the given criteria
+					// Search through items with the given criteria
 					if (isObject(id)) {
 						simpleCart.each(function (item) {
 							var match = true;
 							simpleCart.each(id, function (val, x, attr) {
 
 								if (isString(val)) {
-									// less than or equal to
+									// Less than or equal to
 									if (val.match(/<=.*/)) {
 										val = parseFloat(val.replace('<=', ''));
 										if (!(item.get(attr) && parseFloat(item.get(attr)) <= val)) {
 											match = false;
 										}
 
-									// less than
+									// Less than
 									} else if (val.match(/</)) {
 										val = parseFloat(val.replace('<', ''));
 										if (!(item.get(attr) && parseFloat(item.get(attr)) < val)) {
 											match = false;
 										}
 
-									// greater than or equal to
+									// Greater than or equal to
 									} else if (val.match(/>=/)) {
 										val = parseFloat(val.replace('>=', ''));
 										if (!(item.get(attr) && parseFloat(item.get(attr)) >= val)) {
 											match = false;
 										}
 
-									// greater than
+									// Greater than
 									} else if (val.match(/>/)) {
 										val = parseFloat(val.replace('>', ''));
 										if (!(item.get(attr) && parseFloat(item.get(attr)) > val)) {
@@ -281,7 +272,7 @@
 										match = false;
 									}
 
-								// equal to non string
+								// Equal to non string
 								} else if (!(item.get(attr) && item.get(attr) === val)) {
 									match = false;
 								}
@@ -289,7 +280,7 @@
 								return match;
 							});
 
-							// add the item if it matches
+							// Add the item if it matches
 							if (match) {
 								items.push(item);
 							}
@@ -297,27 +288,26 @@
 						return items;
 					}
 
-					// if no criteria is given we return all items
+					// If no criteria is given we return all items
 					if (isUndefined(id)) {
 
-						// use a new array so we don't give a reference to the
-						// cart's item array
+						// Use a new array so we don't give a reference to the cart's item array
 						simpleCart.each(function (item) {
 							items.push(item);
 						});
 						return items;
 					}
 
-					// return empty array as default
+					// Return empty array as default
 					return items;
 				},
 
-				// return all items
+				// Return all items
 				items: function () {
 					return this.find();
 				},
 
-				// check to see if item is in the cart already
+				// Check to see if item is in the cart already
 				has: function (item) {
 					var match = false;
 
@@ -329,16 +319,13 @@
 					return match;
 				},
 
-				// empty the cart
+				// Empty the cart
 				empty: function () {
-					// remove each item individually so we see the remove events
+					// Remove each item individually so we see the remove events
 					var newItems = {};
 					simpleCart.each(function (item) {
-						// send a param of true to make sure it doesn't
-						// update after every removal
-						// keep the item if the function returns false,
-						// because we know it has been prevented 
-						// from being removed
+						// Send a param of true to make sure it doesn't update after every removal.
+						// Keep the item if the function returns false, because we know it has been prevented from being removed
 						if (item.remove(true) === false) {
 							newItems[item.id()] = item
 						}
@@ -348,7 +335,7 @@
 				},
 
 
-				// functions for accessing cart info
+				// Functions for accessing cart info
 				quantity: function () {
 					var quantity = 0;
 					simpleCart.each(function (item) {
@@ -369,8 +356,7 @@
 					return simpleCart.total() + simpleCart.tax() + simpleCart.shipping();
 				},
 
-
-				// updating functions
+				// Updating functions
 				update: function () {
 					simpleCart.save();
 					simpleCart.trigger("update");
@@ -382,7 +368,7 @@
 					simpleCart.ready();
 				},
 
-				// view management
+				// View management
 				$: function (selector) {
 					return new simpleCart.ELEMENT(selector);
 				},
@@ -413,7 +399,7 @@
 					}
 				},
 
-				// return a list of id's in the cart
+				// Return a list of id's in the cart
 				ids: function () {
 					var ids = [];
 					simpleCart.each(function (item) {
@@ -423,14 +409,13 @@
 
 				},
 
-
-				// storage
+				// Storage
 				save: function () {
 					simpleCart.trigger('beforeSave');
 
 					var items = {};
 
-					// save all the items
+					// Save all the items
 					simpleCart.each(function (item) {
 						items[item.id()] = simpleCart.extend(item.fields(), item.options());
 					});
@@ -442,7 +427,6 @@
 
 				load: function () {
 
-					// empty without the update
 					sc_items = {};
 
 					var items = localStorage.getItem(namespace + "_items");
@@ -451,10 +435,7 @@
 						return;
 					}
 					
-					// we wrap this in a try statement so we can catch 
-					// any json parsing errors. no more stick and we
-					// have a playing card pluckin the spokes now...
-					// soundin like a harley.
+					// Catch any JSON parsing errors
 					try {
 						simpleCart.each(JSON.parse(items), function (item) {
 							simpleCart.add(item, true);
@@ -463,24 +444,23 @@
 						simpleCart.error( "Error Loading data: " + e );
 					}
 
-
 					simpleCart.trigger('load');
 				},
 
-				// ready function used as a shortcut for bind('ready',fn)
+				// Ready function used as a shortcut for bind('ready',fn)
 				ready: function (fn) {
 
 					if (isFunction(fn)) {
-						// call function if already ready already
+						// Call function if already ready already
 						if (simpleCart.isReady) {
 							fn.call(simpleCart);
 
-						// bind if not ready
+						// Bind if not ready
 						} else {
 							simpleCart.bind('ready', fn);
 						}
 
-					// trigger ready event
+					// Trigger ready event
 					} else if (isUndefined(fn) && !simpleCart.isReady) {
 						simpleCart.trigger('ready');
 						simpleCart.isReady = true;
@@ -502,12 +482,9 @@
 			});
 
 
-			/*******************************************************************
-			 *	TAX AND SHIPPING
-			 *******************************************************************/
+			// Tax and shipping
 			simpleCart.extend({
 
-				// TODO: tax and shipping
 				tax: function () {
 					var totalToTax = settings.taxShipping ? simpleCart.total() + simpleCart.shipping() : simpleCart.total(),
 						cost = simpleCart.taxRate() * totalToTax;
@@ -528,7 +505,6 @@
 
 				shipping: function (opt_custom_function) {
 
-					// shortcut to extend options with custom shipping
 					if (isFunction(opt_custom_function)) {
 						simpleCart({
 							shippingCustom: opt_custom_function
@@ -552,11 +528,7 @@
 
 			});
 
-			/*******************************************************************
-			 *	CART VIEWS
-			 *******************************************************************/
-
-			// built in cart views for item cells
+			// Cart views
 			cartColumnViews = {
 				attr: function (item, column) {
 					return item.get(column.attr) || "";
@@ -591,7 +563,7 @@
 				}
 			};
 
-			// cart column wrapper class and functions
+			// Cart column wrapper class and functions
 			function cartColumn(opts) {
 				var options = opts || {};
 				return simpleCart.extend({
@@ -610,10 +582,8 @@
 				return viewFunc.call(simpleCart, item, column);
 			}
 
-
 			simpleCart.extend({
-
-				// write out cart
+				// Write out cart
 				writeCart: function (selector) {
 					var TABLE = settings.cartStyle.toLowerCase(),
 						isTable = TABLE === 'table',
@@ -633,20 +603,19 @@
 
 					cart_container.append(header_container);
 
-
-					// create header
+					// Create header
 					for (x = 0, xlen = settings.cartColumns.length; x < xlen; x += 1) {
 						column	= cartColumn(settings.cartColumns[x]);
 						klass	=  "item-" + (column.attr || column.view || column.label || column.text || "cell") + " " + column.className;
 						label	= column.label || "";
 
-						// append the header cell
+						// Append the header cell
 						header_container.append(
 							simpleCart.$create(TH).addClass(klass).html(label)
 						);
 					}
 
-					// cycle through the items
+					// Cycle through the items
 					simpleCart.each(function (item, y) {
 						simpleCart.createCartRow(item, y, TR, TD, cart_container);
 					});
@@ -654,7 +623,7 @@
 					return cart_container;
 				},
 
-				// generate a cart row from an item
+				// Generate a cart row from an item
 				createCartRow: function (item, y, TR, TD, container) {
 					var row = simpleCart.$create(TR)
 										.addClass('itemRow row-' + y + " " + (y % 2 ? "even" : "odd"))
@@ -668,7 +637,7 @@
 
 					container.append(row);
 
-					// cycle through the columns to create each cell for the item
+					// Cycle through the columns to create each cell for the item
 					for (j = 0, jlen = settings.cartColumns.length; j < jlen; j += 1) {
 						column	= cartColumn(settings.cartColumns[j]);
 						klass	= "item-" + (column.attr || (isString(column.view) ? column.view : column.label || column.text || "cell")) + " " + column.className;
@@ -682,22 +651,16 @@
 
 			});
 
-			/*******************************************************************
-			 *	CART ITEM CLASS MANAGEMENT
-			 *******************************************************************/
-
+			// Cart items management
 			simpleCart.Item = function (info) {
 
-				// we use the data object to track values for the item
 				var _data = {},
 					me = this;
 
-				// cycle through given attributes and set them to the data object
 				if (isObject(info)) {
 					simpleCart.extend(_data, info);
 				}
 
-				// set the item id
 				item_id += 1;
 				_data.id = _data.id || item_id_namespace + item_id;
 				while (!isUndefined(sc_items[_data.id])) {
@@ -706,10 +669,9 @@
 				}
 
 				function checkQuantityAndPrice() {
-
-					// check to make sure price is valid
+					// Check to make sure price is valid
 					if (isString(_data.price)) {
-					   // trying to remove all chars that aren't numbers or '.'
+					   // Trying to remove all chars that aren't numbers or '.'
 						_data.price = parseFloat(_data.price.replace(simpleCart.currency().decimal, ".").replace(/[^0-9\.]+/ig, ""));
 
 					}
@@ -720,7 +682,7 @@
 						_data.price = 0;
 					}
 
-					// check to make sure quantity is valid
+					// Check to make sure quantity is valid
 					if (isString(_data.quantity)) {
 						_data.quantity = parseInt(_data.quantity.replace(simpleCart.currency().delimiter, ""), 10);
 					}
@@ -733,7 +695,7 @@
 
 				}
 
-				// getter and setter methods to access private variables
+				// Getter and setter methods to access private variables
 				me.get = function (name, skipPrototypes) {
 
 					var usePrototypes = !skipPrototypes;
@@ -742,7 +704,7 @@
 						return name;
 					}
 
-					// return the value in order of the data object and then the prototype
+					// Return the value in order of the data object and then the prototype
 					return isFunction(_data[name])	? _data[name].call(me) :
 							!isUndefined(_data[name]) ? _data[name] :
 
@@ -795,7 +757,7 @@
 
 			simpleCart.Item._ = simpleCart.Item.prototype = {
 
-				// editing the item quantity
+				// Editing the item quantity
 				increment: function (amount) {
 					var diff = amount || 1;
 					diff = parseInt(diff, 10);
@@ -824,12 +786,12 @@
 					return null;
 				},
 
-				// special fields for items
+				// Special fields for items
 				reservedFields: function () {
 					return ['quantity', 'id', 'item_number', 'price', 'name', 'shipping', 'tax', 'taxRate'];
 				},
 
-				// return values for all reserved fields if they exist
+				// Return values for all reserved fields if they exist
 				fields: function () {
 					var data = {},
 						me = this;
@@ -841,13 +803,6 @@
 					return data;
 				},
 
-
-				// shortcuts for getter/setters. can
-				// be overwritten for customization
-				// btw, we are hiring at wojo design, and could
-				// use a great web designer. if thats you, you can
-				// get more info at http://wojodesign.com/now-hiring/
-				// or email me directly: brett@wojodesign.com
 				quantity: function (val) {
 					return isUndefined(val) ? parseInt(this.get("quantity", true) || 1, 10) : this.set("quantity", val);
 				},
@@ -865,13 +820,7 @@
 
 			};
 
-
-
-
-			/*******************************************************************
-			 *	CHECKOUT MANAGEMENT
-			 *******************************************************************/
-
+			// Checkout management
 			simpleCart.extend({
 				checkout: function () {
 					if (settings.checkout.type.toLowerCase() === 'custom' && isFunction(settings.checkout.fn)) {
@@ -879,9 +828,9 @@
 					} else if (isFunction(simpleCart.checkout[settings.checkout.type])) {
 						var checkoutData = simpleCart.checkout[settings.checkout.type].call(simpleCart,settings.checkout);
 						
-						// if the checkout method returns data, try to send the form
+						// If the checkout method returns data, try to send the form
 						if( checkoutData.data && checkoutData.action && checkoutData.method ){
-							// if no one has any objections, send the checkout form
+							// If no one has any objections, send the checkout form
 							if( false !== simpleCart.trigger('beforeCheckout', [checkoutData.data]) ){
 								simpleCart.generateAndSendForm( checkoutData );
 							}
@@ -912,12 +861,12 @@
 
 			simpleCart.extendCheckout({
 				PayPal: function (opts) {
-					// account email is required
+					// Account email is required
 					if (!opts.email) {
 						return simpleCart.error("No email provided for PayPal checkout");
 					}
 
-					// build basic form options
+					// Build basic form options
 					var data = {
 							  cmd			: "_cart"
 							, upload		: "1"
@@ -940,27 +889,26 @@
 						data.cancel_return = opts.cancel;
 					}
 
-
-					// add all the items to the form data
+					// Add all the items to the form data
 					simpleCart.each(function (item,x) {
 						var counter = x+1,
 							item_options = item.options(),
 							optionCount = 0,
 							send;
 	
-						// basic item data
+						// Basic item data
 						data["item_name_" + counter] = item.get("name");
 						data["quantity_" + counter] = item.quantity();
 						data["amount_" + counter] = (item.price()*1).toFixed(2);
 						data["item_number_" + counter] = item.get("item_number") || counter;
 
 
-						// add the options
+						// Add the options
 						simpleCart.each(item_options, function (val,k,attr) {
-							// paypal limits us to 10 options
+							// Paypal limits us to 10 options
 							if (k < 10) {
 		
-								// check to see if we need to exclude this from checkout
+								// Check to see if we need to exclude this from checkout
 								send = true;
 								simpleCart.each(settings.excludeFromCheckout, function (field_name) {
 									if (field_name === attr) { send = false; }
@@ -974,12 +922,10 @@
 							}
 						});
 
-						// options count
 						data["option_index_"+ x] = Math.min(10, optionCount);
 					});
 
-
-					// return the data for the checkout form
+					// Return the data for the checkout form
 					return {
 						  action	: action
 						, method	: method
@@ -990,17 +936,17 @@
 
 
 				GoogleCheckout: function (opts) {
-					// account id is required
+					// Account id is required
 					if (!opts.merchantID) {
 						return simpleCart.error("No merchant id provided for GoogleCheckout");
 					}
 
-					// google only accepts USD and GBP
+					// Google only accepts USD and GBP
 					if (simpleCart.currency().code !== "USD" && simpleCart.currency().code !== "GBP") {
 						return simpleCart.error("Google Checkout only accepts USD and GBP");
 					}
 
-					// build basic form options
+					// Build basic form options
 					var data = {
 							// TODO: better shipping support for this google
 							  ship_method_name_1	: "Shipping"
@@ -1012,7 +958,7 @@
 						method = opts.method === "GET" ? "GET" : "POST";
 
 
-					// add items to data
+					// Add items to data
 					simpleCart.each(function (item,x) {
 						var counter = x+1,
 							options_list = [],
@@ -1023,9 +969,9 @@
 						data['item_currency_ ' + counter]	= simpleCart.currency().code;
 						data['item_tax_rate' + counter]		= item.get('taxRate') || simpleCart.taxRate();
 
-						// create array of extra options
+						// Create array of extra options
 						simpleCart.each(item.options(), function (val,x,attr) {
-							// check to see if we need to exclude this from checkout
+							// Check to see if we need to exclude this from checkout
 							send = true;
 							simpleCart.each(settings.excludeFromCheckout, function (field_name) {
 								if (field_name === attr) { send = false; }
@@ -1035,11 +981,11 @@
 							}
 						});
 
-						// add the options to the description
+						// Add the options to the description
 						data['item_description_' + counter] = options_list.join(", ");
 					});
 
-					// return the data for the checkout form
+					// Return the data for the checkout form
 					return {
 						  action	: action
 						, method	: method
@@ -1051,7 +997,7 @@
 
 
 				AmazonPayments: function (opts) {
-					// required options
+					// Required options
 					if (!opts.merchant_signature) {
 						return simpleCart.error("No merchant signature provided for Amazon Payments");
 					}
@@ -1062,8 +1008,7 @@
 						return simpleCart.error("No AWS access key id provided for Amazon Payments");
 					}
 
-
-					// build basic form options
+					// Build basic form options
 					var data = {
 							  aws_access_key_id:	opts.aws_access_key_id
 							, merchant_signature:	opts.merchant_signature
@@ -1074,8 +1019,7 @@
 						action = (opts.sandbox ? "https://sandbox.google.com/checkout/" : "https://checkout.google.com/") + "cws/v2/Merchant/" + opts.merchant_id + "/checkoutForm",
 						method = opts.method === "GET" ? "GET" : "POST";
 
-
-					// add items to data
+					// Add items to data
 					simpleCart.each(function (item,x) {
 						var counter = x+1,
 							options_list = [];
@@ -1091,10 +1035,9 @@
 							data['shipping_method_price_per_unit_rate_' + counter] = settings.shippingQuantityRate;
 						}
 
-
-						// create array of extra options
+						// Create array of extra options
 						simpleCart.each(item.options(), function (val,x,attr) {
-							// check to see if we need to exclude this from checkout
+							// Check to see if we need to exclude this from checkout
 							var send = true;
 							simpleCart.each(settings.excludeFromCheckout, function (field_name) {
 								if (field_name === attr) { send = false; }
@@ -1104,11 +1047,11 @@
 							}
 						});
 
-						// add the options to the description
+						// Add the options to the description
 						data['item_description_' + counter] = options_list.join(", ");
 					});
 
-					// return the data for the checkout form
+					// Return the data for the checkout form
 					return {
 						  action	: action
 						, method	: method
@@ -1119,12 +1062,12 @@
 
 
 				SendForm: function (opts) {
-					// url required
+					// Url required
 					if (!opts.url) {
 						return simpleCart.error('URL required for SendForm Checkout');
 					}
 
-					// build basic form options
+					// Build basic form options
 					var data = {
 							  currency	: simpleCart.currency().code
 							, shipping	: simpleCart.shipping()
@@ -1136,7 +1079,7 @@
 						method = opts.method === "GET" ? "GET" : "POST";
 
 
-					// add items to data
+					// Add items to data
 					simpleCart.each(function (item,x) {
 						var counter = x+1,
 							options_list = [],
@@ -1145,7 +1088,7 @@
 						data['item_quantity_' + counter]	= item.quantity();
 						data['item_price_' + counter]		= item.price();
 
-						// create array of extra options
+						// Create array of extra options
 						simpleCart.each(item.options(), function (val,x,attr) {
 							// check to see if we need to exclude this from checkout
 							send = true;
@@ -1157,12 +1100,12 @@
 							}
 						});
 
-						// add the options to the description
+						// Add the options to the description
 						data['item_options_' + counter] = options_list.join(", ");
 					});
 
 
-					// check for return and success URLs in the options
+					// Check for return and success URLs in the options
 					if (opts.success) {
 						data['return'] = opts.success;
 					}
@@ -1174,7 +1117,7 @@
 						data = simpleCart.extend(data,opts.extra_data);
 					}
 
-					// return the data for the checkout form
+					// Return the data for the checkout form
 					return {
 						  action	: action
 						, method	: method
@@ -1186,12 +1129,10 @@
 			});
 
 
-			/*******************************************************************
-			 *	EVENT MANAGEMENT
-			 *******************************************************************/
+			// Event management
 			eventFunctions = {
 
-				// bind a callback to an event
+				// Bind a callback to an event
 				bind: function (name, callback) {
 					if (!isFunction(callback)) {
 						return this;
@@ -1201,10 +1142,10 @@
 						this._events = {};
 					}
 					
-					// split by spaces to allow for multiple event bindings at once
+					// Split by spaces to allow for multiple event bindings at once
 					var eventNameList = name.split(/ +/);
 					
-					// iterate through and bind each event
+					// Iterate through and bind each event
 					simpleCart.each( eventNameList , function( eventName ){
 						if (this._events[eventName] === true) {
 							callback.apply(this);
@@ -1219,7 +1160,7 @@
 					return this;
 				},
 				
-				// trigger event
+				// Trigger event
 				trigger: function (name, options) {
 					var returnval = true,
 						x,
@@ -1240,13 +1181,13 @@
 				}
 
 			};
-			// alias for bind
+			// Alias for bind
 			eventFunctions.on = eventFunctions.bind;
 			simpleCart.extend(eventFunctions);
 			simpleCart.extend(simpleCart.Item._, eventFunctions);
 
 
-			// base simpleCart events in options
+			// Base simpleCart events in options
 			baseEvents = {
 				  beforeAdd				: null
 				, afterAdd				: null
@@ -1261,10 +1202,10 @@
 				, beforeRemove			: null
 			};
 			
-			// extend with base events
+			// Extend with base events
 			simpleCart(baseEvents);
 
-			// bind settings to events
+			// Bind settings to events
 			simpleCart.each(baseEvents, function (val, x, name) {
 				simpleCart.bind(name, function () {
 					if (isFunction(settings[name])) {
@@ -1273,9 +1214,7 @@
 				});
 			});
 
-			/*******************************************************************
-			 *	FORMATTING FUNCTIONS
-			 *******************************************************************/
+			// Formatting functions
 			simpleCart.extend({
 				toCurrency: function (number,opts) {
 					var num = parseFloat(number),
@@ -1302,7 +1241,7 @@
 				},
 
 
-				// break a string in blocks of size n
+				// Break a string in blocks of size n
 				chunk: function (str, n) {
 					if (typeof n==='undefined') {
 						n=2;
@@ -1314,13 +1253,13 @@
 			});
 
 
-			// reverse string function
+			// Reverse string function
 			String.prototype.reverse = function () {
 				return this.split("").reverse().join("");
 			};
 
 
-			// currency functions
+			// Currency functions
 			simpleCart.extend({
 				currency: function (currency) {
 					if (isString(currency) && !isUndefined(currencies[currency])) {
@@ -1335,12 +1274,9 @@
 			});
 
 
-			/*******************************************************************
-			 *	VIEW MANAGEMENT
-			 *******************************************************************/
-
+			// View management
 			simpleCart.extend({
-				// bind outlets to function
+				// Bind outlets to function
 				bindOutlets: function (outlets) {
 					simpleCart.each(outlets, function (callback, x, selector) {
 						
@@ -1350,7 +1286,7 @@
 					});
 				},
 
-				// set function return to outlet
+				// Set function return to outlet
 				setOutlet: function (selector, func) {
 					var val = func.call(simpleCart, selector);
 					if (isObject(val) && val.el) {
@@ -1360,21 +1296,21 @@
 					}
 				},
 
-				// bind click events on inputs
+				// Bind click events on inputs
 				bindInputs: function (inputs) {
 					simpleCart.each(inputs, function (info) {
 						simpleCart.setInput("." + namespace + "_" + info.selector, info.event, info.callback);
 					});
 				},
 
-				// attach events to inputs	
+				// Attach events to inputs	
 				setInput: function (selector, event, func) {
 					simpleCart.$(selector).live(event, func);
 				}
 			});		
 
 
-			// class for wrapping DOM selector shit
+			// Class for wrapping DOM selector shit
 			simpleCart.ELEMENT = function (selector) {
 
 				this.create(selector);
@@ -1382,217 +1318,6 @@
 			};
 
 			simpleCart.extend(selectorFunctions, {
-
-				"MooTools"		: {
-					text: function (text) {
-						return this.attr(_TEXT_, text);
-					},
-					html: function (html) {
-						return this.attr(_HTML_, html);
-					},
-					val: function (val) {
-						return this.attr(_VALUE_, val);
-					},
-					attr: function (attr, val) {
-						if (isUndefined(val)) {
-							return this.el[0] && this.el[0].get(attr);
-						}
-						
-						this.el.set(attr, val);
-						return this;
-					},
-					remove: function () {
-						this.el.dispose();
-						return null;
-					},
-					addClass: function (klass) {
-						this.el.addClass(klass);
-						return this;
-					},
-					removeClass: function (klass) {
-						this.el.removeClass(klass);
-						return this;
-					},
-					append: function (item) {
-						this.el.adopt(item.el);
-						return this;
-					},
-					each: function (callback) {
-						if (isFunction(callback)) {
-							simpleCart.each(this.el, function( e, i, c) {
-								callback.call( i, i, e, c );
-							});
-						}
-						return this;
-					},
-					click: function (callback) {
-						if (isFunction(callback)) {
-							this.each(function (e) {
-								e.addEvent(_CLICK_, function (ev) {
-									callback.call(e,ev);
-								});
-							});
-						} else if (isUndefined(callback)) {
-							this.el.fireEvent(_CLICK_);
-						}
-
-						return this;
-					},
-					live: function (	event,callback) {
-						var selector = this.selector;
-						if (isFunction(callback)) {
-							simpleCart.$("body").el.addEvent(event + ":relay(" + selector + ")", function (e, el) {
-								callback.call(el, e);
-							});
-						}
-					},
-					match: function (selector) {
-						return this.el.match(selector);
-					},
-					parent: function () {
-						return simpleCart.$(this.el.getParent());
-					},
-					find: function (selector) {
-						return simpleCart.$(this.el.getElements(selector));
-					},
-					closest: function (selector) {
-						return simpleCart.$(this.el.getParent(selector));
-					},
-					descendants: function () {
-						return this.find("*");
-					},
-					tag: function () {
-						return this.el[0].tagName;
-					},
-					submit: function (){
-						this.el[0].submit();
-						return this;
-					},
-					create: function (selector) {
-						this.el = $engine(selector);
-					}
-
-
-				},
-
-				"Prototype"		: {
-					text: function (text) {
-						if (isUndefined(text)) {
-							return this.el[0].innerHTML;
-						}
-						this.each(function (i,e) {
-							$(e).update(text);
-						});
-						return this;
-					},
-					html: function (html) {
-						return this.text(html);
-					},
-					val: function (val) {
-						return this.attr(_VALUE_, val);
-					},
-					attr: function (attr, val) {
-						if (isUndefined(val)) {
-							return this.el[0].readAttribute(attr);
-						}
-						this.each(function (i,e) {
-							$(e).writeAttribute(attr, val);
-						});
-						return this;
-					},
-					append: function (item) {
-						this.each(function (i,e) {
-							if (item.el) {
-								item.each(function (i2,e2) {
-									$(e).appendChild(e2);
-								});
-							} else if (isElement(item)) {
-								$(e).appendChild(item);
-							}
-						});
-						return this;
-					},
-					remove: function () {
-						this.each(function (i, e) {
-							$(e).remove();
-						});
-						return this;
-					},
-					addClass: function (klass) {
-						this.each(function (i, e) {
-							$(e).addClassName(klass);
-						});
-						return this;
-					},
-					removeClass: function (klass) {
-						this.each(function (i, e) {
-							$(e).removeClassName(klass);
-						});
-						return this;
-					},
-					each: function (callback) {
-						if (isFunction(callback)) {
-							simpleCart.each(this.el, function( e, i, c) {
-								callback.call( i, i, e, c );
-							});
-						}
-						return this;
-					},
-					click: function (callback) {
-						if (isFunction(callback)) {
-							this.each(function (i, e) {
-								$(e).observe(_CLICK_, function (ev) {
-									callback.call(e,ev);
-								});
-							});
-						} else if (isUndefined(callback)) {
-							this.each(function (i, e) {
-								$(e).fire(_CLICK_);
-							});
-						}
-						return this;
-					},
-					live: function (event,callback) {
-						if (isFunction(callback)) {
-							var selector = this.selector;
-							document.observe(event, function (e, el) {
-								if (el === $engine(e).findElement(selector)) {
-									callback.call(el, e);
-								}
-							});
-						}
-					},
-					parent: function () {
-						return simpleCart.$(this.el.up());
-					},
-					find: function (selector) {
-						return simpleCart.$(this.el.getElementsBySelector(selector));
-					},
-					closest: function (selector) {
-						return simpleCart.$(this.el.up(selector));
-					},
-					descendants: function () {
-						return simpleCart.$(this.el.descendants());
-					},
-					tag: function () {
-						return this.el.tagName;
-					},
-					submit: function() {
-						this.el[0].submit();
-					},
-
-					create: function (selector) {
-						if (isString(selector)) {
-							this.el = $engine(selector);
-						} else if (isElement(selector)) {
-							this.el = [selector];
-						}
-					}
-
-
-
-				},
-
 				"jQuery": {
 					passthrough: function (action, val) {
 						if (isUndefined(val)) {
@@ -1671,10 +1396,10 @@
 			});
 			simpleCart.ELEMENT._ = simpleCart.ELEMENT.prototype;
 
-			// bind the DOM setup to the ready event
+			// Bind the DOM setup to the ready event
 			simpleCart.ready(simpleCart.setupViewTool);
 
-			// bind the input and output events
+			// Bind the input and output events
 			simpleCart.ready(function () {
 				simpleCart.bindOutlets({
 					total: function () {
@@ -1726,7 +1451,7 @@
 							simpleCart.update();
 						}
 					}
-					/* remove from cart */
+					// Remove from cart
 					, {	  selector: 'remove'
 						, event: 'click'
 						, callback: function () {
@@ -1734,7 +1459,7 @@
 						}
 					}
 
-					/* cart inputs */
+					// Cart inputs
 					, {	  selector: 'input'
 						, event: 'change'
 						, callback: function () {
@@ -1752,7 +1477,7 @@
 						}
 					}
 
-					/* here is our shelfItem add to cart button listener */
+					// Listener: shelfItem add to cart
 					, { selector: 'shelfItem .item_add'
 						, event: 'click'
 						, callback: function () {
@@ -1762,18 +1487,18 @@
 							$button.closest("." + namespace + "_shelfItem").descendants().each(function (x,item) {
 								var $item = simpleCart.$(item);
 
-								// check to see if the class matches the item_[fieldname] pattern
+								// Check to see if the class matches the item_[fieldname] pattern
 								if ($item.attr("class") &&
 									$item.attr("class").match(/item_.+/) &&
 									!$item.attr('class').match(/item_add/)) {
 
-									// find the class name
+									// Find the class name
 									simpleCart.each($item.attr('class').split(' '), function (klass) {
 										var attr,
 											val,
 											type;
 
-										// get the value or text depending on the tagName
+										// Get the value or text depending on the tagName
 										if (klass.match(/item_.+/)) {
 											attr = klass.split("_")[1];
 											val = "";
@@ -1802,7 +1527,7 @@
 								}
 							});
 
-							// add the item
+							// Add the item
 							simpleCart.add(fields);
 						}
 					}
@@ -1810,12 +1535,8 @@
 			});
 
 
-			/*******************************************************************
-			 *	DOM READY
-			 *******************************************************************/
-			// Cleanup functions for the document ready method
-			// used from jQuery
-			/*global DOMContentLoaded */
+			// DOM READY
+			// Global DOMContentLoaded
 			if (document.addEventListener) {
 				window.DOMContentLoaded = function () {
 					document.removeEventListener("DOMContentLoaded", DOMContentLoaded, false);
@@ -1831,31 +1552,29 @@
 					}
 				};
 			}
-			// The DOM ready check for Internet Explorer
-			// used from jQuery
+
+			// The DOM ready check for Internet Explorer used from jQuery
 			function doScrollCheck() {
 				if (simpleCart.isReady) {
 					return;
 				}
 
 				try {
-					// If IE is used, use the trick by Diego Perini
-					// http://javascript.nwbox.com/IEContentLoaded/
+					// If IE is used, use the trick by Diego Perini http://javascript.nwbox.com/IEContentLoaded/
 					document.documentElement.doScroll("left");
 				} catch (e) {
 					setTimeout(doScrollCheck, 1);
 					return;
 				}
 
-				// and execute any waiting functions
+				// And execute any waiting functions
 				simpleCart.init();
 			}
 			
-			// bind ready event used from jquery
+			// Bind ready event used from jquery
 			function sc_BindReady () {
 
-				// Catch cases where $(document).ready() is called after the
-				// browser event has already occurred.
+				// Catch cases where $(document).ready() is called after the browser event has already occurred.
 				if (document.readyState === "complete") {
 					// Handle it asynchronously to allow scripts the opportunity to delay ready
 					return setTimeout(simpleCart.init, 1);
@@ -1871,15 +1590,13 @@
 
 				// If IE event model is used
 				} else if (document.attachEvent) {
-					// ensure firing before onload,
-					// maybe late but safe also for iframes
+					// Ensure firing before onload, maybe late but safe also for iframes
 					document.attachEvent("onreadystatechange", DOMContentLoaded);
 
 					// A fallback to window.onload, that will always work
 					window.attachEvent("onload", simpleCart.init);
 
-					// If IE and not a frame
-					// continually check to see if the document is ready
+					// If IE and not a frame continually check to see if the document is ready
 					var toplevel = false;
 
 					try {
@@ -1892,7 +1609,7 @@
 				}
 			}
 
-			// bind the ready event
+			// Bind the ready event
 			sc_BindReady();
 
 			return simpleCart;
@@ -1903,7 +1620,7 @@
 
 }(window, document));
 
-/************ JSON *************/
+// JSON
 var JSON;JSON||(JSON={});
 (function () {function k(a) {return a<10?"0"+a:a}function o(a) {p.lastIndex=0;return p.test(a)?'"'+a.replace(p,function (a) {var c=r[a];return typeof c==="string"?c:"\\u"+("0000"+a.charCodeAt(0).toString(16)).slice(-4)})+'"':'"'+a+'"'}function l(a,j) {var c,d,h,m,g=e,f,b=j[a];b&&typeof b==="object"&&typeof b.toJSON==="function"&&(b=b.toJSON(a));typeof i==="function"&&(b=i.call(j,a,b));switch(typeof b) {case "string":return o(b);case "number":return isFinite(b)?String(b):"null";case "boolean":case "null":return String(b);case "object":if (!b)return"null";
 e += n;f=[];if (Object.prototype.toString.apply(b)==="[object Array]") {m=b.length;for (c=0;c<m;c += 1)f[c]=l(c,b)||"null";h=f.length===0?"[]":e?"[\n"+e+f.join(",\n"+e)+"\n"+g+"]":"["+f.join(",")+"]";e=g;return h}if (i&&typeof i==="object") {m=i.length;for (c=0;c<m;c += 1)typeof i[c]==="string"&&(d=i[c],(h=l(d,b))&&f.push(o(d)+(e?": ":":")+h))}else for (d in b)Object.prototype.hasOwnProperty.call(b,d)&&(h=l(d,b))&&f.push(o(d)+(e?": ":":")+h);h=f.length===0?"{}":e?"{\n"+e+f.join(",\n"+e)+"\n"+g+"}":"{"+f.join(",")+
@@ -1913,7 +1630,7 @@ p=/[\\\"\x00-\x1f\x7f-\x9f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u20
 "]").replace(/(?:^|:|,)(?:\s*\[)+/g,"")))return d=eval("("+a+")"),typeof e==="function"?c({"":d},""):d;throw new SyntaxError("JSON.parse");}})();
 
 
-/************ HTML5 Local Storage Support *************/
+// HTML5 Local Storage Support
 (function () {if (!this.localStorage)if (this.globalStorage)try {this.localStorage=this.globalStorage}catch(e) {}else{var a=document.createElement("div");a.style.display="none";document.getElementsByTagName("head")[0].appendChild(a);if (a.addBehavior) {a.addBehavior("#default#userdata");var d=this.localStorage={length:0,setItem:function (b,d) {a.load("localStorage");b=c(b);a.getAttribute(b)||this.length++;a.setAttribute(b,d);a.save("localStorage")},getItem:function (b) {a.load("localStorage");b=c(b);return a.getAttribute(b)},
 removeItem:function (b) {a.load("localStorage");b=c(b);a.removeAttribute(b);a.save("localStorage");this.length=0},clear:function () {a.load("localStorage");for (var b=0;attr=a.XMLDocument.documentElement.attributes[b++];)a.removeAttribute(attr.name);a.save("localStorage");this.length=0},key:function (b) {a.load("localStorage");return a.XMLDocument.documentElement.attributes[b]}},c=function (a) {return a.replace(/[^-._0-9A-Za-z\xb7\xc0-\xd6\xd8-\xf6\xf8-\u037d\u37f-\u1fff\u200c-\u200d\u203f\u2040\u2070-\u218f]/g,
 "-")};a.load("localStorage");d.length=a.XMLDocument.documentElement.attributes.length}}})();
