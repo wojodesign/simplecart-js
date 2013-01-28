@@ -34,12 +34,7 @@
 		generateSimpleCart = function (space) {
 
 			// stealing this from selectivizr
-			var selectorEngines = {
-				"MooTools"							: "$$",
-				"Prototype"							: "$$",
-				"jQuery"							: "*"
-			},
-
+			var selectorEngines = { "jQuery" : "*" },
 
 				// local variables for internal use
 				item_id					= 0,
