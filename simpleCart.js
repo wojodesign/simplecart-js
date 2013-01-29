@@ -496,7 +496,8 @@
 						if (item.get('tax')) {
 							cost += item.get('tax');
 						} else if (item.get('taxrate')) {
-							cost += item.get('taxrate') * item.total();
+							taxrate = parseFloat(item.get('taxrate'));
+							cost += settings.taxIncluded ? item.total() * (taxrate/(1 + taxrate)) : item.total() * taxrate;
 						}
 					});
 					return parseFloat(cost);
