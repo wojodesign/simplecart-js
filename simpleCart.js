@@ -580,7 +580,8 @@
 					text			: "",
 					className		: "",
 					hide			: false
-				}, options);
+				},
+				options);
 			}
 
 			function cartCellView(item, column) {
