@@ -489,8 +489,11 @@
 			simpleCart.extend({
 
 				tax: function () {
-					var shipping = settings.taxShipping ? simpleCart.shipping() : 0,
-						cost = simpleCart.taxRate() * shipping;
+					if (settings.taxShipping) {
+						shipping = simpleCart.shipping();
+						shippingTaxRate = simpleCart.taxRate();
+						cost = settings.taxIncluded ? shipping * (shippingTaxRate/(1 + shippingTaxRate)) : shipping * shippingTaxRate;
+					}
 					
 					simpleCart.each(function (item) {
 						if (item.get('tax')) {
@@ -1408,23 +1411,23 @@
 				simpleCart.bindOutlets({
 					total: function () {
 						return simpleCart.toCurrency(simpleCart.total());
-					}
-					, quantity: function () {
+					},
+					quantity: function () {
 						return simpleCart.quantity();
-					}
-					, items: function (selector) {
+					},
+					items: function (selector) {
 						simpleCart.writeCart(selector);
-					}
-					, tax: function () {
+					},
+					tax: function () {
 						return simpleCart.toCurrency(simpleCart.tax());
-					}
-					, taxRate: function () {
+					},
+					taxRate: function () {
 						return simpleCart.taxRate().toFixed();
-					}
-					, shipping: function () {
+					},
+					shipping: function () {
 						return simpleCart.toCurrency(simpleCart.shipping());
-					}
-					, grandTotal: function () {
+					},
+					grandTotal: function () {
 						return simpleCart.toCurrency(simpleCart.grandTotal());
 					}
 				});
@@ -1434,37 +1437,34 @@
 						, callback: function () {
 							simpleCart.checkout();
 						}
-					}
-					, {	  selector: 'empty'
+					},
+					{	  selector: 'empty'
 						, event: 'click'
 						, callback: function () {
 							simpleCart.empty();
 						}
-					}
-					, {	  selector: 'increment'
+					},
+					{	  selector: 'increment'
 						, event: 'click'
 						, callback: function () {
 							simpleCart.find(simpleCart.$(this).closest('.itemRow').attr('id').split("_")[1]).increment();
 							simpleCart.update();
 						}
-					}
-					, {	  selector: 'decrement'
+					},
+					{	  selector: 'decrement'
 						, event: 'click'
 						, callback: function () {
 							simpleCart.find(simpleCart.$(this).closest('.itemRow').attr('id').split("_")[1]).decrement();
 							simpleCart.update();
 						}
-					}
-					// Remove from cart
-					, {	  selector: 'remove'
+					},
+					{	  selector: 'remove'
 						, event: 'click'
 						, callback: function () {
 							simpleCart.find(simpleCart.$(this).closest('.itemRow').attr('id').split("_")[1]).remove();
 						}
-					}
-
-					// Cart inputs
-					, {	  selector: 'input'
+					},
+					{	  selector: 'input'
 						, event: 'change'
 						, callback: function () {
 							var $input = simpleCart.$(this),
@@ -1479,12 +1479,10 @@
 								}
 							});
 						}
-					}
-
-					// Listener: shelfItem add to cart
-					, { selector: 'shelfItem .item_add'
-						, event: 'click'
-						, callback: function () {
+					},
+					{ selector: 'shelfItem .item_add',
+						event: 'click',
+						callback: function () {
 							var $button = simpleCart.$(this),
 								fields = {};
 
