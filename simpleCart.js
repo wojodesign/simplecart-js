@@ -73,7 +73,10 @@
 
 				// Default options
 				settings = {
-					checkout: { type: "PayPal", email: "you@yours.com" },
+					checkout: {
+						type: "PayPal",
+						email: "you@yours.com"
+					},
 					currency: "EUR",
 					language: "english-uk",
 
@@ -96,9 +99,7 @@
 					shippingCustom		: null,
 
 					taxRate				: 0,
-					taxShipping			: false,
-
-					pricesIncludeTax	: true,
+					taxShipping			: true,
 
 					data				: {}
 				},
@@ -486,14 +487,14 @@
 			simpleCart.extend({
 
 				tax: function () {
-					var totalToTax = settings.taxShipping ? simpleCart.total() + simpleCart.shipping() : simpleCart.total(),
-						cost = simpleCart.taxRate() * totalToTax;
+					var shipping = settings.taxShipping ? simpleCart.shipping() : 0,
+						cost = simpleCart.taxRate() * shipping;
 					
 					simpleCart.each(function (item) {
 						if (item.get('tax')) {
 							cost += item.get('tax');
-						} else if (item.get('taxRate')) {
-							cost += item.get('taxRate') * item.total();
+						} else if (item.get('taxrate')) {
+							cost += item.get('taxrate') * item.total();
 						}
 					});
 					return parseFloat(cost);
@@ -1010,11 +1011,11 @@
 
 					// Build basic form options
 					var data = {
-							  aws_access_key_id:	opts.aws_access_key_id
-							, merchant_signature:	opts.merchant_signature
-							, currency_code:		simpleCart.currency().code
-							, tax_rate:				simpleCart.taxRate()
-							, weight_unit:			opts.weight_unit || 'lb'
+							  aws_access_key_id:	opts.aws_access_key_id, 
+							  merchant_signature:	opts.merchant_signature, 
+							  currency_code:		simpleCart.currency().code, 
+							  tax_rate:				simpleCart.taxRate(), 
+							  weight_unit:			opts.weight_unit || 'lb'
 						},
 						action = (opts.sandbox ? "https://sandbox.google.com/checkout/" : "https://checkout.google.com/") + "cws/v2/Merchant/" + opts.merchant_id + "/checkoutForm",
 						method = opts.method === "GET" ? "GET" : "POST";
@@ -1507,7 +1508,7 @@
 												case "textarea":
 												case "select":
 													type = $item.attr("type");
-													if (!type || ((type.toLowerCase() === "checkbox" || type.toLowerCase() === "radio") && $item.attr("checked")) || type.toLowerCase() === "text") {
+													if (!type || ((type.toLowerCase() === "checkbox" || type.toLowerCase() === "radio") && $item.attr("checked")) || type.toLowerCase() === "text" || type.toLowerCase() === "hidden") {
 														val = $item.val();
 													}				
 													break;
