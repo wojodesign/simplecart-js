@@ -1,13 +1,14 @@
 /*
- *	Copyright (c) 2012 Brett Wejrowski
+ * Simplecart.js
  *
- *	wojodesign.com
- *	simplecartjs.org
- *	http://github.com/wojodesign/simplecart-js
+ * @author     wojodesign.com
+ * @copyright  2012-2013
+ * @license    Dual licensed under the MIT or GPL licenses
+ * @version    3.0.5
  *
- *	VERSION 3.0.5
- *
- *	Dual licensed under the MIT or GPL licenses.
+ * @modified
+ * @date 	   2013-01-28
+ * @author     mikepage <http://github.com/mikepage>
  */
 
 (function (window, document) {
@@ -100,6 +101,7 @@
 
 					taxRate				: 0,
 					taxShipping			: true,
+					taxIncluded			: true,
 
 					data				: {}
 				},
@@ -354,7 +356,7 @@
 				},
 
 				grandTotal: function () {
-					return simpleCart.total() + simpleCart.tax() + simpleCart.shipping();
+					return settings.taxIncluded ? simpleCart.total() + simpleCart.shipping() : simpleCart.total() + simpleCart.shipping() + simpleCart.tax();
 				},
 
 				// Updating functions
