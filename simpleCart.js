@@ -471,7 +471,6 @@
 
 				},
 
-
 				error: function (message) {
 					var msg = "";
 					if (isString(message)) {
@@ -580,8 +579,7 @@
 					text			: "",
 					className		: "",
 					hide			: false
-				},
-				options);
+				}, options);
 			}
 
 			function cartCellView(item, column) {
@@ -1061,9 +1059,9 @@
 
 					// Return the data for the checkout form
 					return {
-						  action	: action
-						, method	: method
-						, data		: data
+						  action	: action,
+						  method	: method,
+						  data		: data
 					};
 
 				},
@@ -1077,45 +1075,52 @@
 
 					// Build basic form options
 					var data = {
-							  currency	: simpleCart.currency().code
-							, shipping	: simpleCart.shipping()
-							, tax		: simpleCart.tax()
-							, taxRate	: simpleCart.taxRate()
-							, itemCount : simpleCart.find({}).length
+							  currency	: simpleCart.currency().code,
+							  shipping	: simpleCart.shipping(),
+							  tax		: simpleCart.tax(),
+							  taxRate	: simpleCart.taxRate(),
+							  total 	: simpleCart.total(),
+							  grandTotal: simpleCart.grandTotal(),
+							  itemCount : simpleCart.quantity(),
+							  items 	: []
 						},
 						action = opts.url,
 						method = opts.method === "GET" ? "GET" : "POST";
 
-
 					// Add items to data
 					simpleCart.each(function (item,x) {
-						var counter = x+1,
-							options_list = [],
+						var counter = x,
+							options = {},
 							send;
-						data['item_name_' + counter]		= item.get('name');
-						data['item_quantity_' + counter]	= item.quantity();
-						data['item_price_' + counter]		= item.price();
 
 						// Create array of extra options
 						simpleCart.each(item.options(), function (val,x,attr) {
-							// check to see if we need to exclude this from checkout
 							send = true;
 							simpleCart.each(settings.excludeFromCheckout, function (field_name) {
 								if (field_name === attr) { send = false; }
 							});
 							if (send) {
-								options_list.push(attr + ": " + val);
+								options[attr] = val;
 							}
 						});
 
-						// Add the options to the description
-						data['item_options_' + counter] = options_list.join(", ");
+						data['items'][counter] = {
+							id 		: item.get('id'),
+							name 	: item.get('name'),
+							quantity: item.quantity(),
+							price 	: item.price(),
+							sku 	: item.get('sku'),
+							taxrate : item.get('taxrate'),
+							options : options
+						};
+
+						x++;
 					});
 
 
 					// Check for return and success URLs in the options
 					if (opts.success) {
-						data['return'] = opts.success;
+						data['success'] = opts.success;
 					}
 					if (opts.cancel) {
 						data.cancel_return = opts.cancel;
@@ -1126,10 +1131,14 @@
 					}
 
 					// Return the data for the checkout form
+					var str_json = JSON.stringify(data)
 					return {
-						  action	: action
-						, method	: method
-						, data		: data
+						  action	: action,
+						  method	: method,
+						  data		: {
+						  	'result': "success",
+						  	'data'	: str_json
+						  }
 					};
 				}
 
@@ -1510,7 +1519,7 @@
 												case "textarea":
 												case "select":
 													type = $item.attr("type");
-													if (!type || ((type.toLowerCase() === "checkbox" || type.toLowerCase() === "radio") && $item.attr("checked")) || type.toLowerCase() === "text" || type.toLowerCase() === "hidden") {
+													if (!type || ((type === "checkbox" || type === "radio") && $item.attr("checked")) || type === "text" || type === "hidden") {
 														val = $item.val();
 													}				
 													break;
