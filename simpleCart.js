@@ -423,7 +423,6 @@
 						items[item.id()] = simpleCart.extend(item.fields(), item.options());
 					});
 
-					localStorage.setItem(namespace + "_items", JSON.stringify(items));
 					// try statement to catch storing errors and avoid
 					// QUOTA_EXCEEDED_ERR issues in safari 
 					try {
