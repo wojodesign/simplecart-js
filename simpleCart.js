@@ -759,6 +759,9 @@
 
 
 				checkQuantityAndPrice();
+				
+				//return item to caller
+				return me;
 			};
 
 			simpleCart.Item._ = simpleCart.Item.prototype = {
