@@ -425,11 +425,13 @@
 
 					// try statement to catch storing errors and avoid
 					// QUOTA_EXCEEDED_ERR issues in safari 
-					try {
-						localStorage.setItem(namespace + "_items", JSON.stringify(items));
-					}
-					catch (e){
-						simpleCart.error( "Error storing data: " + e );
+					if (!!window.localStorage) {
+						try {
+							localStorage.setItem(namespace + "_items", JSON.stringify(items));
+						}
+						catch (e){
+							simpleCart.error( "Error storing data: " + e );
+						}
 					}
 					
 
