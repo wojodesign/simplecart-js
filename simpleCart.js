@@ -1076,7 +1076,7 @@
 							, tax_rate:				simpleCart.taxRate()
 							, weight_unit:			opts.weight_unit || 'lb'
 						},
-						action = (opts.sandbox ? "https://sandbox.google.com/checkout/" : "https://checkout.google.com/") + "cws/v2/Merchant/" + opts.merchant_id + "/checkoutForm",
+						action = "https://payments" + (opts.sandbox ? "-sandbox" : "") + ".amazon.com/checkout/" + opts.merchant_id,
 						method = opts.method === "GET" ? "GET" : "POST";
 
 
