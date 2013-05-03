@@ -1025,7 +1025,7 @@
 						data['item_name_' + counter]		= item.get('name');
 						data['item_quantity_' + counter]	= item.quantity();
 						data['item_price_' + counter]		= item.price();
-						data['item_currency_ ' + counter]	= simpleCart.currency().code;
+						data['item_currency_' + counter]	= simpleCart.currency().code;
 						data['item_tax_rate' + counter]		= item.get('taxRate') || simpleCart.taxRate();
 
 						// create array of extra options
@@ -1087,7 +1087,7 @@
 						data['item_title_' + counter]			= item.get('name');
 						data['item_quantity_' + counter]		= item.quantity();
 						data['item_price_' + counter]			= item.price();
-						data['item_sku_ ' + counter]			= item.get('sku') || item.id();
+						data['item_sku_' + counter]			= item.get('sku') || item.id();
 						data['item_merchant_id_' + counter]	= opts.merchant_id;
 						if (item.get('weight')) {
 							data['item_weight_' + counter]		= item.get('weight');
