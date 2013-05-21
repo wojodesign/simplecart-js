@@ -944,6 +944,9 @@
 					if (opts.cancel) {
 						data.cancel_return = opts.cancel;
 					}
+					if (opts.notify) {
+						data.notify_url = opts.notify;
+					}
 
 
 					// add all the items to the form data
