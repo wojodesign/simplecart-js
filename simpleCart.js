@@ -949,6 +949,12 @@
 					}
 
 
+					// add custom pass-through variable
+					if (opts.custom) {
+						data.custom = opts.custom;
+					}
+
+
 					// add all the items to the form data
 					simpleCart.each(function (item,x) {
 						var counter = x+1,
