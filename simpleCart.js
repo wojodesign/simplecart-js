@@ -1698,7 +1698,7 @@
 						return simpleCart.toCurrency(simpleCart.tax());
 					}
 					, taxRate: function () {
-						return simpleCart.taxRate().toFixed();
+						return simpleCart.taxRate();
 					}
 					, shipping: function () {
 						return simpleCart.toCurrency(simpleCart.shipping());
