@@ -1477,6 +1477,9 @@
 						return this;
 					},
 					create: function (selector) {
+						if ( ( window.typeOf || $type )( selector ) === 'array' ) {
+							selector = Array.flatten( selector );
+						}
 						this.el = $engine(selector);
 					}
 
