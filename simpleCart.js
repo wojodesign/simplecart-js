@@ -947,6 +947,10 @@
 					if (opts.notify) {
 						data.notify_url = opts.notify;
 					}
+					// add custom pass-through variable
+				        if (opts.custom) {
+				        	data.custom = opts.custom;
+				        }
 
 
 					// add all the items to the form data
