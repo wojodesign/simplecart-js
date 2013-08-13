@@ -113,7 +113,8 @@ Here are the possible options and their default values:
 		],
 		
 		// "div" or "table" - builds the cart as a table or collection of divs
-		cartStyle: "div", 
+		cartStyle: "div",
+		
 		// CSS classes for generated cart elements
 		cartClass: "", 
     		headerRowClass: "headerRow", 
