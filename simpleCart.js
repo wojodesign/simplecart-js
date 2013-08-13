@@ -625,7 +625,7 @@
 						TR = isTable ? "tr" : "div",
 						TH = isTable ? 'th' : 'div',
 						TD = isTable ? 'td' : 'div',
-						cart_container = simpleCart.$create(TABLE),
+						cart_container = simpleCart.$create(TABLE).addClass(settings.cartClass),
 						header_container = simpleCart.$create(TR).addClass('headerRow'),
 						container = simpleCart.$(selector),
 						column,
