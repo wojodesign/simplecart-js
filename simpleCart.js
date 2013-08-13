@@ -92,6 +92,8 @@
 					language				: "english-us",
 
 					cartStyle				: "div",
+					cartClass        			: "",
+					headerRowClass      			: "headerRow",
 					cartColumns			: [
 						{ attr: "name", label: "Name" },
 						{ attr: "price", label: "Price", view: 'currency' },
