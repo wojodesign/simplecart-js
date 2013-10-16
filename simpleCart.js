@@ -625,7 +625,9 @@
 						TR = isTable ? "tr" : "div",
 						TH = isTable ? 'th' : 'div',
 						TD = isTable ? 'td' : 'div',
+						THEAD = isTable ? 'thead' : 'div',
 						cart_container = simpleCart.$create(TABLE),
+						thead_container = simpleCart.$create(THEAD),
 						header_container = simpleCart.$create(TR).addClass('headerRow'),
 						container = simpleCart.$(selector),
 						column,
@@ -636,7 +638,9 @@
 
 					container.html(' ').append(cart_container);
 
-					cart_container.append(header_container);
+					cart_container.append(thead_container);
+
+					thead_container.append(header_container);
 
 
 					// create header
