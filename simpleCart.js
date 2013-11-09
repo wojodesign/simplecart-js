@@ -82,7 +82,8 @@
 					"SEK": { code: "SEK", symbol: "SEK&nbsp;", name: "Swedish Krona" },
 					"CHF": { code: "CHF", symbol: "CHF&nbsp;", name: "Swiss Franc" },
 					"THB": { code: "THB", symbol: "&#3647;", name: "Thai Baht" },
-					"BTC": { code: "BTC", symbol: " BTC", name: "Bitcoin", accuracy: 4, after: true	}
+					"BTC": { code: "BTC", symbol: " BTC", name: "Bitcoin", accuracy: 4, after: true  },
+					"RUB": { code: "RUB", symbol: "&nbsp;\u0440\u0443\u0431.", name: "\u0420\u0443\u0431\u043B\u044C", accuracy: 2, after: true }
 				},
 
 				// default options
@@ -92,6 +93,8 @@
 					language				: "english-us",
 
 					cartStyle				: "div",
+					cartClass        			: "",
+					headerRowClass      			: "headerRow",
 					cartColumns			: [
 						{ attr: "name", label: "Name" },
 						{ attr: "price", label: "Price", view: 'currency' },
@@ -625,7 +628,9 @@
 						TR = isTable ? "tr" : "div",
 						TH = isTable ? 'th' : 'div',
 						TD = isTable ? 'td' : 'div',
-						cart_container = simpleCart.$create(TABLE),
+						THEAD = isTable ? 'thead' : 'div',
+						cart_container = simpleCart.$create(TABLE).addClass(settings.cartClass),
+						thead_container = simpleCart.$create(THEAD),
 						header_container = simpleCart.$create(TR).addClass('headerRow'),
 						container = simpleCart.$(selector),
 						column,
@@ -636,7 +641,9 @@
 
 					container.html(' ').append(cart_container);
 
-					cart_container.append(header_container);
+					cart_container.append(thead_container);
+					
+					thead_container.append(header_container);
 
 
 					// create header
@@ -947,6 +954,10 @@
 					if (opts.notify) {
 						data.notify_url = opts.notify;
 					}
+					// add custom pass-through variable
+				        if (opts.custom) {
+				        	data.custom = opts.custom;
+				        }
 
 
 					// add all the items to the form data
@@ -1477,6 +1488,9 @@
 						return this;
 					},
 					create: function (selector) {
+						if ( ( window.typeOf || $type )( selector ) === 'array' ) {
+					              selector = Array.flatten( selector );
+            					}
 						this.el = $engine(selector);
 					}
 
@@ -1698,7 +1712,7 @@
 						return simpleCart.toCurrency(simpleCart.tax());
 					}
 					, taxRate: function () {
-						return simpleCart.taxRate().toFixed();
+						return simpleCart.taxRate();
 					}
 					, shipping: function () {
 						return simpleCart.toCurrency(simpleCart.shipping());
