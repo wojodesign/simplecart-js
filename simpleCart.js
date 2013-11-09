@@ -505,7 +505,7 @@
 						msg = message.message;
 					}
 					try { console.log("simpleCart(js) Error: " + msg); } catch (e) {}
-					simpleCart.trigger('error', message);
+					simpleCart.trigger('error', [message]);
 				}
 			});
 
