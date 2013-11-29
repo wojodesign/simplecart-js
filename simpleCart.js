@@ -862,7 +862,7 @@
 				},
 				price: function (val) {
 					return isUndefined(val) ?
-							parseFloat((this.get("price",true).toString()).replace(simpleCart.currency().symbol,"").replace(simpleCart.currency().delimiter,"") || 1) :
+							parseFloat((this.get("price",true).toString()) || 1) :
 							this.set("price", parseFloat((val).toString().replace(simpleCart.currency().symbol,"").replace(simpleCart.currency().delimiter,"")));
 				},
 				id: function () {
