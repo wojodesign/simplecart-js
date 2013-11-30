@@ -205,7 +205,7 @@
 
 					if (!quiet) {
 						// trigger after add event
-						simpleCart.trigger('afterAdd', [newItem, isUndefined(oldItem)]);
+						simpleCart.trigger('afterAdd', [newItem, oldItem == false]);
 					}
 
 					// return a reference to the added item
