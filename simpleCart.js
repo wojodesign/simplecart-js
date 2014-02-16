@@ -1136,6 +1136,15 @@
 						return simpleCart.error('URL required for SendForm Checkout');
 					}
 
+					if (!opts.itemFormat) {
+						opts.itemFormat = 'item_{name}_{index}';
+					}
+
+					if (isUndefined(opts.indexStart)) {
+						opts.indexStart = 1;
+					}								
+
+
 					// build basic form options
 					var data = {
 							  currency	: simpleCart.currency().code
@@ -1150,12 +1159,17 @@
 
 					// add items to data
 					simpleCart.each(function (item,x) {
-						var counter = x+1,
+						var counter = x+opts.indexStart,
 							options_list = [],
 							send;
-						data['item_name_' + counter]		= item.get('name');
-						data['item_quantity_' + counter]	= item.quantity();
-						data['item_price_' + counter]		= item.price();
+							
+						// replace index
+						var itemFormat = opts.itemFormat.replace('{index}', counter);							
+						
+						// set the data
+						data[itemFormat.replace('{name}', 'name')] = item.get('name');
+						data[itemFormat.replace('{name}', 'quantity')] = item.quantity();
+						data[itemFormat.replace('{name}', 'price')] = item.price();
 
 						// create array of extra options
 						simpleCart.each(item.options(), function (val,x,attr) {
@@ -1170,7 +1184,7 @@
 						});
 
 						// add the options to the description
-						data['item_options_' + counter] = options_list.join(", ");
+						data[itemFormat.replace('{name}', 'options')] = options_list.join(", ");
 					});
 
 
