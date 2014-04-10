@@ -1,11 +1,11 @@
 /*~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~
-	Copyright (c) 2012 Brett Wejrowski
+	Copyright (c) 2014 Brett Wejrowski
 
 	wojodesign.com
 	simplecartjs.org
 	http://github.com/wojodesign/simplecart-js
 
-	VERSION 3.0.5
+	VERSION 3.1.0
 
 	Dual licensed under the MIT or GPL licenses.
 ~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~*/
@@ -87,11 +87,12 @@
 
 				// default options
 				settings = {
-					checkout				: { type: "PayPal", email: "you@yours.com" },
-					currency				: "USD",
-					language				: "english-us",
+					checkout					: { type: "PayPal", email: "you@yours.com" },
+					currency					: "USD",
+					language					: "english-us",
 
-					cartStyle				: "div",
+					cartStyle					: "div",
+					cartStyleClasses 	: null,
 					cartColumns			: [
 						{ attr: "name", label: "Name" },
 						{ attr: "price", label: "Price", view: 'currency' },
@@ -622,11 +623,12 @@
 				writeCart: function (selector) {
 					var TABLE = settings.cartStyle.toLowerCase(),
 						isTable = TABLE === 'table',
+						CLASSES = settings.cartStyleClasses,
 						TR = isTable ? "tr" : "div",
 						TH = isTable ? 'th' : 'div',
 						TD = isTable ? 'td' : 'div',
 						THEAD = isTable ? 'thead' : 'div',
-						cart_container = simpleCart.$create(TABLE),
+						cart_container = CLASSES != null ? simpleCart.$create(TABLE).addClass(CLASSES) : simpleCart.$create(TABLE),
 						thead_container = simpleCart.$create(THEAD),
 						header_container = simpleCart.$create(TR).addClass('headerRow'),
 						container = simpleCart.$(selector),
