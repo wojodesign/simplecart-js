@@ -70,6 +70,7 @@
 					"DKK": { code: "DKK", symbol: "DKK&nbsp;", name: "Danish Krone" },
 					"EUR": { code: "EUR", symbol: "&euro;", name: "Euro" },
 					"HKD": { code: "HKD", symbol: "&#36;", name: "Hong Kong Dollar" },
+					"HRK": { code: "HRK", symbol: "&nbsp;kn", name: "Croatian kuna", accuracy: 2, decimal: ",", delimiter: "", after: true },
 					"HUF": { code: "HUF", symbol: "&#70;&#116;", name: "Hungarian Forint" },
 					"ILS": { code: "ILS", symbol: "&#8362;", name: "Israeli New Sheqel" },
 					"JPY": { code: "JPY", symbol: "&yen;", name: "Japanese Yen", accuracy: 0 },
