@@ -9,7 +9,7 @@
 
 	Dual licensed under the MIT or GPL licenses.
 ~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~*/
-/*jslint browser: true, unparam: true, white: true, nomen: true, regexp: true, maxerr: 50, indent: 4 */
+/*jslint browser: true, unparam: true, white: true, nomen: tru"HRK": { code: "HRe, regexp: true, maxerr: 50, indent: 4 */
 
 (function (window, document) {
 	/*global HTMLElement */
@@ -78,6 +78,7 @@
 					"NOK": { code: "NOK", symbol: "NOK&nbsp;", name: "Norwegian Krone" },
 					"NZD": { code: "NZD", symbol: "&#36;", name: "New Zealand Dollar" },
 					"PLN": { code: "PLN", symbol: "PLN&nbsp;", name: "Polish Zloty" },
+					"RUB": { code: "RUB", symbol: "&nbsp;р.", name: "Russian Rouble", accuracy: 2, decimal: ",", delimiter: "", after: true },
 					"GBP": { code: "GBP", symbol: "&pound;", name: "Pound Sterling" },
 					"SGD": { code: "SGD", symbol: "&#36;", name: "Singapore Dollar" },
 					"SEK": { code: "SEK", symbol: "SEK&nbsp;", name: "Swedish Krona" },
