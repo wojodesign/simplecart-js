@@ -82,7 +82,8 @@
 					"SEK": { code: "SEK", symbol: "SEK&nbsp;", name: "Swedish Krona" },
 					"CHF": { code: "CHF", symbol: "CHF&nbsp;", name: "Swiss Franc" },
 					"THB": { code: "THB", symbol: "&#3647;", name: "Thai Baht" },
-					"BTC": { code: "BTC", symbol: " BTC", name: "Bitcoin", accuracy: 4, after: true	}
+					"BTC": { code: "BTC", symbol: " BTC", name: "Bitcoin", accuracy: 4, after: true	},
+					"VND": { code: "VND", symbol: "&#8363;", name: "Vietnamese Dong", decimal: ",", delimiter: ".", accuracy: 0, after: true }
 				},
 
 				// default options
@@ -719,8 +720,11 @@
 					// check to make sure price is valid
 					if (isString(_data.price)) {
 					   // trying to remove all chars that aren't numbers or '.'
-						_data.price = parseFloat(_data.price.replace(simpleCart.currency().decimal, ".").replace(/[^0-9\.]+/ig, ""));
-
+						_data.price = parseFloat(
+							_data.price
+								.split(simpleCart.currency().decimal)
+								.map(function (x) { return x.replace(/[^0-9]+/ig, ""); })
+								.join("."));
 					}
 					if (isNaN(_data.price)) {
 						_data.price = 0;
