@@ -636,6 +636,9 @@
 						x,
 						xlen;
 
+					// setClass for cart_container
+                                        if(settings.cartClass) cart_container.attr("class", settings.cartClass);
+                                        
 					container.html(' ').append(cart_container);
 
 					cart_container.append(thead_container);
