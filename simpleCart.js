@@ -719,10 +719,11 @@
 
 					// check to make sure price is valid
 					if (isString(_data.price)) {
-					   // trying to remove all chars that aren't numbers or '.'
+						// trying to remove all chars that aren't numbers or radix char
+						var radixChar = simpleCart.currency().decimal ? simpleCart.currency().decimal : ".";
 						_data.price = parseFloat(
 							_data.price
-								.split(simpleCart.currency().decimal)
+								.split(radixChar)
 								.map(function (x) { return x.replace(/[^0-9]+/ig, ""); })
 								.join("."));
 					}
