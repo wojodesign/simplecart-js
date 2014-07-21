@@ -108,6 +108,7 @@
 					shippingQuantityRate	: 0,
 					shippingTotalRate		: 0,
 					shippingCustom		: null,
+					discountCustom		: null,
 
 					taxRate				: 0,
 					
@@ -367,6 +368,9 @@
 					simpleCart.each(function (item) {
 						total += item.total();
 					});
+                                        /* apply discount */
+                                        var discount = simpleCart.discount();
+                                        total = total * ( 1 - discount/100 );
 					return total;
 				},
 
@@ -553,7 +557,23 @@
 						cost += parseFloat(item.get('shipping') || 0);
 					});
 					return parseFloat(cost);
-				}
+				},
+
+                                discount: function (opt_custom_function) {
+                                    // possibility to define discount with custom function, 
+                                    // it should return discount in %
+                                        if (isFunction(opt_custom_function)) {
+                                                simpleCart({
+                                                        discountCustom: opt_custom_function
+                                                });
+                                                return;
+                                        }
+                                        var discount = 0;
+                                        if (isFunction(settings.discountCustom)) {
+                                                discount = settings.discountCustom.call(simpleCart);
+                                        }
+                                        return discount;
+                                },
 
 			});
 
