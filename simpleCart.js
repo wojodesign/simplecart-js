@@ -9,7 +9,7 @@
 
 	Dual licensed under the MIT or GPL licenses.
 ~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~*/
-/*jslint browser: true, unparam: true, white: true, nomen: tru"HRK": { code: "HRe, regexp: true, maxerr: 50, indent: 4 */
+/*jslint browser: true, unparam: true, white: true, nomen: true, regexp: true, maxerr: 50, indent: 4 */
 
 (function (window, document) {
 	/*global HTMLElement */
