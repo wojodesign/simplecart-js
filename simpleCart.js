@@ -72,7 +72,7 @@
 					"HKD": { code: "HKD", symbol: "&#36;", name: "Hong Kong Dollar" },
 					"HUF": { code: "HUF", symbol: "&#70;&#116;", name: "Hungarian Forint" },
 					"ILS": { code: "ILS", symbol: "&#8362;", name: "Israeli New Sheqel" },
-					"JPY": { code: "JPY", symbol: "&yen;", name: "Japanese Yen" },
+					"JPY": { code: "JPY", symbol: "&yen;", name: "Japanese Yen", accuracy: 0 },
 					"MXN": { code: "MXN", symbol: "&#36;", name: "Mexican Peso" },
 					"NOK": { code: "NOK", symbol: "NOK&nbsp;", name: "Norwegian Krone" },
 					"NZD": { code: "NZD", symbol: "&#36;", name: "New Zealand Dollar" },
@@ -502,7 +502,7 @@
 						msg = message.message;
 					}
 					try { console.log("simpleCart(js) Error: " + msg); } catch (e) {}
-					simpleCart.trigger('error', message);
+					simpleCart.trigger('error', [message]);
 				}
 			});
 
@@ -625,7 +625,9 @@
 						TR = isTable ? "tr" : "div",
 						TH = isTable ? 'th' : 'div',
 						TD = isTable ? 'td' : 'div',
+						THEAD = isTable ? 'thead' : 'div',
 						cart_container = simpleCart.$create(TABLE),
+						thead_container = simpleCart.$create(THEAD),
 						header_container = simpleCart.$create(TR).addClass('headerRow'),
 						container = simpleCart.$(selector),
 						column,
@@ -636,7 +638,9 @@
 
 					container.html(' ').append(cart_container);
 
-					cart_container.append(header_container);
+					cart_container.append(thead_container);
+
+					thead_container.append(header_container);
 
 
 					// create header
@@ -944,6 +948,9 @@
 					if (opts.cancel) {
 						data.cancel_return = opts.cancel;
 					}
+					if (opts.notify) {
+						data.notify_url = opts.notify;
+					}
 
 
 					// add all the items to the form data
@@ -1076,7 +1083,7 @@
 							, tax_rate:				simpleCart.taxRate()
 							, weight_unit:			opts.weight_unit || 'lb'
 						},
-						action = (opts.sandbox ? "https://sandbox.google.com/checkout/" : "https://checkout.google.com/") + "cws/v2/Merchant/" + opts.merchant_id + "/checkoutForm",
+						action = "https://payments" + (opts.sandbox ? "-sandbox" : "") + ".amazon.com/checkout/" + opts.merchant_id,
 						method = opts.method === "GET" ? "GET" : "POST";
 
 
@@ -1787,7 +1794,7 @@
 												case "textarea":
 												case "select":
 													type = $item.attr("type");
-													if (!type || ((type.toLowerCase() === "checkbox" || type.toLowerCase() === "radio") && $item.attr("checked")) || type.toLowerCase() === "text") {
+													if (!type || ((type.toLowerCase() === "checkbox" || type.toLowerCase() === "radio") && $item.attr("checked")) || type.toLowerCase() === "text" || type.toLowerCase() === "number") {
 														val = $item.val();
 													}				
 													break;
