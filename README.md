@@ -1,3 +1,6 @@
+## Project unmaintained
+This project has not been maintained for the the lat 3 years.
+
 #simpleCart(js)									  
 	
 No databases, no programming, no headaches. A simple javascript shopping 
