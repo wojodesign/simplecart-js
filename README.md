@@ -1,4 +1,4 @@
-#simpleCart(js)									  
+# simpleCart(js)									  
 	
 No databases, no programming, no headaches. A simple javascript shopping 
 cart that you can setup in minutes. It's lightweight, fast, 
@@ -9,7 +9,7 @@ Copyright (c) 2012 Brett Wejrowski
 Dual licensed under the MIT or GPL licenses.
 
 
-##This is version 3
+## This is version 3
 
 If you would like to use an older version, you can use a different branch or see them in the 
 downloads area
@@ -83,7 +83,7 @@ A work in progress..... I'm putting it here until we
 have the new site up so I can put it...well.. there. 
 
 	
-##simpleCart(js) Setup/Initialization
+## simpleCart(js) Setup/Initialization
 	
 simpleCart(js) _requires using jQuery, Prototype, or Mootools_. No extra configuration 
 is needed as long as one of those libraries is included on the page
@@ -167,7 +167,7 @@ Here are the possible options and their default values:
 
 
 	
-##The Shelf
+## The Shelf
 
 You can make items be available to your users by simple using class names in your html. For any Item you want to be available to be added to the cart, you make a container with a class name of `simpleCart_shelfItem`. Then add classes to tags inside of that container that have the general form `item_[name of field]` and simpleCart will use the value or innerHTML of that tag for the cart. For example, if you wanted to sell a T-shirt with 3 different sizes, you can do this:
 
@@ -185,12 +185,12 @@ You can make items be available to your users by simple using class names in you
 	
 Notice here that you can use a select to change options for the item when you add it to the cart. You can also use a text input to change the quantity (or any other field!). These classes will work with any tag, so feel free to use what works best for you. Finally, notice that a tag with the class `item_add` will have an event listener on its click. So when the contents of that tag are clicked, an item will be added to the cart with the values of each of the tags in the container with the `item_something` class.
 
-####Some notes:
+#### Some notes:
 *You will want to always supply a quantity and price. Although the cart won't break if you don't, all the quantities and totals are created from it, so the cart will assign a price of $0 if there is none, and a quantity of 1 if no quantity is provided.
 *If you are planning on checking out to googleCheckout or paypal, it is a good idea to use a name field
 *If you use a link for the add to cart button, its a good idea to set the href to `"javascript:;"`
 
-##Cart Columns
+## Cart Columns
 
 The Cart Columns allow the user to specify how the cart will be formatted and displayed. There is a lot of flexibility here, take a look at the default setup:
 
