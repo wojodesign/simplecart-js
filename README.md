@@ -1,3 +1,6 @@
+
+## An Amazing Project
+
 #simpleCart(js)									  
 	
 No databases, no programming, no headaches. A simple javascript shopping 
