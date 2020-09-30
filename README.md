@@ -1,4 +1,4 @@
-#simpleCart(js)									  
+#simpleCart(js)	- Best Cart								  
 	
 No databases, no programming, no headaches. A simple javascript shopping 
 cart that you can setup in minutes. It's lightweight, fast, 
