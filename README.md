@@ -23,7 +23,7 @@ v3.0.5 changelog
 
 ## Quick Start
 
-To get started, just add the simpleCart javascript file to your page, and set your PayPal checkout:
+* To get started, just add the simpleCart javascript file to your page, and set your PayPal checkout:
 
 	<script src="simpleCart.js"></script>
 	<script>
@@ -35,7 +35,7 @@ To get started, just add the simpleCart javascript file to your page, and set yo
 		});	
 	</script>
 
-If you want to change options, like the tax or currency, you can do that as well:
+* If you want to change options, like the tax or currency, you can do that as well:
 
 	simpleCart({
 		checkout: { 
@@ -46,7 +46,7 @@ If you want to change options, like the tax or currency, you can do that as well
 		currency: 	"EUR"
 	});
 	
-To sell items, you add them to your "Shelf" by simply adding a few classes to your html:
+* To sell items, you add them to your "Shelf" by simply adding a few classes to your html:
 
 
 	<div class="simpleCart_shelfItem">
@@ -57,8 +57,8 @@ To sell items, you add them to your "Shelf" by simply adding a few classes to yo
 	</div>
 	
 	
-You can use almost any type of html tag, and set any values for the item you want by adding a class of "item_[attrname]". 
-Here is a more complex item with options and images:
+* You can use almost any type of html tag, and set any values for the item you want by adding a class of "item_[attrname]". 
+  Here is a more complex item with options and images:
 
 	<div class="simpleCart_shelfItem">
 	    <img src="/images/item_thumb.jpg" class="item_thumb" />
@@ -74,7 +74,7 @@ Here is a more complex item with options and images:
 	</div>
 	
 	
-Please check out our documentation to see all of the options simpleCart has available!
+* Please check out our documentation to see all of the options simpleCart has available!
 
 
 ## Version 3 Documentation 
@@ -88,7 +88,7 @@ have the new site up so I can put it...well.. there.
 simpleCart(js) _requires using jQuery, Prototype, or Mootools_. No extra configuration 
 is needed as long as one of those libraries is included on the page
 	
-You can set/change simpleCart options at any time:
+* You can set/change simpleCart options at any time:
 	
 	simpleCart({
 		option1: "value" ,
@@ -96,7 +96,7 @@ You can set/change simpleCart options at any time:
 	});
 		
 	
-Here are the possible options and their default values: 
+* Here are the possible options and their default values: 
 
 	simpleCart({
 		
@@ -192,7 +192,7 @@ Notice here that you can use a select to change options for the item when you ad
 
 ##Cart Columns
 
-The Cart Columns allow the user to specify how the cart will be formatted and displayed. There is a lot of flexibility here, take a look at the default setup:
+* The Cart Columns allow the user to specify how the cart will be formatted and displayed. There is a lot of flexibility here, take a look at the default setup:
 
     simpleCart({
 		cartColumns: [
@@ -206,17 +206,17 @@ The Cart Columns allow the user to specify how the cart will be formatted and di
 		]
     });
 
-Each column is represented by an object, the most basic setup simple specifies which attribute to display and how to label the column: 
+* Each column is represented by an object, the most basic setup simple specifies which attribute to display and how to label the column: 
 
     { attr: "name" , label: "Name" }
 
-There are also some built in 'views' that will create a special column.  For example, an 'increment' view: 
+* There are also some built in 'views' that will create a special column.  For example, an 'increment' view: 
 
     { view: "increment" , label: false , text: "+" }
 
-will have a link that increments the quantity. Setting the `label:false` will hide the label for the view. You can specify the text of the link with that `text:` attribute.
+  will have a link that increments the quantity. Setting the `label:false` will hide the label for the view. You can specify the text of the link with that `text:` attribute.
 
-You can add `view: "currency"` to format the column as currency (see the currency section on more information on currency formatting). 
+  You can add `view: "currency"` to format the column as currency (see the currency section on more information on currency formatting). 
 
 
 **For more information, please go to simplecartjs.com**								  
