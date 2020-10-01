@@ -1,3 +1,5 @@
+##THIS IS THE README FILE,PLEASE READ IT CAREFULLY##
+
 #simpleCart(js)									  
 	
 No databases, no programming, no headaches. A simple javascript shopping 
