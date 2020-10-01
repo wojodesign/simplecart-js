@@ -11,8 +11,8 @@ Dual licensed under the MIT or GPL licenses.
 
 ##This is version 3
 
-If you would like to use an older version, you can use a different branch or see them in the 
-downloads area
+If in case you would like to use an older version, you can use a different branch or see them in the 
+downloads area.
 
 v3.0.5 changelog
  - moved beforeCheckout event and form sending inside of .checkout() to keep dry
