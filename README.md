@@ -1,3 +1,5 @@
+READ ME FIRST...
+
 #simpleCart(js)									  
 	
 No databases, no programming, no headaches. A simple javascript shopping 
