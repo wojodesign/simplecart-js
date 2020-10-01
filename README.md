@@ -214,7 +214,7 @@ There are also some built in 'views' that will create a special column.  For exa
 
     { view: "increment" , label: false , text: "+" }
 
-will have a link that increments the quantity. Setting the `label:false` will hide the label for the view. You can specify the text of the link with that `text:` attribute.
+will have a link that increase the quantity. Setting the `label:false` will hide the label for the view. You can specify the text of the link with that `text:` attribute.
 
 You can add `view: "currency"` to format the column as currency (see the currency section on more information on currency formatting). 
 
